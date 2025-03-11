@@ -59,6 +59,8 @@ export interface DigitalTicket {
   purchaseDate: string;
   used: boolean;
   qrCode: string;
+  barcode: string;
+  accessCode: string;
 }
 
 export interface OrganizerEvent extends Event {
@@ -74,4 +76,34 @@ export interface ScanResult {
   customerName?: string;
   customerEmail?: string;
   quantity?: number;
+}
+
+export interface Notification {
+  id: string;
+  userId?: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  read: boolean;
+  createdAt: string;
+}
+
+export enum NotificationType {
+  SUCCESS = 'SUCCESS',
+  ERROR = 'ERROR',
+  INFO = 'INFO',
+  WARNING = 'WARNING',
+}
+
+export interface PaymentInfo {
+  cardNumber: string;
+  expiryDate: string;
+  cvc: string;
+  paymentMethod: PaymentMethod;
+}
+
+export enum PaymentMethod {
+  CARD = 'CARD',
+  KHALTI = 'KHALTI',
+  ESEWA = 'ESEWA',
 }

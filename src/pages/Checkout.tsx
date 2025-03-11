@@ -1,7 +1,18 @@
 
 import { useState } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { ChevronLeft, CreditCard, Ticket, CheckCircle } from 'lucide-react';
+import { 
+  ChevronLeft, 
+  CreditCard, 
+  Receipt, 
+  CheckCircle, 
+  Loader2,
+  Calendar,
+  MapPin,
+  Users,
+  User,
+  Lock
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,8 +21,15 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { events } from '@/data/events';
-import { Customer } from '@/types';
+import { dbService } from '@/lib/dbService';
+import { 
+  Customer, 
+  DigitalTicket, 
+  TicketType, 
+  PaymentMethod,
+  PaymentInfo,
+  NotificationType
+} from '@/types';
 import NotFound from './NotFound';
 
 const Checkout = () => {
@@ -27,12 +45,20 @@ const Checkout = () => {
     phone: ''
   });
   
+  const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
+    cardNumber: '',
+    expiryDate: '',
+    cvc: '',
+    paymentMethod: PaymentMethod.CARD
+  });
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showTicket, setShowTicket] = useState(false);
-  const [ticketId, setTicketId] = useState('');
+  const [ticketData, setTicketData] = useState<DigitalTicket | null>(null);
   
-  const event = events.find(e => e.id === id);
+  const event = dbService.getEventById(id || '');
   
   if (!event) {
     return <NotFound />;
@@ -49,6 +75,11 @@ const Checkout = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCustomer(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handlePaymentInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPaymentInfo(prev => ({ ...prev, [name]: value }));
   };
 
   const validateForm = () => {
@@ -79,7 +110,123 @@ const Checkout = () => {
       return false;
     }
     
+    // Validate payment information based on method
+    if (paymentInfo.paymentMethod === PaymentMethod.CARD) {
+      if (!paymentInfo.cardNumber.trim() || !/^\d{16}$/.test(paymentInfo.cardNumber.replace(/\D/g, ''))) {
+        toast({
+          title: "Valid card number required",
+          description: "Please enter a valid 16-digit card number",
+          variant: "destructive"
+        });
+        return false;
+      }
+      
+      if (!paymentInfo.expiryDate.trim() || !/^\d{2}\/\d{2}$/.test(paymentInfo.expiryDate)) {
+        toast({
+          title: "Valid expiry date required",
+          description: "Please enter a valid expiry date in MM/YY format",
+          variant: "destructive"
+        });
+        return false;
+      }
+      
+      if (!paymentInfo.cvc.trim() || !/^\d{3}$/.test(paymentInfo.cvc)) {
+        toast({
+          title: "Valid CVC required",
+          description: "Please enter a valid 3-digit CVC code",
+          variant: "destructive"
+        });
+        return false;
+      }
+    }
+    
     return true;
+  };
+
+  const handleTabChange = (value: string) => {
+    setPaymentInfo(prev => ({
+      ...prev,
+      paymentMethod: value as PaymentMethod
+    }));
+  };
+
+  const handlePayment = async () => {
+    setIsProcessingPayment(true);
+    
+    try {
+      // Process payment via our mock payment service
+      const totalAmount = event.price * quantity * 1.05;
+      const paymentDetails = paymentInfo.paymentMethod === PaymentMethod.CARD 
+        ? { cardNumber: paymentInfo.cardNumber, expiryDate: paymentInfo.expiryDate, cvc: paymentInfo.cvc }
+        : { userId: 'guest-user' };
+        
+      const paymentResult = await dbService.processPayment(
+        totalAmount,
+        paymentInfo.paymentMethod,
+        paymentDetails
+      );
+      
+      if (paymentResult.success) {
+        // Create digital ticket
+        const ticketId = `TKT-${Math.random().toString(36).substring(2, 12).toUpperCase()}`;
+        const accessCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+        const barcode = Date.now().toString().slice(-12);
+        
+        const newTicket: DigitalTicket = {
+          id: ticketId,
+          eventId: event.id,
+          customerId: `CUST-${Math.random().toString(36).substring(2, 9)}`,
+          ticketType: TicketType.STANDARD,
+          quantity,
+          purchaseDate: new Date().toISOString(),
+          used: false,
+          qrCode: `${event.id}-${ticketId}-${quantity}`,
+          barcode,
+          accessCode
+        };
+        
+        // Save ticket to database
+        const savedTicket = dbService.createTicket(newTicket);
+        setTicketData(savedTicket);
+        
+        // Add notification
+        dbService.addNotification(
+          "Booking Confirmed!",
+          `Your ticket for ${event.title} has been confirmed.`,
+          NotificationType.SUCCESS
+        );
+        
+        // Show success toast
+        toast({
+          title: "Payment Successful!",
+          description: "Your payment has been processed successfully.",
+        });
+        
+        setIsSuccess(true);
+        
+        // Simulate delay before showing ticket
+        setTimeout(() => {
+          setShowTicket(true);
+        }, 2000);
+      } else {
+        throw new Error("Payment failed");
+      }
+    } catch (error) {
+      toast({
+        title: "Payment Failed",
+        description: "There was an error processing your payment. Please try again.",
+        variant: "destructive"
+      });
+      
+      // Add notification
+      dbService.addNotification(
+        "Payment Failed",
+        "There was an error processing your payment for an event ticket.",
+        NotificationType.ERROR
+      );
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -88,34 +235,34 @@ const Checkout = () => {
     if (!validateForm()) return;
     
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSuccess(true);
-      
-      // Generate a ticket ID
-      const randomId = Math.random().toString(36).substring(2, 12).toUpperCase();
-      setTicketId(`TKT-${randomId}`);
-      
-      toast({
-        title: "Booking Successful!",
-        description: "Your tickets have been booked successfully.",
-      });
-      
-      // Simulate delay before showing ticket
-      setTimeout(() => {
-        setShowTicket(true);
-      }, 1500);
-    }, 2000);
+    handlePayment();
   };
 
   const handleDownloadTicket = () => {
+    if (!ticketData) return;
+    
     // Create a virtual element
     const element = document.createElement('a');
-    // Set its href attribute to the ticket URL (would normally be generated by backend)
-    element.setAttribute('href', '#');
-    element.setAttribute('download', `ticket-${event.id}-${ticketId}.pdf`);
+    
+    // Create a text representation of the ticket
+    const ticketText = `
+Nepal Ticket - Digital Ticket
+Event: ${event.title}
+Date: ${new Date(event.date).toLocaleDateString()}, ${event.time}
+Location: ${event.location}
+Ticket ID: ${ticketData.id}
+Access Code: ${ticketData.accessCode}
+Quantity: ${ticketData.quantity}
+Customer: ${customer.name}
+    `;
+    
+    // Create a blob from the text
+    const file = new Blob([ticketText], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = `ticket-${event.id}-${ticketData.id}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
     
     // Simulate ticket download
     toast({
@@ -123,13 +270,20 @@ const Checkout = () => {
       description: "Your digital ticket has been downloaded successfully.",
     });
     
+    // Add notification
+    dbService.addNotification(
+      "Ticket Downloaded",
+      `Your ticket for ${event.title} has been downloaded.`,
+      NotificationType.INFO
+    );
+    
     // Redirect to home after 2 seconds
     setTimeout(() => {
       navigate('/');
     }, 2000);
   };
 
-  if (showTicket) {
+  if (showTicket && ticketData) {
     return (
       <>
         <Navbar />
@@ -148,46 +302,75 @@ const Checkout = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">E-Ticket</h3>
-                    <p className="text-lg font-bold text-gray-900 dark:text-white">{ticketId}</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">{ticketData.id}</p>
                   </div>
-                  <Ticket className="h-8 w-8 text-nepal-red" />
+                  <Receipt className="h-8 w-8 text-nepal-red" />
                 </div>
               </div>
               
               <div className="p-4">
                 <h2 className="font-serif text-xl font-bold text-gray-900 dark:text-white mb-2">{event.title}</h2>
                 
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-300">Date & Time</span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-center">
+                    <Calendar className="h-4 w-4 text-nepal-red mr-2" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
                       {new Date(event.date).toLocaleDateString()}, {event.time}
                     </span>
                   </div>
                   
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-300">Location</span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">{event.location}</span>
+                  <div className="flex items-center">
+                    <MapPin className="h-4 w-4 text-nepal-red mr-2" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{event.location}</span>
                   </div>
                   
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-300">Quantity</span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">{quantity} ticket(s)</span>
+                  <div className="flex items-center">
+                    <Users className="h-4 w-4 text-nepal-red mr-2" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{ticketData.quantity} ticket(s)</span>
                   </div>
                   
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-300">Customer</span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">{customer.name}</span>
+                  <div className="flex items-center">
+                    <User className="h-4 w-4 text-nepal-red mr-2" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{customer.name}</span>
                   </div>
                 </div>
                 
                 <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-center">
-                    <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">Scan this QR code at the event entrance</p>
-                    <div className="bg-white dark:bg-gray-600 h-32 w-32 mx-auto rounded flex items-center justify-center">
-                      <div className="w-24 h-24 bg-[repeating-linear-gradient(45deg,#000,#000_4px,#fff_4px,#fff_8px)] dark:bg-[repeating-linear-gradient(45deg,#fff,#fff_4px,#444_4px,#444_8px)]"></div>
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded text-center mb-3">
+                    <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">Access Code</p>
+                    <div className="bg-white dark:bg-gray-800 p-2 rounded">
+                      <p className="font-mono text-lg font-bold tracking-widest">{ticketData.accessCode}</p>
                     </div>
                   </div>
+                  
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded text-center">
+                    <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">Barcode</p>
+                    <div className="inline-block">
+                      <div className="bg-white dark:bg-gray-800 p-3 rounded">
+                        {/* Simple barcode representation */}
+                        <div className="flex items-center justify-center space-x-0.5 h-12">
+                          {ticketData.barcode.split('').map((digit, index) => (
+                            <div 
+                              key={index}
+                              className="h-full w-0.5 bg-gray-900 dark:bg-gray-200"
+                              style={{ 
+                                height: `${Math.max(30, parseInt(digit) * 5 + 30)}%`,
+                                width: parseInt(digit) % 2 === 0 ? '1px' : '2px'
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <p className="mt-2 font-mono text-xs">{ticketData.barcode}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
+                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                  <Lock className="h-3 w-3 mr-1" />
+                  Secured with blockchain verification
                 </div>
               </div>
             </div>
@@ -231,8 +414,8 @@ const Checkout = () => {
           
           {isSuccess ? (
             <div className="text-center py-16">
-              <div className="animate-spin mb-6">
-                <Ticket className="h-12 w-12 text-nepal-red mx-auto" />
+              <div className="mb-6">
+                <Loader2 className="h-12 w-12 text-nepal-red mx-auto animate-spin" />
               </div>
               <h2 className="text-2xl font-bold mb-2">Generating your tickets...</h2>
               <p className="text-gray-600 dark:text-gray-300">Please wait while we prepare your digital tickets.</p>
@@ -293,27 +476,33 @@ const Checkout = () => {
                       
                       <div>
                         <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
-                        <Tabs defaultValue="card" className="w-full">
+                        <Tabs defaultValue="CARD" className="w-full" onValueChange={handleTabChange}>
                           <TabsList className="grid w-full grid-cols-3">
-                            <TabsTrigger value="card">Card</TabsTrigger>
-                            <TabsTrigger value="khalti">Khalti</TabsTrigger>
-                            <TabsTrigger value="esewa">eSewa</TabsTrigger>
+                            <TabsTrigger value="CARD">Card</TabsTrigger>
+                            <TabsTrigger value="KHALTI">Khalti</TabsTrigger>
+                            <TabsTrigger value="ESEWA">eSewa</TabsTrigger>
                           </TabsList>
                           
-                          <TabsContent value="card" className="space-y-4 mt-4">
+                          <TabsContent value="CARD" className="space-y-4 mt-4">
                             <div>
                               <Label htmlFor="cardNumber">Card Number</Label>
                               <Input
                                 id="cardNumber"
+                                name="cardNumber"
+                                value={paymentInfo.cardNumber}
+                                onChange={handlePaymentInfoChange}
                                 placeholder="1234 5678 9012 3456"
                               />
                             </div>
                             
                             <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <Label htmlFor="expiry">Expiry Date</Label>
+                                <Label htmlFor="expiryDate">Expiry Date</Label>
                                 <Input
-                                  id="expiry"
+                                  id="expiryDate"
+                                  name="expiryDate"
+                                  value={paymentInfo.expiryDate}
+                                  onChange={handlePaymentInfoChange}
                                   placeholder="MM/YY"
                                 />
                               </div>
@@ -322,13 +511,16 @@ const Checkout = () => {
                                 <Label htmlFor="cvc">CVC</Label>
                                 <Input
                                   id="cvc"
+                                  name="cvc"
+                                  value={paymentInfo.cvc}
+                                  onChange={handlePaymentInfoChange}
                                   placeholder="123"
                                 />
                               </div>
                             </div>
                           </TabsContent>
                           
-                          <TabsContent value="khalti" className="pt-4">
+                          <TabsContent value="KHALTI" className="pt-4">
                             <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                               <p className="mb-3">Continue to pay with Khalti</p>
                               <img 
@@ -339,7 +531,7 @@ const Checkout = () => {
                             </div>
                           </TabsContent>
                           
-                          <TabsContent value="esewa" className="pt-4">
+                          <TabsContent value="ESEWA" className="pt-4">
                             <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                               <p className="mb-3">Continue to pay with eSewa</p>
                               <img 
@@ -355,14 +547,19 @@ const Checkout = () => {
                       <Button 
                         type="submit" 
                         className="w-full bg-nepal-red hover:bg-nepal-red/90"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isProcessingPayment}
                       >
-                        {isSubmitting ? (
+                        {isProcessingPayment ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Processing Payment...
+                          </>
+                        ) : isSubmitting ? (
                           <>Processing...</>
                         ) : (
                           <>
                             <CreditCard className="mr-2 h-4 w-4" />
-                            Pay {formatPrice(event.price * quantity)}
+                            Pay {formatPrice(event.price * quantity * 1.05)}
                           </>
                         )}
                       </Button>

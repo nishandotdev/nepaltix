@@ -11,8 +11,16 @@ import Checkout from "./pages/Checkout";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import TicketScanner from "./pages/TicketScanner";
 import NotFound from "./pages/NotFound";
+import NotificationBell from "./components/NotificationBell";
 
+// Create a client
 const queryClient = new QueryClient();
+
+// Load database and initialize it
+import { dbService } from "./lib/dbService";
+
+// Initialize database (this is done automatically in the constructor)
+// Just importing it here to ensure it's loaded at application start
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
