@@ -1,5 +1,5 @@
 
-import { User, UserRole } from "@/types";
+import { User, UserRole, NotificationType } from "@/types";
 import { dbService } from "./dbService";
 import { toast } from "sonner";
 
@@ -68,7 +68,7 @@ class AuthService {
     dbService.addNotification(
       'Welcome to NepalTix',
       `Thank you for joining NepalTix, ${newUser.name}!`,
-      'SUCCESS',
+      NotificationType.SUCCESS,
       newUser.id
     );
     

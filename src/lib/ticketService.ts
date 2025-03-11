@@ -16,6 +16,18 @@ const generateQRCode = (ticketId: string): string => {
   return `https://nepal-tickets-hub.com/ticket/${ticketId}`;
 };
 
+// Generate a barcode (in a real app, this would generate an actual barcode)
+const generateBarcode = (ticketId: string): string => {
+  // This would be a data to encode in the barcode
+  return `${ticketId}-${Date.now()}`;
+};
+
+// Generate an access code
+const generateAccessCode = (): string => {
+  // Generate a random 6-digit access code
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
 // Purchase tickets for an event
 export const purchaseTickets = (
   eventId: string,
@@ -41,11 +53,15 @@ export const purchaseTickets = (
     quantity,
     purchaseDate: new Date().toISOString(),
     used: false,
-    qrCode: ''
+    qrCode: '',
+    barcode: '',
+    accessCode: ''
   };
   
-  // Generate QR code
+  // Generate QR code, barcode and access code
   ticket.qrCode = generateQRCode(ticket.id);
+  ticket.barcode = generateBarcode(ticket.id);
+  ticket.accessCode = generateAccessCode();
   
   // Save the ticket
   tickets.push(ticket);
