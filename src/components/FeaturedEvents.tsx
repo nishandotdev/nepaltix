@@ -54,7 +54,7 @@ const FeaturedEvents = ({ events }: FeaturedEventsProps) => {
               </div>
             ))}
           </div>
-        ) : (
+        ) : visibleEvents.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {visibleEvents.map((event) => (
@@ -74,6 +74,19 @@ const FeaturedEvents = ({ events }: FeaturedEventsProps) => {
               </Link>
             </div>
           </>
+        ) : (
+          <div className="text-center py-10">
+            <p className="text-gray-500 dark:text-gray-400">No featured events available at the moment</p>
+            <div className="mt-6">
+              <Link
+                to="/events"
+                className="inline-flex items-center font-medium text-nepal-red hover:text-nepal-red/80 transition-colors duration-300 group"
+              >
+                Browse all events
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+              </Link>
+            </div>
+          </div>
         )}
       </div>
     </section>

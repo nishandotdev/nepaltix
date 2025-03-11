@@ -1,52 +1,37 @@
 
-import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Calendar, Clock, MapPin, Share2, ArrowLeft, Plus, Minus } from 'lucide-react';
+import { useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { 
+  Calendar, 
+  Clock, 
+  MapPin, 
+  Tag, 
+  Ticket, 
+  ChevronLeft,
+  Share2
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Event, TicketType } from '@/types';
 import { events } from '@/data/events';
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from '@/components/ui/use-toast';
+import NotFound from './NotFound';
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { toast } = useToast();
-  const [event, setEvent] = useState<Event | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedTicket, setSelectedTicket] = useState<TicketType>(TicketType.STANDARD);
-  const [quantity, setQuantity] = useState(1);
-  const [imageLoaded, setImageLoaded] = useState(false);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    
-    // Simulate loading
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      const foundEvent = events.find(e => e.id === id);
-      
-      if (foundEvent) {
-        setEvent(foundEvent);
-        document.title = `${foundEvent.title} - NepalTix`;
-      } else {
-        navigate('/events', { replace: true });
-        toast({
-          title: "Event not found",
-          description: "The event you're looking for doesn't exist.",
-          variant: "destructive",
-        });
-      }
-      
-      setIsLoading(false);
-    }, 800);
-    
-    return () => clearTimeout(timer);
-  }, [id, navigate, toast]);
+  const [ticketQuantity, setTicketQuantity] = useState(1);
+  
+  const event = events.find(e => e.id === id);
+  
+  if (!event) {
+    return <NotFound />;
+  }
 
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { 
-      weekday: 'long',
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
@@ -62,358 +47,187 @@ const EventDetails = () => {
     }).format(price);
   };
 
-  const getTicketPrice = () => {
-    let basePrice = event?.price || 0;
-    
-    switch (selectedTicket) {
-      case TicketType.VIP:
-        return basePrice * 2;
-      case TicketType.EARLY_BIRD:
-        return Math.floor(basePrice * 0.8);
-      case TicketType.STANDARD:
-      default:
-        return basePrice;
+  const handleTicketQuantityChange = (delta: number) => {
+    const newQuantity = ticketQuantity + delta;
+    if (newQuantity >= 1 && newQuantity <= event.availableTickets) {
+      setTicketQuantity(newQuantity);
     }
-  };
-
-  const getTotalPrice = () => {
-    return getTicketPrice() * quantity;
-  };
-
-  const incrementQuantity = () => {
-    if (quantity < 10) setQuantity(quantity + 1);
-  };
-
-  const decrementQuantity = () => {
-    if (quantity > 1) setQuantity(quantity - 1);
-  };
-
-  const handleAddToCart = () => {
-    toast({
-      title: "Added to cart",
-      description: `${quantity} tickets for ${event?.title}`,
-    });
-    
-    // In a real app, this would add to cart state or localStorage
-    // For now, redirect to checkout
-    navigate('/checkout', { 
-      state: { 
-        event,
-        ticketType: selectedTicket,
-        quantity,
-        totalPrice: getTotalPrice()
-      } 
-    });
   };
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: event?.title,
-        text: event?.shortDescription,
-        url: window.location.href,
-      }).catch((error) => console.log('Error sharing', error));
-    } else {
-      // Fallback
-      navigator.clipboard.writeText(window.location.href);
-      toast({
-        title: "Link copied",
-        description: "Event link copied to clipboard",
+        title: event.title,
+        text: event.shortDescription,
+        url: window.location.href
+      }).catch(() => {
+        toast({
+          title: "Copied to clipboard!",
+          description: "Event link has been copied to your clipboard."
+        });
+        navigator.clipboard.writeText(window.location.href);
       });
+    } else {
+      toast({
+        title: "Copied to clipboard!",
+        description: "Event link has been copied to your clipboard."
+      });
+      navigator.clipboard.writeText(window.location.href);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-grow pt-16">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="animate-pulse space-y-8">
-              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 max-w-2xl"></div>
-              <div className="h-[400px] bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-4">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                </div>
-                <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-              </div>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (!event) return null;
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       <Navbar />
-      <main className="flex-grow pt-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-          <Link
-            to="/events"
-            className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-nepal-red dark:hover:text-nepal-red mb-6 transition-colors duration-300"
+      
+      <div className="bg-white dark:bg-gray-900 pb-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
+          <Link 
+            to="/events" 
+            className="inline-flex items-center text-sm font-medium text-nepal-red hover:text-nepal-red/90 mb-6"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ChevronLeft className="mr-1 h-4 w-4" />
             Back to events
           </Link>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             <div className="lg:col-span-2">
-              <div className="animate-entrance">
-                <h1 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-6">
+              <div className="relative w-full overflow-hidden rounded-2xl">
+                <img 
+                  src={event.imageUrl} 
+                  alt={event.title} 
+                  className="w-full object-cover aspect-[16/9]"
+                />
+                
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm hover:bg-white"
+                  onClick={handleShare}
+                >
+                  <Share2 className="h-5 w-5 text-gray-700" />
+                </Button>
+              </div>
+              
+              <div className="mt-8">
+                <Badge className="mb-3 bg-nepal-red/10 text-nepal-red hover:bg-nepal-red/20 border-none">
+                  {event.category}
+                </Badge>
+                <h1 className="font-serif text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                   {event.title}
                 </h1>
-
-                <div className="relative rounded-xl overflow-hidden mb-8">
-                  {!imageLoaded && (
-                    <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
-                  )}
-                  <img
-                    src={event.imageUrl}
-                    alt={event.title}
-                    className={`w-full h-auto object-cover rounded-xl transition-opacity duration-500 ${
-                      imageLoaded ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    onLoad={() => setImageLoaded(true)}
-                  />
-                </div>
-
-                <div className="flex flex-wrap gap-4 mb-8">
-                  <div className="flex items-center text-gray-600 dark:text-gray-300">
-                    <Calendar className="h-5 w-5 mr-2 text-nepal-red" />
+                
+                <div className="flex flex-wrap gap-4 mb-6">
+                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                    <Calendar className="h-4 w-4 mr-2 flex-shrink-0" />
                     <span>{formatDate(event.date)}</span>
                   </div>
                   
-                  <div className="flex items-center text-gray-600 dark:text-gray-300">
-                    <Clock className="h-5 w-5 mr-2 text-nepal-red" />
+                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                    <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
                     <span>{event.time}</span>
                   </div>
                   
-                  <div className="flex items-center text-gray-600 dark:text-gray-300">
-                    <MapPin className="h-5 w-5 mr-2 text-nepal-red" />
+                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                    <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
                     <span>{event.location}</span>
                   </div>
-                  
-                  <button
-                    onClick={handleShare}
-                    className="flex items-center text-gray-600 dark:text-gray-300 hover:text-nepal-red dark:hover:text-nepal-red transition-colors duration-300 ml-auto"
-                  >
-                    <Share2 className="h-5 w-5 mr-2" />
-                    <span className="text-sm font-medium">Share</span>
-                  </button>
                 </div>
-
-                <div className="space-y-6">
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                      About This Event
-                    </h2>
-                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                      {event.description}
-                    </p>
-                  </div>
-                  
+                
+                <Separator className="my-6" />
+                
+                <div className="prose prose-stone dark:prose-invert max-w-none">
+                  <h2 className="text-xl font-semibold mb-4">About This Event</h2>
+                  <p className="whitespace-pre-line">{event.description}</p>
+                </div>
+                
+                <div className="mt-8">
+                  <h2 className="text-xl font-semibold mb-4">Tags</h2>
                   <div className="flex flex-wrap gap-2">
-                    {event.tags.map((tag) => (
-                      <span 
-                        key={tag}
-                        className="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
-                      >
+                    {event.tags.map((tag, index) => (
+                      <div key={index} className="flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-3 py-1 text-sm">
+                        <Tag className="h-3.5 w-3.5 mr-1.5 text-gray-500 dark:text-gray-400" />
                         {tag}
-                      </span>
+                      </div>
                     ))}
                   </div>
                 </div>
               </div>
             </div>
-
-            <div className="animate-entrance-delay-1">
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 sticky top-24">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                  Book Tickets
-                </h2>
+            
+            <div className="lg:col-span-1">
+              <div className="sticky top-24 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <h2 className="text-xl font-semibold mb-4">Book Tickets</h2>
                 
-                <div className="space-y-6">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                      Ticket Type
-                    </label>
-                    <div className="grid grid-cols-1 gap-3">
-                      <TicketOption
-                        type={TicketType.STANDARD}
-                        price={event.price}
-                        selected={selectedTicket === TicketType.STANDARD}
-                        onClick={() => setSelectedTicket(TicketType.STANDARD)}
-                      />
-                      
-                      <TicketOption
-                        type={TicketType.VIP}
-                        price={event.price * 2}
-                        selected={selectedTicket === TicketType.VIP}
-                        onClick={() => setSelectedTicket(TicketType.VIP)}
-                      />
-                      
-                      <TicketOption
-                        type={TicketType.EARLY_BIRD}
-                        price={Math.floor(event.price * 0.8)}
-                        selected={selectedTicket === TicketType.EARLY_BIRD}
-                        onClick={() => setSelectedTicket(TicketType.EARLY_BIRD)}
-                      />
-                    </div>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 dark:text-gray-300">Price per ticket</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{formatPrice(event.price)}</span>
                   </div>
                   
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 dark:text-gray-300">Available tickets</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{event.availableTickets}</span>
+                  </div>
+                  
+                  <Separator />
+                  
                   <div>
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                      Quantity
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Number of tickets
                     </label>
-                    <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg w-full">
+                    <div className="flex items-center border rounded-md overflow-hidden">
                       <button
-                        onClick={decrementQuantity}
-                        disabled={quantity <= 1}
-                        className={`p-2 ${
-                          quantity <= 1 
-                            ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' 
-                            : 'text-gray-600 dark:text-gray-300 hover:text-nepal-red dark:hover:text-nepal-red'
-                        }`}
+                        type="button"
+                        onClick={() => handleTicketQuantityChange(-1)}
+                        disabled={ticketQuantity <= 1}
+                        className="px-3 py-2 border-r text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
                       >
-                        <Minus className="h-4 w-4" />
+                        -
                       </button>
-                      
-                      <span className="flex-1 text-center font-medium">
-                        {quantity}
-                      </span>
-                      
+                      <input
+                        type="number"
+                        min="1"
+                        max={event.availableTickets}
+                        value={ticketQuantity}
+                        onChange={(e) => setTicketQuantity(parseInt(e.target.value) || 1)}
+                        className="w-16 text-center py-2 border-none focus:ring-0 focus:outline-none dark:bg-gray-800"
+                      />
                       <button
-                        onClick={incrementQuantity}
-                        disabled={quantity >= 10}
-                        className={`p-2 ${
-                          quantity >= 10 
-                            ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' 
-                            : 'text-gray-600 dark:text-gray-300 hover:text-nepal-red dark:hover:text-nepal-red'
-                        }`}
+                        type="button"
+                        onClick={() => handleTicketQuantityChange(1)}
+                        disabled={ticketQuantity >= event.availableTickets}
+                        className="px-3 py-2 border-l text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
                       >
-                        <Plus className="h-4 w-4" />
+                        +
                       </button>
                     </div>
                   </div>
                   
-                  <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-600 dark:text-gray-300">
-                        Price per ticket
-                      </span>
-                      <span className="font-medium">
-                        {formatPrice(getTicketPrice())}
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between mb-4">
-                      <span className="text-gray-600 dark:text-gray-300">
-                        Quantity
-                      </span>
-                      <span className="font-medium">
-                        {quantity}
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between text-lg font-bold">
-                      <span className="text-gray-900 dark:text-white">
-                        Total
-                      </span>
-                      <span className="text-nepal-red">
-                        {formatPrice(getTotalPrice())}
-                      </span>
-                    </div>
+                  <div className="flex justify-between items-center pt-2">
+                    <span className="text-gray-900 dark:text-white font-semibold">Total</span>
+                    <span className="text-xl font-bold text-nepal-red">{formatPrice(event.price * ticketQuantity)}</span>
                   </div>
                   
-                  <button
-                    onClick={handleAddToCart}
-                    className="w-full py-3 rounded-lg bg-nepal-red text-white font-medium hover:bg-opacity-90 transition-all duration-300 transform hover:translate-y-[-2px]"
-                  >
-                    Book Now
-                  </button>
+                  <Link to={`/checkout/${event.id}?quantity=${ticketQuantity}`} className="w-full">
+                    <Button className="w-full gap-2 bg-nepal-red hover:bg-nepal-red/90">
+                      <Ticket className="h-4 w-4" />
+                      Book Now
+                    </Button>
+                  </Link>
                   
                   <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                    Only {event.availableTickets} tickets left
+                    Tickets cannot be refunded or exchanged.
                   </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </main>
+      </div>
+      
       <Footer />
-    </div>
-  );
-};
-
-interface TicketOptionProps {
-  type: TicketType;
-  price: number;
-  selected: boolean;
-  onClick: () => void;
-}
-
-const TicketOption = ({ type, price, selected, onClick }: TicketOptionProps) => {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ne-NP', {
-      style: 'currency',
-      currency: 'NPR',
-      minimumFractionDigits: 0
-    }).format(price);
-  };
-
-  const getDescription = () => {
-    switch (type) {
-      case TicketType.VIP:
-        return 'Priority seating & special perks';
-      case TicketType.EARLY_BIRD:
-        return 'Limited quantity, discounted rate';
-      case TicketType.STANDARD:
-      default:
-        return 'Regular admission ticket';
-    }
-  };
-
-  return (
-    <button
-      onClick={onClick}
-      className={`flex justify-between items-center p-3 rounded-lg border transition-all duration-300 ${
-        selected
-          ? 'border-nepal-red bg-nepal-red/5'
-          : 'border-gray-300 dark:border-gray-600 hover:border-nepal-red/60'
-      }`}
-    >
-      <div className="flex items-center">
-        <div className={`h-4 w-4 rounded-full border flex-shrink-0 ${
-          selected 
-            ? 'border-nepal-red bg-nepal-red' 
-            : 'border-gray-400 dark:border-gray-500'
-        }`}>
-          {selected && (
-            <div className="h-1.5 w-1.5 bg-white rounded-full m-auto"></div>
-          )}
-        </div>
-        <div className="ml-3 text-left">
-          <div className="font-medium text-gray-900 dark:text-white">
-            {type.replace('_', ' ')}
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            {getDescription()}
-          </div>
-        </div>
-      </div>
-      <div className="font-medium text-nepal-red">
-        {formatPrice(price)}
-      </div>
-    </button>
+    </>
   );
 };
 

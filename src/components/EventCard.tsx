@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, MapPin, Calendar } from 'lucide-react';
 import { Event } from '@/types';
+import { Badge } from '@/components/ui/badge';
 
 interface EventCardProps {
   event: Event;
@@ -29,10 +30,32 @@ const EventCard = ({ event, featured = false }: EventCardProps) => {
     }).format(price);
   };
 
+  const getSoldPercentage = (total: number, available: number) => {
+    if (total <= 0) return 0;
+    const sold = total - available;
+    return (sold / total) * 100;
+  };
+
+  const soldPercentage = getSoldPercentage(event.totalTickets, event.availableTickets);
+  
+  // Determine ticket availability status
+  const getAvailabilityStatus = () => {
+    if (event.availableTickets <= 0) {
+      return { text: "Sold Out", color: "bg-red-100 text-red-800 border-red-200" };
+    } else if (soldPercentage >= 80) {
+      return { text: "Selling Fast", color: "bg-orange-100 text-orange-800 border-orange-200" };
+    } else if (new Date(event.date) < new Date()) {
+      return { text: "Event Ended", color: "bg-gray-100 text-gray-800 border-gray-200" };
+    }
+    return { text: `${event.availableTickets} tickets left`, color: "bg-green-100 text-green-800 border-green-200" };
+  };
+
+  const availabilityStatus = getAvailabilityStatus();
+
   return (
     <Link 
       to={`/events/${event.id}`}
-      className={`group block overflow-hidden transition-card ${
+      className={`group block overflow-hidden transition-all duration-300 ${
         featured 
           ? 'rounded-xl hover:shadow-xl' 
           : 'rounded-lg hover:shadow-md'
@@ -46,7 +69,7 @@ const EventCard = ({ event, featured = false }: EventCardProps) => {
           src={event.imageUrl}
           alt={event.title}
           onLoad={() => setImageLoaded(true)}
-          className={`w-full h-full object-cover transition-image duration-500 group-hover:scale-105 ${
+          className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
             imageLoaded ? 'opacity-100' : 'opacity-0'
           }`}
         />
@@ -54,11 +77,17 @@ const EventCard = ({ event, featured = false }: EventCardProps) => {
         
         {event.featured && (
           <div className="absolute top-4 left-4 z-10">
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-nepal-red text-white">
+            <Badge className="bg-nepal-red text-white border-none">
               Featured
-            </span>
+            </Badge>
           </div>
         )}
+        
+        <div className="absolute top-4 right-4 z-10">
+          <Badge className={`${availabilityStatus.color} border`}>
+            {availabilityStatus.text}
+          </Badge>
+        </div>
         
         <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 text-white">
           <div className="space-y-1">
@@ -99,9 +128,14 @@ const EventCard = ({ event, featured = false }: EventCardProps) => {
             {formatPrice(event.price)}
           </div>
           
-          <span className="inline-flex items-center text-xs font-medium">
-            {event.availableTickets} tickets left
-          </span>
+          {event.availableTickets > 0 && (
+            <div className="relative w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className="absolute top-0 left-0 h-full bg-nepal-red"
+                style={{ width: `${soldPercentage}%` }}  
+              ></div>
+            </div>
+          )}
         </div>
       </div>
     </Link>

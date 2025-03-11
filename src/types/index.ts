@@ -49,3 +49,29 @@ export interface Customer {
   email: string;
   phone: string;
 }
+
+export interface DigitalTicket {
+  id: string;
+  eventId: string;
+  customerId: string;
+  ticketType: TicketType;
+  quantity: number;
+  purchaseDate: string;
+  used: boolean;
+  qrCode: string;
+}
+
+export interface OrganizerEvent extends Event {
+  totalSales: number;
+  checkedInAttendees: number;
+}
+
+export interface ScanResult {
+  valid: boolean;
+  message: string;
+  ticketId?: string;
+  eventTitle?: string;
+  customerName?: string;
+  customerEmail?: string;
+  quantity?: number;
+}
