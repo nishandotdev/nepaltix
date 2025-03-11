@@ -10,6 +10,10 @@ class DbService {
     this.initializeStorage();
   }
   
+  getStoragePrefix(): string {
+    return this.storagePrefix;
+  }
+  
   private initializeStorage() {
     if (!localStorage.getItem(`${this.storagePrefix}events`)) {
       localStorage.setItem(`${this.storagePrefix}events`, JSON.stringify(initialEvents));
@@ -61,6 +65,11 @@ class DbService {
     return tickets.filter(ticket => ticket.eventId === eventId);
   }
   
+  getTicketsByUserId(userId: string): DigitalTicket[] {
+    const tickets = this.getAllTickets();
+    return tickets.filter(ticket => ticket.customerId === userId);
+  }
+  
   createTicket(ticket: DigitalTicket): DigitalTicket {
     const tickets = this.getAllTickets();
     tickets.push(ticket);
@@ -90,6 +99,11 @@ class DbService {
   getAllNotifications(): Notification[] {
     const notifications = localStorage.getItem(`${this.storagePrefix}notifications`);
     return notifications ? JSON.parse(notifications) : [];
+  }
+  
+  getNotificationsByUserId(userId: string): Notification[] {
+    const notifications = this.getAllNotifications();
+    return notifications.filter(notif => notif.userId === userId || notif.userId === undefined);
   }
   
   addNotification(title: string, message: string, type: NotificationType, userId?: string): Notification {

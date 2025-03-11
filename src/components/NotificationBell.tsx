@@ -1,100 +1,116 @@
 
 import { useEffect, useState } from "react";
-import { Bell } from "lucide-react";
-import { 
+import { Button } from "@/components/ui/button";
+import { BellIcon } from "lucide-react";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Notification, NotificationType } from "@/types";
+import { Notification } from "@/types";
 import { dbService } from "@/lib/dbService";
+import { authService } from "@/lib/authService";
 
 const NotificationBell = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [open, setOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const { user } = authService.getCurrentUser();
   
   useEffect(() => {
-    // Poll for notifications every 30 seconds
     const fetchNotifications = () => {
-      const allNotifications = dbService.getAllNotifications();
-      setNotifications(allNotifications);
+      if (!user) {
+        // Only get public notifications if no user is logged in
+        const allNotifications = dbService.getAllNotifications();
+        const publicNotifications = allNotifications.filter(n => !n.userId);
+        setNotifications(publicNotifications);
+        setUnreadCount(publicNotifications.filter(n => !n.read).length);
+      } else {
+        // Get user-specific and public notifications
+        const userNotifications = dbService.getNotificationsByUserId(user.id);
+        setNotifications(userNotifications);
+        setUnreadCount(userNotifications.filter(n => !n.read).length);
+      }
     };
     
     fetchNotifications();
+    
+    // Poll for new notifications
     const interval = setInterval(fetchNotifications, 30000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [user]);
   
-  const unreadCount = notifications.filter(n => !n.read).length;
-  
-  const handleNotificationClick = (notification: Notification) => {
-    if (!notification.read) {
-      dbService.markNotificationAsRead(notification.id);
-      setNotifications(prev => 
-        prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
-      );
-    }
+  const handleMarkAsRead = (id: string) => {
+    dbService.markNotificationAsRead(id);
+    setNotifications(prev => 
+      prev.map(n => (n.id === id ? { ...n, read: true } : n))
+    );
+    setUnreadCount(prev => Math.max(0, prev - 1));
   };
   
-  const getIconColor = (type: NotificationType) => {
-    switch(type) {
-      case NotificationType.SUCCESS: return "text-green-500";
-      case NotificationType.ERROR: return "text-red-500";
-      case NotificationType.WARNING: return "text-amber-500";
-      case NotificationType.INFO:
-      default: return "text-blue-500";
-    }
+  const handleMarkAllAsRead = () => {
+    notifications.forEach(n => {
+      if (!n.read) {
+        dbService.markNotificationAsRead(n.id);
+      }
+    });
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setUnreadCount(0);
   };
   
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
+          <BellIcon className="h-5 w-5" />
           {unreadCount > 0 && (
-            <Badge 
-              className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-nepal-red text-white text-xs"
-            >
+            <span className="absolute top-0 right-0 h-4 w-4 rounded-full bg-nepal-red text-[10px] font-bold text-white flex items-center justify-center">
               {unreadCount}
-            </Badge>
+            </span>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0 mr-4">
-        <div className="p-4 border-b">
+      <PopoverContent className="w-80 p-0">
+        <div className="p-3 border-b border-gray-100 flex justify-between items-center">
           <h3 className="font-medium">Notifications</h3>
+          {unreadCount > 0 && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-xs"
+              onClick={handleMarkAllAsRead}
+            >
+              Mark all as read
+            </Button>
+          )}
         </div>
-        <div className="max-h-96 overflow-y-auto">
+        <div className="max-h-[300px] overflow-y-auto">
           {notifications.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              No notifications yet
+            <div className="py-6 text-center text-sm text-gray-500">
+              No notifications
             </div>
           ) : (
-            <div className="divide-y">
-              {notifications.map((notification) => (
+            notifications
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+              .map((notification) => (
                 <div 
                   key={notification.id}
-                  className={`p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${notification.read ? 'opacity-70' : 'bg-gray-50 dark:bg-gray-800'}`}
-                  onClick={() => handleNotificationClick(notification)}
+                  className={`p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer ${
+                    !notification.read ? "bg-nepal-red/5" : ""
+                  }`}
+                  onClick={() => !notification.read && handleMarkAsRead(notification.id)}
                 >
-                  <div className="flex items-start gap-2">
-                    <div className={`mt-0.5 ${getIconColor(notification.type)}`}>
-                      <div className="h-2 w-2 rounded-full bg-current" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <p className="font-medium text-sm">{notification.title}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{notification.message}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500">
-                        {new Date(notification.createdAt).toLocaleString()}
-                      </p>
-                    </div>
+                  <div className="flex justify-between items-start">
+                    <h4 className={`font-medium text-sm ${!notification.read ? "text-nepal-red" : ""}`}>
+                      {notification.title}
+                    </h4>
+                    <span className="text-[10px] text-gray-400">
+                      {new Date(notification.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
+                  <p className="text-sm text-gray-500 mt-1">{notification.message}</p>
                 </div>
-              ))}
-            </div>
+              ))
           )}
         </div>
       </PopoverContent>

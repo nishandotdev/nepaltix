@@ -107,3 +107,25 @@ export enum PaymentMethod {
   KHALTI = 'KHALTI',
   ESEWA = 'ESEWA',
 }
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  password: string; // In a real app, this would be hashed
+  role: UserRole;
+  createdAt: string;
+}
+
+export enum UserRole {
+  USER = 'USER',
+  ORGANIZER = 'ORGANIZER',
+  ADMIN = 'ADMIN',
+}
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+}

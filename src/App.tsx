@@ -11,13 +11,17 @@ import Checkout from "./pages/Checkout";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import TicketScanner from "./pages/TicketScanner";
 import NotFound from "./pages/NotFound";
-import NotificationBell from "./components/NotificationBell";
+import Auth from "./pages/Auth";
+import Account from "./pages/Account";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { UserRole } from "./types";
 
 // Create a client
 const queryClient = new QueryClient();
 
 // Load database and initialize it
 import { dbService } from "./lib/dbService";
+import { authService } from "./lib/authService";
 
 // Initialize database (this is done automatically in the constructor)
 // Just importing it here to ensure it's loaded at application start
@@ -32,9 +36,39 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/events" element={<Events />} />
           <Route path="/events/:id" element={<EventDetails />} />
-          <Route path="/checkout/:id" element={<Checkout />} />
-          <Route path="/organizer" element={<OrganizerDashboard />} />
-          <Route path="/scanner" element={<TicketScanner />} />
+          <Route 
+            path="/checkout/:id" 
+            element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/organizer" 
+            element={
+              <ProtectedRoute requiredRoles={[UserRole.ORGANIZER, UserRole.ADMIN]}>
+                <OrganizerDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/scanner" 
+            element={
+              <ProtectedRoute requiredRoles={[UserRole.ORGANIZER, UserRole.ADMIN]}>
+                <TicketScanner />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/auth" element={<Auth />} />
+          <Route 
+            path="/account" 
+            element={
+              <ProtectedRoute>
+                <Account />
+              </ProtectedRoute>
+            } 
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
