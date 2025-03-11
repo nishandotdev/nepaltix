@@ -89,10 +89,30 @@ class AuthService {
     
     this.saveToSession(user);
     
+    // Create login notification
+    dbService.addNotification(
+      'Login Successful',
+      `Welcome back, ${user.name}!`,
+      NotificationType.SUCCESS,
+      user.id
+    );
+    
     return { success: true, message: 'Login successful', user };
   }
   
   public logout(): void {
+    const { user } = this.getCurrentUser();
+    
+    if (user) {
+      // Create logout notification
+      dbService.addNotification(
+        'Logged Out',
+        'You have been successfully logged out.',
+        NotificationType.INFO,
+        user.id
+      );
+    }
+    
     localStorage.removeItem(this.storageKey);
   }
   
@@ -108,6 +128,23 @@ class AuthService {
   
   public isAuthenticated(): boolean {
     return this.getCurrentUser().isAuthenticated;
+  }
+  
+  public getUserByRole(role: UserRole): Omit<User, 'password'>[] {
+    const users = this.getUsers();
+    return users
+      .filter(user => user.role === role)
+      .map(({ password, ...userWithoutPassword }) => userWithoutPassword);
+  }
+  
+  public getUserById(id: string): Omit<User, 'password'> | null {
+    const users = this.getUsers();
+    const user = users.find(user => user.id === id);
+    
+    if (!user) return null;
+    
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 }
 

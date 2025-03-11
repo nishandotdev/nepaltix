@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { 
@@ -11,7 +10,8 @@ import {
   MapPin,
   Users,
   User,
-  Lock
+  Lock,
+  Phone
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,7 @@ import { useToast } from '@/components/ui/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { dbService } from '@/lib/dbService';
+import { authService } from '@/lib/authService';
 import { 
   Customer, 
   DigitalTicket, 
@@ -39,9 +40,11 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
+  const { user } = authService.getCurrentUser();
+  
   const [customer, setCustomer] = useState<Customer>({
-    name: '',
-    email: '',
+    name: user?.name || '',
+    email: user?.email || '',
     phone: ''
   });
   
@@ -158,7 +161,7 @@ const Checkout = () => {
       const totalAmount = event.price * quantity * 1.05;
       const paymentDetails = paymentInfo.paymentMethod === PaymentMethod.CARD 
         ? { cardNumber: paymentInfo.cardNumber, expiryDate: paymentInfo.expiryDate, cvc: paymentInfo.cvc }
-        : { userId: 'guest-user' };
+        : { userId: user?.id || 'guest-user' };
         
       const paymentResult = await dbService.processPayment(
         totalAmount,
@@ -175,7 +178,7 @@ const Checkout = () => {
         const newTicket: DigitalTicket = {
           id: ticketId,
           eventId: event.id,
-          customerId: `CUST-${Math.random().toString(36).substring(2, 9)}`,
+          customerId: user?.id || `CUST-${Math.random().toString(36).substring(2, 9)}`,
           ticketType: TicketType.STANDARD,
           quantity,
           purchaseDate: new Date().toISOString(),
@@ -193,7 +196,8 @@ const Checkout = () => {
         dbService.addNotification(
           "Booking Confirmed!",
           `Your ticket for ${event.title} has been confirmed.`,
-          NotificationType.SUCCESS
+          NotificationType.SUCCESS,
+          user?.id
         );
         
         // Show success toast
@@ -222,7 +226,8 @@ const Checkout = () => {
       dbService.addNotification(
         "Payment Failed",
         "There was an error processing your payment for an event ticket.",
-        NotificationType.ERROR
+        NotificationType.ERROR,
+        user?.id
       );
     } finally {
       setIsProcessingPayment(false);
@@ -274,7 +279,8 @@ Customer: ${customer.name}
     dbService.addNotification(
       "Ticket Downloaded",
       `Your ticket for ${event.title} has been downloaded.`,
-      NotificationType.INFO
+      NotificationType.INFO,
+      user?.id
     );
     
     // Redirect to home after 2 seconds
@@ -526,8 +532,13 @@ Customer: ${customer.name}
                               <img 
                                 src="https://seeklogo.com/images/K/khalti-logo-F0B049E68F-seeklogo.com.png" 
                                 alt="Khalti Logo" 
-                                className="h-8 mx-auto"
+                                className="h-8 mx-auto mb-3"
                               />
+                              <div className="flex items-center justify-center gap-2 text-sm font-medium">
+                                <Phone className="h-4 w-4" />
+                                <span>9749377349</span>
+                              </div>
+                              <p className="text-xs text-gray-500 mt-2">Use this number for test payments</p>
                             </div>
                           </TabsContent>
                           
@@ -537,8 +548,13 @@ Customer: ${customer.name}
                               <img 
                                 src="https://esewa.com.np/common/images/esewa_logo.png" 
                                 alt="eSewa Logo" 
-                                className="h-8 mx-auto"
+                                className="h-8 mx-auto mb-3"
                               />
+                              <div className="flex items-center justify-center gap-2 text-sm font-medium">
+                                <Phone className="h-4 w-4" />
+                                <span>9749377349</span>
+                              </div>
+                              <p className="text-xs text-gray-500 mt-2">Use this number for test payments</p>
                             </div>
                           </TabsContent>
                         </Tabs>

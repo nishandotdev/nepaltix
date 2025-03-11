@@ -9,10 +9,12 @@ import { UserRole } from "@/types";
 import { authService } from "@/lib/authService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 const AuthForm = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("login");
+  const [isLoading, setIsLoading] = useState(false);
   
   const [loginData, setLoginData] = useState({
     email: "",
@@ -37,58 +39,94 @@ const AuthForm = () => {
     setRegisterData((prev) => ({ ...prev, [name]: value }));
   };
   
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
     const { email, password } = loginData;
     
     if (!email || !password) {
       toast.error("Please fill in all fields");
+      setIsLoading(false);
       return;
     }
     
-    const result = authService.login(email, password);
-    
-    if (result.success) {
-      toast.success("Login successful");
-      navigate("/");
-    } else {
-      toast.error(result.message);
-    }
+    // Simulate network delay for better UX
+    setTimeout(() => {
+      const result = authService.login(email, password);
+      
+      if (result.success) {
+        toast.success("Login successful");
+        
+        // Redirect based on user role
+        if (result.user?.role === UserRole.ADMIN) {
+          navigate("/organizer");
+        } else if (result.user?.role === UserRole.ORGANIZER) {
+          navigate("/organizer");
+        } else {
+          // Check if there's a redirect URL stored
+          const redirectUrl = sessionStorage.getItem("redirectAfterLogin");
+          if (redirectUrl) {
+            sessionStorage.removeItem("redirectAfterLogin");
+            navigate(redirectUrl);
+          } else {
+            navigate("/");
+          }
+        }
+      } else {
+        toast.error(result.message);
+      }
+      
+      setIsLoading(false);
+    }, 1000);
   };
   
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
     const { name, email, password, confirmPassword, role } = registerData;
     
     if (!name || !email || !password || !confirmPassword) {
       toast.error("Please fill in all fields");
+      setIsLoading(false);
       return;
     }
     
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
+      setIsLoading(false);
       return;
     }
     
-    const result = authService.register({
-      name,
-      email,
-      password,
-      role,
-    });
+    if (password.length < 6) {
+      toast.error("Password should be at least 6 characters");
+      setIsLoading(false);
+      return;
+    }
     
-    if (result.success) {
-      toast.success("Registration successful! Please login.");
-      setActiveTab("login");
-      setLoginData({
+    // Simulate network delay for better UX
+    setTimeout(() => {
+      const result = authService.register({
+        name,
         email,
         password,
+        role,
       });
-    } else {
-      toast.error(result.message);
-    }
+      
+      if (result.success) {
+        toast.success("Registration successful! Please login.");
+        setActiveTab("login");
+        setLoginData({
+          email,
+          password,
+        });
+      } else {
+        toast.error(result.message);
+      }
+      
+      setIsLoading(false);
+    }, 1000);
   };
   
   return (
@@ -118,6 +156,7 @@ const AuthForm = () => {
                   value={loginData.email}
                   onChange={handleLoginChange}
                   required
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -132,11 +171,25 @@ const AuthForm = () => {
                   value={loginData.password}
                   onChange={handleLoginChange}
                   required
+                  disabled={isLoading}
                 />
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full">Login</Button>
+              <Button 
+                type="submit" 
+                className="w-full bg-nepal-red hover:bg-nepal-red/90" 
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Logging in...
+                  </>
+                ) : (
+                  'Login'
+                )}
+              </Button>
             </CardFooter>
           </form>
         </TabsContent>
@@ -159,6 +212,7 @@ const AuthForm = () => {
                   value={registerData.name}
                   onChange={handleRegisterChange}
                   required
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -171,6 +225,7 @@ const AuthForm = () => {
                   value={registerData.email}
                   onChange={handleRegisterChange}
                   required
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -183,7 +238,9 @@ const AuthForm = () => {
                   value={registerData.password}
                   onChange={handleRegisterChange}
                   required
+                  disabled={isLoading}
                 />
+                <p className="text-xs text-gray-500">Must be at least 6 characters</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirm-password">Confirm Password</Label>
@@ -195,11 +252,25 @@ const AuthForm = () => {
                   value={registerData.confirmPassword}
                   onChange={handleRegisterChange}
                   required
+                  disabled={isLoading}
                 />
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full">Register</Button>
+              <Button 
+                type="submit" 
+                className="w-full bg-nepal-red hover:bg-nepal-red/90"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  'Register'
+                )}
+              </Button>
             </CardFooter>
           </form>
         </TabsContent>
