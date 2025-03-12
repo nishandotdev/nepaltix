@@ -43,7 +43,7 @@ const Footer = () => {
             <h3 className="font-medium text-white text-lg mb-4">Event Categories</h3>
             <ul className="space-y-2.5">
               <FooterLink to="/events?category=MUSIC" label="Music" />
-              <FooterLink to="/events?category=CULTURAL" label="Cultural" />
+              <FooterLink to="/events?category=CULTURE" label="Cultural" />
               <FooterLink to="/events?category=FESTIVAL" label="Festivals" />
               <FooterLink to="/events?category=SPORTS" label="Sports" />
               <FooterLink to="/events?category=FOOD" label="Food & Drink" />

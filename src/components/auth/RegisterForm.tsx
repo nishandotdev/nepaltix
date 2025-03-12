@@ -25,38 +25,78 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
     role: UserRole.USER,
   });
 
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: ""
+  });
+
   const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setRegisterData((prev) => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing again
+    setErrors(prev => ({ ...prev, [name]: "" }));
   };
 
   const handleRoleChange = (value: string) => {
     setRegisterData((prev) => ({ ...prev, role: value as UserRole }));
   };
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors = {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: ""
+    };
+    
+    const { name, email, password, confirmPassword } = registerData;
+    
+    // Form validation
+    let isValid = true;
+    
+    if (!name.trim()) {
+      newErrors.name = "Name is required";
+      isValid = false;
+    }
+    
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+      isValid = false;
+    } else if (!validateEmail(email)) {
+      newErrors.email = "Please enter a valid email address";
+      isValid = false;
+    }
+    
+    if (!password) {
+      newErrors.password = "Password is required";
+      isValid = false;
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+      isValid = false;
+    }
+    
+    if (!confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+      isValid = false;
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+      isValid = false;
+    }
+    
+    if (!isValid) {
+      setErrors(newErrors);
+      return;
+    }
+    
     setIsLoading(true);
-    
-    const { name, email, password, confirmPassword, role } = registerData;
-    
-    if (!name || !email || !password || !confirmPassword) {
-      toast.error("Please fill in all fields");
-      setIsLoading(false);
-      return;
-    }
-    
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      setIsLoading(false);
-      return;
-    }
-    
-    if (password.length < 6) {
-      toast.error("Password should be at least 6 characters");
-      setIsLoading(false);
-      return;
-    }
     
     // Simulate network delay for better UX
     setTimeout(() => {
@@ -64,7 +104,7 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
         name,
         email,
         password,
-        role,
+        role: registerData.role,
       });
       
       if (result.success) {
@@ -97,7 +137,9 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
             onChange={handleRegisterChange}
             required
             disabled={isLoading}
+            className={errors.name ? "border-red-300" : ""}
           />
+          {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="register-email">Email</Label>
@@ -110,7 +152,9 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
             onChange={handleRegisterChange}
             required
             disabled={isLoading}
+            className={errors.email ? "border-red-300" : ""}
           />
+          {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="role">Account Type</Label>
@@ -144,8 +188,13 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
             onChange={handleRegisterChange}
             required
             disabled={isLoading}
+            className={errors.password ? "border-red-300" : ""}
           />
-          <p className="text-xs text-gray-500">Must be at least 6 characters</p>
+          {errors.password ? (
+            <p className="text-xs text-red-500 mt-1">{errors.password}</p>
+          ) : (
+            <p className="text-xs text-gray-500">Must be at least 6 characters</p>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="confirm-password">Confirm Password</Label>
@@ -158,7 +207,9 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
             onChange={handleRegisterChange}
             required
             disabled={isLoading}
+            className={errors.confirmPassword ? "border-red-300" : ""}
           />
+          {errors.confirmPassword && <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>}
         </div>
       </CardContent>
       <CardFooter>
