@@ -8,6 +8,7 @@ import { UserRole } from "@/types";
 import { authService } from "@/lib/authService";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface RegisterFormProps {
   isLoading: boolean;
@@ -27,6 +28,10 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
   const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setRegisterData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleRoleChange = (value: string) => {
+    setRegisterData((prev) => ({ ...prev, role: value as UserRole }));
   };
 
   const handleRegister = (e: React.FormEvent) => {
@@ -106,6 +111,27 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
             required
             disabled={isLoading}
           />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="role">Account Type</Label>
+          <Select 
+            disabled={isLoading}
+            value={registerData.role} 
+            onValueChange={handleRoleChange}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select your account type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={UserRole.USER}>Regular User</SelectItem>
+              <SelectItem value={UserRole.ORGANIZER}>Event Organizer</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-gray-500">
+            {registerData.role === UserRole.USER 
+              ? "Regular users can browse and book tickets to events" 
+              : "Organizers can create and manage their own events"}
+          </p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="register-password">Password</Label>
