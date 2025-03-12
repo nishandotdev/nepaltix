@@ -129,6 +129,20 @@ const AuthForm = () => {
     }, 1000);
   };
   
+  const autoFillDemoAccount = (type: 'admin' | 'organizer') => {
+    if (type === 'admin') {
+      setLoginData({
+        email: 'admin@nepaltix.com',
+        password: 'admin123',
+      });
+    } else {
+      setLoginData({
+        email: 'organizer@nepaltix.com',
+        password: 'organizer123',
+      });
+    }
+  };
+  
   return (
     <Card className="w-full max-w-md mx-auto">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -173,6 +187,30 @@ const AuthForm = () => {
                   required
                   disabled={isLoading}
                 />
+              </div>
+              
+              <div className="pt-2 space-y-2">
+                <p className="text-sm text-gray-500">Demo Accounts:</p>
+                <div className="flex space-x-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-xs"
+                    onClick={() => autoFillDemoAccount('admin')}
+                  >
+                    Admin
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-xs"
+                    onClick={() => autoFillDemoAccount('organizer')}
+                  >
+                    Organizer
+                  </Button>
+                </div>
               </div>
             </CardContent>
             <CardFooter>

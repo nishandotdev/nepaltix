@@ -12,6 +12,7 @@ import { DigitalTicket, User, UserRole } from "@/types";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import DigitalTicketCard from "@/components/DigitalTicketCard";
 
 const Account = () => {
   const navigate = useNavigate();
@@ -84,40 +85,10 @@ const Account = () => {
                     </Button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {tickets.map((ticket) => {
-                      const event = dbService.getEventById(ticket.eventId);
-                      return (
-                        <Card key={ticket.id}>
-                          <CardHeader className="pb-4">
-                            <CardTitle>{event?.title}</CardTitle>
-                            <CardDescription>
-                              {event?.date} at {event?.time}
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="mb-4">
-                              <p className="text-sm text-gray-500">Ticket Type</p>
-                              <p className="font-medium">{ticket.ticketType}</p>
-                            </div>
-                            <div className="mb-4">
-                              <p className="text-sm text-gray-500">Quantity</p>
-                              <p className="font-medium">{ticket.quantity}</p>
-                            </div>
-                            <div className="mb-4">
-                              <p className="text-sm text-gray-500">Access Code</p>
-                              <p className="font-medium font-mono">{ticket.accessCode}</p>
-                            </div>
-                            <Button 
-                              className="w-full mt-4"
-                              onClick={() => navigate(`/events/${ticket.eventId}`)}
-                            >
-                              View Event
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
+                  <div className="grid grid-cols-1 gap-6">
+                    {tickets.map((ticket) => (
+                      <DigitalTicketCard key={ticket.id} ticket={ticket} />
+                    ))}
                   </div>
                 )}
               </div>
@@ -166,8 +137,30 @@ const Account = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="bg-gray-50 p-4 rounded text-center">
-                      <p>Admin functionality would be implemented here.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Card className="bg-gray-50">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-lg">Users</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-2xl font-bold">
+                            {authService.getUsers().length}
+                          </p>
+                          <p className="text-sm text-gray-500">Registered users</p>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card className="bg-gray-50">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-lg">Tickets</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-2xl font-bold">
+                            {dbService.getAllTickets().length}
+                          </p>
+                          <p className="text-sm text-gray-500">Tickets sold</p>
+                        </CardContent>
+                      </Card>
                     </div>
                   </CardContent>
                 </Card>
