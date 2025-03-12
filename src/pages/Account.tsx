@@ -144,7 +144,7 @@ const Account = () => {
                         </CardHeader>
                         <CardContent>
                           <p className="text-2xl font-bold">
-                            {authService.getUsers().length}
+                            {authService.getUserCount()}
                           </p>
                           <p className="text-sm text-gray-500">Registered users</p>
                         </CardContent>

@@ -47,6 +47,10 @@ class AuthService {
     }));
   }
   
+  public getUserCount(): number {
+    return this.getUsers().length;
+  }
+  
   public register(userData: Omit<User, 'id' | 'createdAt'>): { success: boolean; message: string; user?: User } {
     const users = this.getUsers();
     
