@@ -9,6 +9,63 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      events: {
+        Row: {
+          available_tickets: number
+          category: string
+          created_at: string | null
+          created_by: string | null
+          date: string
+          description: string
+          featured: boolean | null
+          id: string
+          image_url: string
+          location: string
+          price: number
+          short_description: string
+          tags: string[] | null
+          time: string
+          title: string
+          total_tickets: number
+        }
+        Insert: {
+          available_tickets: number
+          category: string
+          created_at?: string | null
+          created_by?: string | null
+          date: string
+          description: string
+          featured?: boolean | null
+          id?: string
+          image_url: string
+          location: string
+          price: number
+          short_description: string
+          tags?: string[] | null
+          time: string
+          title: string
+          total_tickets: number
+        }
+        Update: {
+          available_tickets?: number
+          category?: string
+          created_at?: string | null
+          created_by?: string | null
+          date?: string
+          description?: string
+          featured?: boolean | null
+          id?: string
+          image_url?: string
+          location?: string
+          price?: number
+          short_description?: string
+          tags?: string[] | null
+          time?: string
+          title?: string
+          total_tickets?: number
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           actual_delivery_time: string | null
@@ -66,6 +123,30 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          role: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          name: string
+          role?: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          role?: string
+        }
+        Relationships: []
+      }
       riders: {
         Row: {
           available: boolean | null
@@ -107,6 +188,53 @@ export type Database = {
           vehicle_type?: string | null
         }
         Relationships: []
+      }
+      tickets: {
+        Row: {
+          access_code: string
+          barcode: string
+          customer_id: string | null
+          event_id: string | null
+          id: string
+          purchase_date: string | null
+          qr_code: string
+          quantity: number
+          ticket_type: string
+          used: boolean | null
+        }
+        Insert: {
+          access_code: string
+          barcode: string
+          customer_id?: string | null
+          event_id?: string | null
+          id?: string
+          purchase_date?: string | null
+          qr_code: string
+          quantity: number
+          ticket_type: string
+          used?: boolean | null
+        }
+        Update: {
+          access_code?: string
+          barcode?: string
+          customer_id?: string | null
+          event_id?: string | null
+          id?: string
+          purchase_date?: string | null
+          qr_code?: string
+          quantity?: number
+          ticket_type?: string
+          used?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {

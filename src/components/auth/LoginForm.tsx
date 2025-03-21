@@ -39,9 +39,8 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
       return;
     }
     
-    // Simulate network delay for better UX
-    setTimeout(() => {
-      const result = authService.login(email, password);
+    try {
+      const result = await authService.login(email, password);
       
       if (result.success) {
         toast.success("Login successful");
@@ -64,9 +63,12 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
       } else {
         toast.error(result.message);
       }
-      
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("An error occurred during login");
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const autoFillDemoAccount = (type: 'admin' | 'organizer') => {

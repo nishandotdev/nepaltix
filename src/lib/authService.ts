@@ -2,109 +2,150 @@
 import { User, UserRole, NotificationType } from "@/types";
 import { dbService } from "./dbService";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 class AuthService {
   private storageKey = 'nepal_ticketing_auth';
   
   constructor() {
-    // Initialize users collection if it doesn't exist
-    if (!localStorage.getItem(`${dbService.getStoragePrefix()}users`)) {
-      localStorage.setItem(`${dbService.getStoragePrefix()}users`, JSON.stringify([]));
-      
-      // Create a default admin account
-      this.register({
-        name: 'Admin User',
-        email: 'admin@nepaltix.com',
-        password: 'admin123',
-        role: UserRole.ADMIN
-      });
-      
-      // Create a default organizer account
-      this.register({
-        name: 'Event Organizer',
-        email: 'organizer@nepaltix.com',
-        password: 'organizer123',
-        role: UserRole.ORGANIZER
-      });
+    // Initialize auth state from supabase session if available
+    this.initAuthState();
+  }
+  
+  private async initAuthState() {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) {
+      // Fetch profile data
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.session.user.id)
+        .single();
+        
+      if (profileData) {
+        this.saveToSession({
+          id: data.session.user.id,
+          name: profileData.name,
+          email: profileData.email,
+          role: profileData.role as UserRole,
+          createdAt: profileData.created_at
+        });
+      }
     }
   }
   
-  private getUsers(): User[] {
-    const users = localStorage.getItem(`${dbService.getStoragePrefix()}users`);
-    return users ? JSON.parse(users) : [];
-  }
-  
-  private saveUsers(users: User[]): void {
-    localStorage.setItem(`${dbService.getStoragePrefix()}users`, JSON.stringify(users));
-  }
-  
-  private saveToSession(user: User): void {
-    // Remove password before saving to session
-    const { password, ...userWithoutPassword } = user;
+  private saveToSession(user: Omit<User, 'password'>): void {
     localStorage.setItem(this.storageKey, JSON.stringify({
-      user: userWithoutPassword,
+      user: user,
       isAuthenticated: true
     }));
   }
   
-  public getUserCount(): number {
-    return this.getUsers().length;
+  public async register(userData: { name: string, email: string, password: string, role: UserRole }): Promise<{ success: boolean; message: string; user?: Omit<User, 'password'> }> {
+    try {
+      // Register with Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+        options: {
+          data: {
+            name: userData.name,
+            role: userData.role
+          }
+        }
+      });
+      
+      if (error) {
+        return { success: false, message: error.message };
+      }
+      
+      if (!data.user) {
+        return { success: false, message: "Registration failed" };
+      }
+      
+      // The trigger will create the profile automatically
+      
+      // Create welcome notification
+      dbService.addNotification(
+        'Welcome to NepalTix',
+        `Thank you for joining NepalTix, ${userData.name}!`,
+        NotificationType.SUCCESS,
+        data.user.id
+      );
+      
+      return { 
+        success: true, 
+        message: 'Registration successful',
+        user: {
+          id: data.user.id,
+          name: userData.name,
+          email: userData.email,
+          role: userData.role,
+          createdAt: new Date().toISOString()
+        }
+      };
+    } catch (error) {
+      console.error("Registration error:", error);
+      return { success: false, message: 'An unexpected error occurred' };
+    }
   }
   
-  public register(userData: Omit<User, 'id' | 'createdAt'>): { success: boolean; message: string; user?: User } {
-    const users = this.getUsers();
-    
-    // Check if email already exists
-    if (users.some(user => user.email === userData.email)) {
-      return { success: false, message: 'Email already registered' };
+  public async login(email: string, password: string): Promise<{ success: boolean; message: string; user?: Omit<User, 'password'> }> {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) {
+        return { success: false, message: error.message };
+      }
+      
+      if (!data.user) {
+        return { success: false, message: "Login failed" };
+      }
+      
+      // Fetch profile data
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .single();
+        
+      if (profileError) {
+        return { success: false, message: profileError.message };
+      }
+      
+      if (!profileData) {
+        return { success: false, message: "User profile not found" };
+      }
+      
+      const user = {
+        id: data.user.id,
+        name: profileData.name,
+        email: profileData.email,
+        role: profileData.role as UserRole,
+        createdAt: profileData.created_at
+      };
+      
+      this.saveToSession(user);
+      
+      // Create login notification
+      dbService.addNotification(
+        'Login Successful',
+        `Welcome back, ${user.name}!`,
+        NotificationType.SUCCESS,
+        user.id
+      );
+      
+      return { success: true, message: 'Login successful', user };
+    } catch (error) {
+      console.error("Login error:", error);
+      return { success: false, message: 'An unexpected error occurred' };
     }
-    
-    const newUser: User = {
-      id: `user_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-      createdAt: new Date().toISOString(),
-      ...userData
-    };
-    
-    users.push(newUser);
-    this.saveUsers(users);
-    
-    // Create welcome notification
-    dbService.addNotification(
-      'Welcome to NepalTix',
-      `Thank you for joining NepalTix, ${newUser.name}!`,
-      NotificationType.SUCCESS,
-      newUser.id
-    );
-    
-    return { success: true, message: 'Registration successful', user: newUser };
   }
   
-  public login(email: string, password: string): { success: boolean; message: string; user?: User } {
-    const users = this.getUsers();
-    const user = users.find(user => user.email === email);
-    
-    if (!user) {
-      return { success: false, message: 'User not found' };
-    }
-    
-    if (user.password !== password) {
-      return { success: false, message: 'Invalid password' };
-    }
-    
-    this.saveToSession(user);
-    
-    // Create login notification
-    dbService.addNotification(
-      'Login Successful',
-      `Welcome back, ${user.name}!`,
-      NotificationType.SUCCESS,
-      user.id
-    );
-    
-    return { success: true, message: 'Login successful', user };
-  }
-  
-  public logout(): void {
+  public async logout(): Promise<void> {
     const { user } = this.getCurrentUser();
     
     if (user) {
@@ -117,6 +158,7 @@ class AuthService {
       );
     }
     
+    await supabase.auth.signOut();
     localStorage.removeItem(this.storageKey);
   }
   
@@ -134,21 +176,55 @@ class AuthService {
     return this.getCurrentUser().isAuthenticated;
   }
   
-  public getUserByRole(role: UserRole): Omit<User, 'password'>[] {
-    const users = this.getUsers();
-    return users
-      .filter(user => user.role === role)
-      .map(({ password, ...userWithoutPassword }) => userWithoutPassword);
+  public async getUsersByRole(role: UserRole): Promise<Omit<User, 'password'>[]> {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('role', role);
+        
+      if (error) {
+        console.error("Error fetching users by role:", error);
+        return [];
+      }
+      
+      return data.map(profile => ({
+        id: profile.id,
+        name: profile.name,
+        email: profile.email,
+        role: profile.role as UserRole,
+        createdAt: profile.created_at
+      }));
+    } catch (error) {
+      console.error("Error in getUsersByRole:", error);
+      return [];
+    }
   }
   
-  public getUserById(id: string): Omit<User, 'password'> | null {
-    const users = this.getUsers();
-    const user = users.find(user => user.id === id);
-    
-    if (!user) return null;
-    
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+  public async getUserById(id: string): Promise<Omit<User, 'password'> | null> {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', id)
+        .single();
+        
+      if (error || !data) {
+        console.error("Error fetching user by ID:", error);
+        return null;
+      }
+      
+      return {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        role: data.role as UserRole,
+        createdAt: data.created_at
+      };
+    } catch (error) {
+      console.error("Error in getUserById:", error);
+      return null;
+    }
   }
 }
 

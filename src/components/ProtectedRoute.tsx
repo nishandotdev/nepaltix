@@ -4,6 +4,8 @@ import { Navigate, useLocation } from "react-router-dom";
 import { authService } from "@/lib/authService";
 import { UserRole } from "@/types";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -12,7 +14,46 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, requiredRoles }: ProtectedRouteProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, isAuthenticated } = authService.getCurrentUser();
+  
+  useEffect(() => {
+    // Set up auth listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_OUT') {
+          // User logged out
+          authService.logout();
+          navigate('/auth');
+        } else if (event === 'SIGNED_IN' && session) {
+          // User logged in
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+            
+          if (profileData) {
+            // Update local storage with new session
+            localStorage.setItem('nepal_ticketing_auth', JSON.stringify({
+              user: {
+                id: session.user.id,
+                name: profileData.name,
+                email: profileData.email,
+                role: profileData.role,
+                createdAt: profileData.created_at
+              },
+              isAuthenticated: true
+            }));
+          }
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
   
   useEffect(() => {
     if (!isAuthenticated) {
