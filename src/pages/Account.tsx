@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -13,22 +12,53 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import DigitalTicketCard from "@/components/DigitalTicketCard";
+import { supabase } from "@/integrations/supabase/client";
 
 const Account = () => {
   const navigate = useNavigate();
   const { user } = authService.getCurrentUser();
   const [tickets, setTickets] = useState<DigitalTicket[]>([]);
   const [activeTab, setActiveTab] = useState("tickets");
+  const [isLoading, setIsLoading] = useState(true);
+  const [userCount, setUserCount] = useState(0);
+  const [ticketCount, setTicketCount] = useState(0);
   
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = "NepalTix - My Account";
     
-    if (user) {
-      // Fetch user's tickets
-      const userTickets = dbService.getTicketsByUserId(user.id);
-      setTickets(userTickets);
-    }
+    const fetchUserData = async () => {
+      setIsLoading(true);
+      if (user) {
+        try {
+          // Fetch user's tickets
+          const userTickets = await dbService.getTicketsByUserId(user.id);
+          setTickets(userTickets);
+          
+          // If user is admin, fetch counts
+          if (user.role === UserRole.ADMIN) {
+            const tickets = await dbService.getAllTickets();
+            setTicketCount(tickets.length);
+            
+            // Get user profiles count from Supabase
+            const { count } = await supabase
+              .from('profiles')
+              .select('*', { count: 'exact', head: true });
+            
+            setUserCount(count || 0);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          toast.error("Failed to load account data");
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchUserData();
   }, [user]);
   
   const handleLogout = () => {
@@ -74,7 +104,11 @@ const Account = () => {
               <div className="space-y-6">
                 <h2 className="text-2xl font-semibold">My Tickets</h2>
                 
-                {tickets.length === 0 ? (
+                {isLoading ? (
+                  <div className="bg-gray-50 rounded-lg p-8 text-center">
+                    <p>Loading tickets...</p>
+                  </div>
+                ) : tickets.length === 0 ? (
                   <div className="bg-gray-50 rounded-lg p-8 text-center">
                     <h3 className="text-lg font-medium mb-2">No tickets yet</h3>
                     <p className="text-gray-500 mb-4">
@@ -144,7 +178,7 @@ const Account = () => {
                         </CardHeader>
                         <CardContent>
                           <p className="text-2xl font-bold">
-                            {authService.getUserCount()}
+                            {userCount}
                           </p>
                           <p className="text-sm text-gray-500">Registered users</p>
                         </CardContent>
@@ -156,7 +190,7 @@ const Account = () => {
                         </CardHeader>
                         <CardContent>
                           <p className="text-2xl font-bold">
-                            {dbService.getAllTickets().length}
+                            {ticketCount}
                           </p>
                           <p className="text-sm text-gray-500">Tickets sold</p>
                         </CardContent>
