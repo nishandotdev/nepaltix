@@ -1,5 +1,5 @@
 
-import { DigitalTicket, Event, Notification, NotificationType, PaymentMethod } from "@/types";
+import { DigitalTicket, Event, EventCategory, Notification, NotificationType, PaymentMethod, TicketType } from "@/types";
 import { events as initialEvents } from "@/data/events";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -80,7 +80,7 @@ class DbService {
         location: event.location,
         price: event.price,
         imageUrl: event.image_url,
-        category: event.category,
+        category: event.category as EventCategory,
         featured: event.featured || false,
         totalTickets: event.total_tickets,
         availableTickets: event.available_tickets,
@@ -93,7 +93,7 @@ class DbService {
     }
   }
   
-  async getEventById(id: string): Promise<Event | undefined> {
+  async getEventById(id: string): Promise<Event | null> {
     try {
       const { data, error } = await supabase
         .from('events')
@@ -103,7 +103,7 @@ class DbService {
         
       if (error || !data) {
         console.error("Error fetching event:", error);
-        return undefined;
+        return null;
       }
       
       return {
@@ -116,7 +116,7 @@ class DbService {
         location: data.location,
         price: data.price,
         imageUrl: data.image_url,
-        category: data.category,
+        category: data.category as EventCategory,
         featured: data.featured || false,
         totalTickets: data.total_tickets,
         availableTickets: data.available_tickets,
@@ -124,7 +124,7 @@ class DbService {
       };
     } catch (error) {
       console.error("Error in getEventById:", error);
-      return undefined;
+      return null;
     }
   }
   
@@ -201,7 +201,7 @@ class DbService {
         location: data.location,
         price: data.price,
         imageUrl: data.image_url,
-        category: data.category,
+        category: data.category as EventCategory,
         featured: data.featured || false,
         totalTickets: data.total_tickets,
         availableTickets: data.available_tickets,
@@ -230,7 +230,7 @@ class DbService {
         id: ticket.id,
         eventId: ticket.event_id,
         customerId: ticket.customer_id,
-        ticketType: ticket.ticket_type,
+        ticketType: ticket.ticket_type as TicketType,
         quantity: ticket.quantity,
         purchaseDate: ticket.purchase_date,
         used: ticket.used,
@@ -244,7 +244,7 @@ class DbService {
     }
   }
   
-  async getTicketById(id: string): Promise<DigitalTicket | undefined> {
+  async getTicketById(id: string): Promise<DigitalTicket | null> {
     try {
       const { data, error } = await supabase
         .from('tickets')
@@ -254,14 +254,14 @@ class DbService {
         
       if (error || !data) {
         console.error("Error fetching ticket:", error);
-        return undefined;
+        return null;
       }
       
       return {
         id: data.id,
         eventId: data.event_id,
         customerId: data.customer_id,
-        ticketType: data.ticket_type,
+        ticketType: data.ticket_type as TicketType,
         quantity: data.quantity,
         purchaseDate: data.purchase_date,
         used: data.used,
@@ -271,7 +271,7 @@ class DbService {
       };
     } catch (error) {
       console.error("Error in getTicketById:", error);
-      return undefined;
+      return null;
     }
   }
   
@@ -291,7 +291,7 @@ class DbService {
         id: ticket.id,
         eventId: ticket.event_id,
         customerId: ticket.customer_id,
-        ticketType: ticket.ticket_type,
+        ticketType: ticket.ticket_type as TicketType,
         quantity: ticket.quantity,
         purchaseDate: ticket.purchase_date,
         used: ticket.used,
@@ -321,7 +321,7 @@ class DbService {
         id: ticket.id,
         eventId: ticket.event_id,
         customerId: ticket.customer_id,
-        ticketType: ticket.ticket_type,
+        ticketType: ticket.ticket_type as TicketType,
         quantity: ticket.quantity,
         purchaseDate: ticket.purchase_date,
         used: ticket.used,
@@ -389,7 +389,7 @@ class DbService {
         id: data.id,
         eventId: data.event_id,
         customerId: data.customer_id,
-        ticketType: data.ticket_type,
+        ticketType: data.ticket_type as TicketType,
         quantity: data.quantity,
         purchaseDate: data.purchase_date,
         used: data.used,

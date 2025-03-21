@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { 
   ChevronLeft, 
@@ -29,7 +29,8 @@ import {
   TicketType, 
   PaymentMethod,
   PaymentInfo,
-  NotificationType
+  NotificationType,
+  Event
 } from '@/types';
 import NotFound from './NotFound';
 
@@ -60,8 +61,35 @@ const Checkout = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [showTicket, setShowTicket] = useState(false);
   const [ticketData, setTicketData] = useState<DigitalTicket | null>(null);
+  const [event, setEvent] = useState<Event | null>(null);
+  const [loading, setLoading] = useState(true);
   
-  const event = dbService.getEventById(id || '');
+  useEffect(() => {
+    const fetchEvent = async () => {
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+      
+      const eventData = await dbService.getEventById(id);
+      setEvent(eventData);
+      setLoading(false);
+    };
+    
+    fetchEvent();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-nepal-red" />
+        </div>
+        <Footer />
+      </>
+    );
+  }
   
   if (!event) {
     return <NotFound />;
@@ -175,8 +203,7 @@ const Checkout = () => {
         const accessCode = Math.random().toString(36).substring(2, 10).toUpperCase();
         const barcode = Date.now().toString().slice(-12);
         
-        const newTicket: DigitalTicket = {
-          id: ticketId,
+        const newTicket: Omit<DigitalTicket, 'id'> = {
           eventId: event.id,
           customerId: user?.id || `CUST-${Math.random().toString(36).substring(2, 9)}`,
           ticketType: TicketType.STANDARD,
@@ -189,29 +216,33 @@ const Checkout = () => {
         };
         
         // Save ticket to database
-        const savedTicket = dbService.createTicket(newTicket);
-        setTicketData(savedTicket);
-        
-        // Add notification
-        dbService.addNotification(
-          "Booking Confirmed!",
-          `Your ticket for ${event.title} has been confirmed.`,
-          NotificationType.SUCCESS,
-          user?.id
-        );
-        
-        // Show success toast
-        toast({
-          title: "Payment Successful!",
-          description: "Your payment has been processed successfully.",
-        });
-        
-        setIsSuccess(true);
-        
-        // Simulate delay before showing ticket
-        setTimeout(() => {
-          setShowTicket(true);
-        }, 2000);
+        const savedTicket = await dbService.createTicket(newTicket);
+        if (savedTicket) {
+          setTicketData(savedTicket);
+          
+          // Add notification
+          dbService.addNotification(
+            "Booking Confirmed!",
+            `Your ticket for ${event.title} has been confirmed.`,
+            NotificationType.SUCCESS,
+            user?.id
+          );
+          
+          // Show success toast
+          toast({
+            title: "Payment Successful!",
+            description: "Your payment has been processed successfully.",
+          });
+          
+          setIsSuccess(true);
+          
+          // Simulate delay before showing ticket
+          setTimeout(() => {
+            setShowTicket(true);
+          }, 2000);
+        } else {
+          throw new Error("Failed to create ticket");
+        }
       } else {
         throw new Error("Payment failed");
       }

@@ -17,16 +17,16 @@ const NotificationBell = () => {
   const { user } = authService.getCurrentUser();
   
   useEffect(() => {
-    const fetchNotifications = () => {
+    const fetchNotifications = async () => {
       if (!user) {
         // Only get public notifications if no user is logged in
-        const allNotifications = dbService.getAllNotifications();
+        const allNotifications = await dbService.getAllNotifications();
         const publicNotifications = allNotifications.filter(n => !n.userId);
         setNotifications(publicNotifications);
         setUnreadCount(publicNotifications.filter(n => !n.read).length);
       } else {
         // Get user-specific and public notifications
-        const userNotifications = dbService.getNotificationsByUserId(user.id);
+        const userNotifications = await dbService.getNotificationsByUserId(user.id);
         setNotifications(userNotifications);
         setUnreadCount(userNotifications.filter(n => !n.read).length);
       }
@@ -35,7 +35,9 @@ const NotificationBell = () => {
     fetchNotifications();
     
     // Poll for new notifications
-    const interval = setInterval(fetchNotifications, 30000);
+    const interval = setInterval(() => {
+      fetchNotifications();
+    }, 30000);
     
     return () => clearInterval(interval);
   }, [user]);

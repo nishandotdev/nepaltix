@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,7 +34,6 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
   const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setRegisterData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user starts typing again
     setErrors(prev => ({ ...prev, [name]: "" }));
   };
 
@@ -48,7 +46,7 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
     return emailRegex.test(email);
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors = {
       name: "",
@@ -59,7 +57,6 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
     
     const { name, email, password, confirmPassword } = registerData;
     
-    // Form validation
     let isValid = true;
     
     if (!name.trim()) {
@@ -98,9 +95,10 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
     
     setIsLoading(true);
     
-    // Simulate network delay for better UX
-    setTimeout(() => {
-      const result = authService.register({
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const result = await authService.register({
         name,
         email,
         password,
@@ -113,9 +111,12 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
       } else {
         toast.error(result.message);
       }
-      
+    } catch (error) {
+      toast.error("Registration failed. Please try again.");
+      console.error("Registration error:", error);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

@@ -1,8 +1,8 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DigitalTicket } from "@/types";
+import { DigitalTicket, Event } from "@/types";
 import { dbService } from "@/lib/dbService";
 import { Download, Calendar, MapPin, Users } from "lucide-react";
 import html2canvas from "html2canvas";
@@ -12,11 +12,22 @@ interface DigitalTicketCardProps {
 }
 
 const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
-  const event = dbService.getEventById(ticket.eventId);
+  const [event, setEvent] = useState<Event | null>(null);
+  const [loading, setLoading] = useState(true);
   const ticketRef = React.useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const fetchEvent = async () => {
+      const eventData = await dbService.getEventById(ticket.eventId);
+      setEvent(eventData);
+      setLoading(false);
+    };
+    
+    fetchEvent();
+  }, [ticket.eventId]);
+
   const handleDownload = async () => {
-    if (ticketRef.current) {
+    if (ticketRef.current && event) {
       try {
         const canvas = await html2canvas(ticketRef.current, {
           scale: 2,
@@ -27,7 +38,7 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
         const image = canvas.toDataURL("image/png");
         const link = document.createElement("a");
         link.href = image;
-        link.download = `nepal-tix-${event?.title.replace(/\s+/g, '-').toLowerCase()}-ticket.png`;
+        link.download = `nepal-tix-${event.title.replace(/\s+/g, '-').toLowerCase()}-ticket.png`;
         link.click();
       } catch (error) {
         console.error("Error generating ticket:", error);
@@ -35,7 +46,8 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
     }
   };
 
-  if (!event) return null;
+  if (loading) return <div className="p-4 text-center">Loading ticket...</div>;
+  if (!event) return <div className="p-4 text-center">Ticket not found</div>;
 
   return (
     <Card className="overflow-hidden border-2 border-nepal-red/20 transition-all hover:shadow-md">
