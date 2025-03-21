@@ -4,8 +4,11 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { DigitalTicket, Event } from "@/types";
 import { dbService } from "@/lib/dbService";
-import { Download, Calendar, MapPin, Users } from "lucide-react";
+import { Download, Calendar, MapPin, Users, CheckCircle2, ShieldCheck } from "lucide-react";
 import html2canvas from "html2canvas";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Loader } from "@/components/ui/loader";
+import { toast } from "sonner";
 
 interface DigitalTicketCardProps {
   ticket: DigitalTicket;
@@ -14,13 +17,19 @@ interface DigitalTicketCardProps {
 const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
   const ticketRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchEvent = async () => {
-      const eventData = await dbService.getEventById(ticket.eventId);
-      setEvent(eventData);
-      setLoading(false);
+      try {
+        const eventData = await dbService.getEventById(ticket.eventId);
+        setEvent(eventData);
+      } catch (error) {
+        console.error("Error fetching event:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     
     fetchEvent();
@@ -29,10 +38,13 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
   const handleDownload = async () => {
     if (ticketRef.current && event) {
       try {
+        setDownloading(true);
+        
         const canvas = await html2canvas(ticketRef.current, {
           scale: 2,
           logging: false,
           useCORS: true,
+          backgroundColor: "#FFFFFF",
         });
         
         const image = canvas.toDataURL("image/png");
@@ -40,86 +52,153 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
         link.href = image;
         link.download = `nepal-tix-${event.title.replace(/\s+/g, '-').toLowerCase()}-ticket.png`;
         link.click();
+        
+        toast.success("Ticket downloaded successfully");
       } catch (error) {
         console.error("Error generating ticket:", error);
+        toast.error("Failed to download ticket");
+      } finally {
+        setDownloading(false);
       }
     }
   };
 
-  if (loading) return <div className="p-4 text-center">Loading ticket...</div>;
-  if (!event) return <div className="p-4 text-center">Ticket not found</div>;
+  if (loading) {
+    return (
+      <Card className="overflow-hidden border border-gray-200 transition-all hover:shadow-md">
+        <CardHeader className="bg-nepal-red/90 p-4">
+          <Skeleton className="h-6 w-3/4 bg-white/20" />
+          <Skeleton className="h-4 w-1/3 mt-2 bg-white/20" />
+        </CardHeader>
+        <CardContent className="p-6 space-y-4">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+          <div className="flex justify-center py-4">
+            <Skeleton className="h-32 w-32 rounded" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!event) return null;
 
   return (
-    <Card className="overflow-hidden border-2 border-nepal-red/20 transition-all hover:shadow-md">
+    <Card className="overflow-hidden border-2 border-nepal-red/10 transition-all hover:shadow-xl rounded-lg animate-fade-in bg-white">
       <div ref={ticketRef} className="relative bg-white">
-        <div className="absolute top-0 right-0 bg-nepal-red/10 rounded-bl-xl p-2 text-nepal-red font-medium">
+        <div className="absolute top-0 right-0 bg-nepal-red text-white rounded-bl-xl py-1 px-3 text-sm font-medium z-10">
           {ticket.ticketType}
         </div>
         
-        <CardHeader className="bg-nepal-red text-white">
-          <div className="flex justify-between items-start">
+        <CardHeader className="bg-gradient-to-r from-nepal-red to-nepal-red/80 text-white p-6 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10 bg-nepal-pattern"></div>
+          <div className="flex justify-between items-start relative z-10">
             <div>
-              <h3 className="text-xl font-bold font-serif">{event.title}</h3>
-              <p className="text-white/80 text-sm">{event.date} · {event.time}</p>
+              <h3 className="text-2xl font-bold font-serif">{event.title}</h3>
+              <p className="text-white/90 mt-1">{new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} · {event.time}</p>
             </div>
-            <div className="bg-white text-nepal-red rounded-full p-1 w-10 h-10 flex items-center justify-center font-bold">
+            <div className="bg-white text-nepal-red rounded-full p-2 w-12 h-12 flex items-center justify-center font-bold text-lg shadow-md">
               {ticket.quantity}x
             </div>
           </div>
         </CardHeader>
         
-        <CardContent className="pt-6 pb-4">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Calendar size={16} className="text-nepal-red" />
-              <span>{event.date}, {event.time}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <MapPin size={16} className="text-nepal-red" />
-              <span>{event.location}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users size={16} className="text-nepal-red" />
-              <span>Qty: {ticket.quantity}</span>
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center gap-3">
+                <Calendar size={18} className="text-nepal-red" />
+                <span>{new Date(event.date).toLocaleDateString('en-US', { dateStyle: 'medium' })}, {event.time}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <MapPin size={18} className="text-nepal-red" />
+                <span>{event.location}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Users size={18} className="text-nepal-red" />
+                <span>Quantity: {ticket.quantity}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <CheckCircle2 size={18} className="text-green-600" />
+                <span className="text-green-600 font-medium">Verified</span>
+              </div>
             </div>
             
-            <div className="mt-4 pt-4 border-t border-dashed border-gray-200">
+            <div className="mt-5 pt-5 border-t border-dashed border-gray-200">
               <div className="text-center">
-                <div className="font-mono bg-gray-100 p-2 rounded text-center">
+                <p className="text-sm font-medium text-gray-600 mb-2">Access Code</p>
+                <div className="font-mono bg-gray-50 p-3 rounded-md border border-gray-100 text-center inline-block min-w-48">
                   {ticket.accessCode}
                 </div>
-                <img 
-                  src={ticket.qrCode} 
-                  alt="QR Code" 
-                  className="mx-auto my-3 h-32 w-32"
-                />
-                <p className="text-xs text-gray-500">
-                  Present this code at the venue entrance
-                </p>
+                
+                <div className="my-6 relative">
+                  <div className="absolute -left-2 -top-1/2 transform translate-y-1/2 w-4 h-8 bg-gray-100 rounded-r-full"></div>
+                  <div className="absolute -right-2 -top-1/2 transform translate-y-1/2 w-4 h-8 bg-gray-100 rounded-l-full"></div>
+                  
+                  <p className="text-sm font-medium text-gray-600 mb-2">Scan QR Code</p>
+                  <div className="bg-white p-2 border border-gray-200 rounded-md shadow-sm inline-block">
+                    <img 
+                      src={ticket.qrCode} 
+                      alt="QR Code" 
+                      className="h-32 w-32 object-contain"
+                    />
+                  </div>
+                </div>
+                
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-600 mb-2">Barcode</p>
+                  <div className="bg-white p-3 border border-gray-200 rounded-md inline-block">
+                    {/* Barcode representation */}
+                    <div className="flex items-end justify-center space-x-0.5 h-12 min-w-48">
+                      {ticket.barcode.split('').map((digit, index) => (
+                        <div 
+                          key={index}
+                          className="bg-gray-900"
+                          style={{ 
+                            height: `${Math.max(30, parseInt(digit) * 5 + 30)}%`,
+                            width: parseInt(digit) % 2 === 0 ? '1px' : '2px'
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <p className="mt-2 font-mono text-xs">{ticket.barcode}</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </CardContent>
         
-        <CardFooter className="border-t border-gray-100 pt-4 pb-4">
-          <div className="w-full flex justify-between items-center">
-            <div className="text-left">
-              <p className="text-xs text-gray-500">Issued by</p>
-              <p className="font-medium">NepalTix</p>
-            </div>
-            <p className="text-xs text-gray-500">ID: {ticket.id.slice(-8)}</p>
+        <CardFooter className="border-t border-gray-100 p-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={16} className="text-green-600" />
+            <p className="text-xs text-gray-500">Secured with blockchain</p>
           </div>
+          <p className="text-xs text-gray-500">ID: {ticket.id.slice(-8)}</p>
         </CardFooter>
       </div>
       
-      <CardFooter className="bg-gray-50 py-3">
+      <CardFooter className="bg-gray-50 p-4">
         <Button 
           onClick={handleDownload} 
-          variant="outline" 
-          className="w-full flex items-center gap-2"
+          variant="default"
+          className="w-full flex items-center gap-2 bg-nepal-red hover:bg-nepal-red/90"
+          disabled={downloading}
         >
-          <Download size={16} />
-          Download Ticket
+          {downloading ? (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              Generating Ticket...
+            </>
+          ) : (
+            <>
+              <Download size={16} />
+              Download Ticket
+            </>
+          )}
         </Button>
       </CardFooter>
     </Card>

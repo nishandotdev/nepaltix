@@ -33,6 +33,7 @@ import {
   Event
 } from '@/types';
 import NotFound from './NotFound';
+import { Loader } from "@/components/ui/loader";
 
 const Checkout = () => {
   const { id } = useParams<{ id: string }>();
@@ -84,7 +85,7 @@ const Checkout = () => {
       <>
         <Navbar />
         <div className="min-h-[60vh] flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-nepal-red" />
+          <Loader size={36} text="Loading checkout..." />
         </div>
         <Footer />
       </>
@@ -450,12 +451,12 @@ Customer: ${customer.name}
           </Link>
           
           {isSuccess ? (
-            <div className="text-center py-16">
+            <div className="text-center py-16 bg-white rounded-lg shadow-sm border border-gray-100 animate-fade-in">
               <div className="mb-6">
-                <Loader2 className="h-12 w-12 text-nepal-red mx-auto animate-spin" />
+                <Loader size={36} text="Generating your tickets..." />
               </div>
-              <h2 className="text-2xl font-bold mb-2">Generating your tickets...</h2>
-              <p className="text-gray-600 dark:text-gray-300">Please wait while we prepare your digital tickets.</p>
+              <h2 className="text-2xl font-bold mb-2 text-gray-900">Almost there!</h2>
+              <p className="text-gray-600">Please wait while we prepare your digital tickets.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
