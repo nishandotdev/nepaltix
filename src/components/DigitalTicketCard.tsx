@@ -190,7 +190,7 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
         >
           {downloading ? (
             <>
-              <Loader2 size={16} className="animate-spin" />
+              <Loader size={16} className="text-white" />
               Generating Ticket...
             </>
           ) : (
