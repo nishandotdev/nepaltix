@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   Calendar, 
@@ -8,27 +8,45 @@ import {
   Tag, 
   Ticket, 
   ChevronLeft,
-  Share2
+  Share2,
+  Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from '@/components/ui/tabs';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { events } from '@/data/events';
 import { useToast } from '@/components/ui/use-toast';
+import { TicketType } from '@/types';
 import NotFound from './NotFound';
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const [ticketQuantity, setTicketQuantity] = useState(1);
+  const [selectedTicketType, setSelectedTicketType] = useState<TicketType>(TicketType.STANDARD);
   
   const event = events.find(e => e.id === id);
   
   if (!event) {
     return <NotFound />;
   }
+
+  // Determine if this is a concert/music event or sports event
+  const isMusicEvent = event.category === 'MUSIC' || event.tags.some(tag => 
+    ['Music', 'Concert', 'Festival', 'Band', 'Live Music'].includes(tag)
+  );
+  
+  const isSportsEvent = event.category === 'SPORTS' || event.tags.some(tag => 
+    ['Sports', 'Game', 'Match', 'Tournament', 'Competition'].includes(tag)
+  );
 
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { 
@@ -45,6 +63,20 @@ const EventDetails = () => {
       currency: 'NPR',
       minimumFractionDigits: 0
     }).format(price);
+  };
+
+  const getTicketPrice = () => {
+    let basePrice = event.price;
+    switch (selectedTicketType) {
+      case TicketType.VIP:
+        return basePrice * 2.5; // VIP tickets cost 2.5x more
+      case TicketType.FAN_ZONE:
+        return basePrice * 1.5; // Fan Zone tickets cost 1.5x more
+      case TicketType.EARLY_BIRD:
+        return basePrice * 0.8; // Early Bird tickets cost 20% less
+      default:
+        return basePrice;
+    }
   };
 
   const handleTicketQuantityChange = (delta: number) => {
@@ -159,10 +191,81 @@ const EventDetails = () => {
               <div className="sticky top-24 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                 <h2 className="text-xl font-semibold mb-4">Book Tickets</h2>
                 
+                <Tabs defaultValue="standard" className="mb-6" onValueChange={(value) => {
+                  setSelectedTicketType(value as TicketType);
+                }}>
+                  <TabsList className="grid grid-cols-2 mb-2">
+                    <TabsTrigger value="STANDARD">Standard</TabsTrigger>
+                    {isMusicEvent ? (
+                      <TabsTrigger value="VIP">VIP Pass</TabsTrigger>
+                    ) : isSportsEvent ? (
+                      <TabsTrigger value="FAN_ZONE">Fan Zone</TabsTrigger>
+                    ) : (
+                      <TabsTrigger value="EARLY_BIRD">Early Bird</TabsTrigger>
+                    )}
+                  </TabsList>
+                  
+                  <TabsContent value="STANDARD" className="space-y-2">
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      Standard entry to the event
+                    </p>
+                  </TabsContent>
+                  
+                  {isMusicEvent && (
+                    <TabsContent value="VIP" className="space-y-2">
+                      <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
+                        <h4 className="flex items-center font-medium text-yellow-800 dark:text-yellow-400">
+                          <Star className="h-4 w-4 mr-1 text-yellow-500" />
+                          VIP & Backstage Pass
+                        </h4>
+                        <p className="text-sm text-yellow-800 dark:text-yellow-400 mt-1">
+                          • Premium viewing area near the stage<br />
+                          • Meet & greet with artists (30 min)<br />
+                          • Exclusive VIP lounge access<br />
+                          • Complimentary drinks
+                        </p>
+                      </div>
+                    </TabsContent>
+                  )}
+                  
+                  {isSportsEvent && (
+                    <TabsContent value="FAN_ZONE" className="space-y-2">
+                      <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                        <h4 className="flex items-center font-medium text-blue-800 dark:text-blue-400">
+                          <Star className="h-4 w-4 mr-1 text-blue-500" />
+                          Team Fan Zone
+                        </h4>
+                        <p className="text-sm text-blue-800 dark:text-blue-400 mt-1">
+                          • Seating in dedicated fan section<br />
+                          • Team colors & chant sheets<br />
+                          • Fan zone exclusive merchandise<br />
+                          • Pre-game fan activities
+                        </p>
+                      </div>
+                    </TabsContent>
+                  )}
+                  
+                  {!isMusicEvent && !isSportsEvent && (
+                    <TabsContent value="EARLY_BIRD" className="space-y-2">
+                      <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-md">
+                        <h4 className="flex items-center font-medium text-green-800 dark:text-green-400">
+                          <Star className="h-4 w-4 mr-1 text-green-500" />
+                          Early Bird Special
+                        </h4>
+                        <p className="text-sm text-green-800 dark:text-green-400 mt-1">
+                          • Discounted price<br />
+                          • Early entry (30 min before standard)<br />
+                          • Limited availability
+                        </p>
+                      </div>
+                    </TabsContent>
+                  )}
+                </Tabs>
+                
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 dark:text-gray-300">Price per ticket</span>
-                    <span className="font-medium text-gray-900 dark:text-white">{formatPrice(event.price)}</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{formatPrice(getTicketPrice())}</span>
                   </div>
                   
                   <div className="flex justify-between items-center">
@@ -206,10 +309,10 @@ const EventDetails = () => {
                   
                   <div className="flex justify-between items-center pt-2">
                     <span className="text-gray-900 dark:text-white font-semibold">Total</span>
-                    <span className="text-xl font-bold text-nepal-red">{formatPrice(event.price * ticketQuantity)}</span>
+                    <span className="text-xl font-bold text-nepal-red">{formatPrice(getTicketPrice() * ticketQuantity)}</span>
                   </div>
                   
-                  <Link to={`/checkout/${event.id}?quantity=${ticketQuantity}`} className="w-full">
+                  <Link to={`/checkout/${event.id}?quantity=${ticketQuantity}&type=${selectedTicketType}`} className="w-full">
                     <Button className="w-full gap-2 bg-nepal-red hover:bg-nepal-red/90">
                       <Ticket className="h-4 w-4" />
                       Book Now

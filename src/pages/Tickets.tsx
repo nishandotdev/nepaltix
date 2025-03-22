@@ -1,17 +1,25 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, Filter } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DigitalTicketCard from "@/components/DigitalTicketCard";
-import { DigitalTicket } from "@/types";
+import { DigitalTicket, TicketType } from "@/types";
 import { dbService } from "@/lib/dbService";
 import { authService } from "@/lib/authService";
+import { 
+  DropdownMenu,
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 const Tickets = () => {
   const [tickets, setTickets] = useState<DigitalTicket[]>([]);
+  const [filteredTickets, setFilteredTickets] = useState<DigitalTicket[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterType, setFilterType] = useState<string | null>(null);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -27,6 +35,7 @@ const Tickets = () => {
         
         const userTickets = await dbService.getTicketsByUserId(authData.user.id);
         setTickets(userTickets);
+        setFilteredTickets(userTickets);
       } catch (error) {
         console.error("Error fetching tickets:", error);
       } finally {
@@ -37,13 +46,25 @@ const Tickets = () => {
     fetchTickets();
   }, [navigate]);
   
+  useEffect(() => {
+    if (filterType === null) {
+      setFilteredTickets(tickets);
+    } else {
+      setFilteredTickets(tickets.filter(ticket => ticket.ticketType === filterType));
+    }
+  }, [filterType, tickets]);
+
+  const clearFilter = () => {
+    setFilterType(null);
+  };
+  
   return (
     <>
       <Navbar />
       
       <div className="bg-gray-50 dark:bg-gray-900 min-h-screen pt-16 pb-20">
         <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-10">
+          <div className="text-center max-w-3xl mx-auto mb-6">
             <h1 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-4">
               My Tickets
             </h1>
@@ -52,14 +73,46 @@ const Tickets = () => {
             </p>
           </div>
           
+          {!loading && tickets.length > 0 && (
+            <div className="flex justify-end mb-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center px-3 py-2 text-sm font-medium rounded-md border border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <Filter className="h-4 w-4 mr-2" />
+                    {filterType ? `Showing: ${filterType}` : "Filter tickets"}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setFilterType(TicketType.STANDARD)}>
+                    Standard Tickets
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setFilterType(TicketType.VIP)}>
+                    VIP & Backstage Passes
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setFilterType(TicketType.EARLY_BIRD)}>
+                    Early Bird Tickets
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setFilterType("FAN_ZONE")}>
+                    Team Fan Zone Tickets
+                  </DropdownMenuItem>
+                  {filterType && (
+                    <DropdownMenuItem onClick={clearFilter}>
+                      Clear Filter
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+          
           {loading ? (
             <div className="flex justify-center items-center py-20">
               <Loader2 className="h-8 w-8 text-nepal-red animate-spin" />
               <span className="ml-2 text-gray-600">Loading your tickets...</span>
             </div>
-          ) : tickets.length > 0 ? (
+          ) : filteredTickets.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {tickets.map((ticket) => (
+              {filteredTickets.map((ticket) => (
                 <DigitalTicketCard key={ticket.id} ticket={ticket} />
               ))}
             </div>
@@ -82,10 +135,12 @@ const Tickets = () => {
                 </svg>
               </div>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">
-                No Tickets Found
+                {filterType ? `No ${filterType} Tickets Found` : "No Tickets Found"}
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                You haven't purchased any tickets yet. Browse our events to find something interesting!
+                {filterType 
+                  ? `You don't have any ${filterType} tickets. Try a different filter or browse our events.`
+                  : "You haven't purchased any tickets yet. Browse our events to find something interesting!"}
               </p>
               <button
                 onClick={() => navigate("/events")}

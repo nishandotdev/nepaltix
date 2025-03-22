@@ -1,4 +1,3 @@
-
 export interface Event {
   id: string;
   title: string;
@@ -37,6 +36,7 @@ export enum TicketType {
   STANDARD = 'STANDARD',
   VIP = 'VIP',
   EARLY_BIRD = 'EARLY_BIRD',
+  FAN_ZONE = 'FAN_ZONE',
 }
 
 export interface CartItem {
@@ -61,6 +61,9 @@ export interface DigitalTicket {
   qrCode: string;
   barcode: string;
   accessCode: string;
+  vipPerks?: string[];
+  fanZoneSection?: string;
+  teamColor?: string;
 }
 
 export interface OrganizerEvent extends Event {
