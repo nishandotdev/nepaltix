@@ -1,3 +1,4 @@
+
 import { User, UserRole, NotificationType } from "@/types";
 import { dbService } from "./dbService";
 import { toast } from "sonner";
@@ -125,8 +126,8 @@ class AuthService {
         return { success: false, message: "Login failed" };
       }
       
-      // Fetch profile data
-      const { data: profileData, error: profileError } = await supabase
+      // Fetch profile data - using let instead of const to allow reassignment
+      let { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', data.user.id)
