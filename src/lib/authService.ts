@@ -1,4 +1,3 @@
-
 import { User, UserRole, NotificationType } from "@/types";
 import { dbService } from "./dbService";
 import { toast } from "sonner";
@@ -13,24 +12,28 @@ class AuthService {
   }
   
   private async initAuthState() {
-    const { data } = await supabase.auth.getSession();
-    if (data.session) {
-      // Fetch profile data
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', data.session.user.id)
-        .single();
-        
-      if (profileData) {
-        this.saveToSession({
-          id: data.session.user.id,
-          name: profileData.name,
-          email: profileData.email,
-          role: profileData.role as UserRole,
-          createdAt: profileData.created_at
-        });
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        // Fetch profile data
+        const { data: profileData, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.session.user.id)
+          .single();
+          
+        if (profileData && !error) {
+          this.saveToSession({
+            id: data.session.user.id,
+            name: profileData.name,
+            email: profileData.email,
+            role: profileData.role as UserRole,
+            createdAt: profileData.created_at
+          });
+        }
       }
+    } catch (error) {
+      console.error("Failed to initialize auth state:", error);
     }
   }
   
@@ -63,10 +66,23 @@ class AuthService {
         return { success: false, message: "Registration failed" };
       }
       
-      // The trigger will create the profile automatically
+      // Manual profile creation after signup to avoid RLS recursion issues
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: data.user.id,
+          name: userData.name,
+          email: userData.email,
+          role: userData.role
+        });
+        
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+        // We should continue even if profile creation fails as the auth user is created
+      }
       
       // Create welcome notification
-      dbService.addNotification(
+      await dbService.addNotification(
         'Welcome to NepalTix',
         `Thank you for joining NepalTix, ${userData.name}!`,
         NotificationType.SUCCESS,
@@ -75,7 +91,7 @@ class AuthService {
       
       return { 
         success: true, 
-        message: 'Registration successful',
+        message: 'Registration successful! Please check your email to confirm your account.',
         user: {
           id: data.user.id,
           name: userData.name,
@@ -98,7 +114,11 @@ class AuthService {
       });
       
       if (error) {
-        return { success: false, message: error.message };
+        console.error("Login error:", error);
+        if (error.message.includes("Email not confirmed")) {
+          return { success: false, message: "Please check your email to confirm your account before logging in." };
+        }
+        return { success: false, message: error.message || "Login failed" };
       }
       
       if (!data.user) {
@@ -113,11 +133,39 @@ class AuthService {
         .single();
         
       if (profileError) {
-        return { success: false, message: profileError.message };
+        console.error("Profile fetch error:", profileError);
+        return { success: false, message: "Failed to fetch user profile" };
       }
       
       if (!profileData) {
-        return { success: false, message: "User profile not found" };
+        // Create profile if it doesn't exist (fallback)
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            name: data.user.user_metadata.name || email.split('@')[0],
+            email: email,
+            role: 'USER'
+          });
+          
+        if (insertError) {
+          console.error("Profile creation error:", insertError);
+          return { success: false, message: "Failed to create user profile" };
+        }
+        
+        // Retry fetching the profile
+        const { data: newProfileData, error: newProfileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+          
+        if (newProfileError || !newProfileData) {
+          console.error("Profile re-fetch error:", newProfileError);
+          return { success: false, message: "Failed to fetch user profile" };
+        }
+        
+        profileData = newProfileData;
       }
       
       const user = {
@@ -131,7 +179,7 @@ class AuthService {
       this.saveToSession(user);
       
       // Create login notification
-      dbService.addNotification(
+      await dbService.addNotification(
         'Login Successful',
         `Welcome back, ${user.name}!`,
         NotificationType.SUCCESS,
@@ -141,7 +189,7 @@ class AuthService {
       return { success: true, message: 'Login successful', user };
     } catch (error) {
       console.error("Login error:", error);
-      return { success: false, message: 'An unexpected error occurred' };
+      return { success: false, message: 'An unexpected error occurred during login' };
     }
   }
   

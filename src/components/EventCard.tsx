@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Clock, MapPin, Calendar } from 'lucide-react';
 import { Event } from '@/types';
 import { Badge } from '@/components/ui/badge';
+import SoldOutBadge from './SoldOutBadge';
 
 interface EventCardProps {
   event: Event;
@@ -37,10 +38,11 @@ const EventCard = ({ event, featured = false }: EventCardProps) => {
   };
 
   const soldPercentage = getSoldPercentage(event.totalTickets, event.availableTickets);
+  const isSoldOut = event.availableTickets <= 0;
   
   // Determine ticket availability status
   const getAvailabilityStatus = () => {
-    if (event.availableTickets <= 0) {
+    if (isSoldOut) {
       return { text: "Sold Out", color: "bg-red-100 text-red-800 border-red-200" };
     } else if (soldPercentage >= 80) {
       return { text: "Selling Fast", color: "bg-orange-100 text-orange-800 border-orange-200" };
@@ -89,6 +91,14 @@ const EventCard = ({ event, featured = false }: EventCardProps) => {
           </Badge>
         </div>
         
+        {isSoldOut && (
+          <div className="absolute inset-0 flex items-center justify-center z-20">
+            <div className="transform rotate-45 bg-red-600 text-white py-1 px-16 font-bold text-xl shadow-lg">
+              SOLD OUT
+            </div>
+          </div>
+        )}
+        
         <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 text-white">
           <div className="space-y-1">
             <span className="inline-block text-xs font-medium uppercase tracking-wider text-nepal-cream bg-black/30 px-2 py-1 rounded-sm backdrop-blur-sm">
@@ -128,7 +138,7 @@ const EventCard = ({ event, featured = false }: EventCardProps) => {
             {formatPrice(event.price)}
           </div>
           
-          {event.availableTickets > 0 && (
+          {!isSoldOut && (
             <div className="relative w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
               <div 
                 className="absolute top-0 left-0 h-full bg-nepal-red"

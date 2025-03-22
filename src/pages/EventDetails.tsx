@@ -9,7 +9,8 @@ import {
   Ticket, 
   ChevronLeft,
   Share2,
-  Star
+  Star,
+  AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -26,6 +27,8 @@ import { events } from '@/data/events';
 import { useToast } from '@/components/ui/use-toast';
 import { TicketType } from '@/types';
 import NotFound from './NotFound';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import SoldOutBadge from '@/components/SoldOutBadge';
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +41,9 @@ const EventDetails = () => {
   if (!event) {
     return <NotFound />;
   }
+
+  const isSoldOut = event.availableTickets <= 0;
+  const eventHasPassed = new Date(event.date) < new Date();
 
   // Determine if this is a concert/music event or sports event
   const isMusicEvent = event.category === 'MUSIC' || event.tags.some(tag => 
@@ -108,6 +114,10 @@ const EventDetails = () => {
     }
   };
 
+  // Calculate remaining ticket percentage
+  const remainingTicketsPercentage = (event.availableTickets / event.totalTickets) * 100;
+  const showLowTicketWarning = !isSoldOut && remainingTicketsPercentage <= 20;
+
   return (
     <>
       <Navbar />
@@ -130,6 +140,14 @@ const EventDetails = () => {
                   alt={event.title} 
                   className="w-full object-cover aspect-[16/9]"
                 />
+                
+                {isSoldOut && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="transform rotate-45 bg-red-600 text-white py-2 px-24 font-bold text-2xl shadow-lg">
+                      SOLD OUT
+                    </div>
+                  </div>
+                )}
                 
                 <Button
                   variant="secondary"
@@ -191,138 +209,181 @@ const EventDetails = () => {
               <div className="sticky top-24 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                 <h2 className="text-xl font-semibold mb-4">Book Tickets</h2>
                 
-                <Tabs defaultValue="standard" className="mb-6" onValueChange={(value) => {
-                  setSelectedTicketType(value as TicketType);
-                }}>
-                  <TabsList className="grid grid-cols-2 mb-2">
-                    <TabsTrigger value="STANDARD">Standard</TabsTrigger>
-                    {isMusicEvent ? (
-                      <TabsTrigger value="VIP">VIP Pass</TabsTrigger>
-                    ) : isSportsEvent ? (
-                      <TabsTrigger value="FAN_ZONE">Fan Zone</TabsTrigger>
-                    ) : (
-                      <TabsTrigger value="EARLY_BIRD">Early Bird</TabsTrigger>
-                    )}
-                  </TabsList>
-                  
-                  <TabsContent value="STANDARD" className="space-y-2">
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Standard entry to the event
-                    </p>
-                  </TabsContent>
-                  
-                  {isMusicEvent && (
-                    <TabsContent value="VIP" className="space-y-2">
-                      <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
-                        <h4 className="flex items-center font-medium text-yellow-800 dark:text-yellow-400">
-                          <Star className="h-4 w-4 mr-1 text-yellow-500" />
-                          VIP & Backstage Pass
-                        </h4>
-                        <p className="text-sm text-yellow-800 dark:text-yellow-400 mt-1">
-                          • Premium viewing area near the stage<br />
-                          • Meet & greet with artists (30 min)<br />
-                          • Exclusive VIP lounge access<br />
-                          • Complimentary drinks
-                        </p>
-                      </div>
-                    </TabsContent>
-                  )}
-                  
-                  {isSportsEvent && (
-                    <TabsContent value="FAN_ZONE" className="space-y-2">
-                      <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
-                        <h4 className="flex items-center font-medium text-blue-800 dark:text-blue-400">
-                          <Star className="h-4 w-4 mr-1 text-blue-500" />
-                          Team Fan Zone
-                        </h4>
-                        <p className="text-sm text-blue-800 dark:text-blue-400 mt-1">
-                          • Seating in dedicated fan section<br />
-                          • Team colors & chant sheets<br />
-                          • Fan zone exclusive merchandise<br />
-                          • Pre-game fan activities
-                        </p>
-                      </div>
-                    </TabsContent>
-                  )}
-                  
-                  {!isMusicEvent && !isSportsEvent && (
-                    <TabsContent value="EARLY_BIRD" className="space-y-2">
-                      <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-md">
-                        <h4 className="flex items-center font-medium text-green-800 dark:text-green-400">
-                          <Star className="h-4 w-4 mr-1 text-green-500" />
-                          Early Bird Special
-                        </h4>
-                        <p className="text-sm text-green-800 dark:text-green-400 mt-1">
-                          • Discounted price<br />
-                          • Early entry (30 min before standard)<br />
-                          • Limited availability
-                        </p>
-                      </div>
-                    </TabsContent>
-                  )}
-                </Tabs>
+                {eventHasPassed && (
+                  <Alert className="mb-4 bg-amber-50 text-amber-800 border-amber-200">
+                    <AlertTriangle className="h-4 w-4 text-amber-500" />
+                    <AlertDescription>
+                      This event has already taken place.
+                    </AlertDescription>
+                  </Alert>
+                )}
                 
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 dark:text-gray-300">Price per ticket</span>
-                    <span className="font-medium text-gray-900 dark:text-white">{formatPrice(getTicketPrice())}</span>
+                {isSoldOut ? (
+                  <div className="text-center py-8">
+                    <SoldOutBadge size="large" className="mb-4" />
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      Sorry, all tickets for this event have been sold.
+                    </p>
+                    <Link to="/events">
+                      <Button variant="outline" className="mt-2">
+                        Browse Other Events
+                      </Button>
+                    </Link>
                   </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 dark:text-gray-300">Available tickets</span>
-                    <span className="font-medium text-gray-900 dark:text-white">{event.availableTickets}</span>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Number of tickets
-                    </label>
-                    <div className="flex items-center border rounded-md overflow-hidden">
-                      <button
-                        type="button"
-                        onClick={() => handleTicketQuantityChange(-1)}
-                        disabled={ticketQuantity <= 1}
-                        className="px-3 py-2 border-r text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
-                      >
-                        -
-                      </button>
-                      <input
-                        type="number"
-                        min="1"
-                        max={event.availableTickets}
-                        value={ticketQuantity}
-                        onChange={(e) => setTicketQuantity(parseInt(e.target.value) || 1)}
-                        className="w-16 text-center py-2 border-none focus:ring-0 focus:outline-none dark:bg-gray-800"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleTicketQuantityChange(1)}
-                        disabled={ticketQuantity >= event.availableTickets}
-                        className="px-3 py-2 border-l text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
-                      >
-                        +
-                      </button>
+                ) : (
+                  <>
+                    {showLowTicketWarning && (
+                      <Alert className="mb-4 bg-amber-50 text-amber-800 border-amber-200">
+                        <AlertTriangle className="h-4 w-4 text-amber-500" />
+                        <AlertDescription>
+                          Only {event.availableTickets} tickets left! Book quickly.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
+                    <Tabs defaultValue="standard" className="mb-6" onValueChange={(value) => {
+                      setSelectedTicketType(value as TicketType);
+                    }}>
+                      <TabsList className="grid grid-cols-2 mb-2">
+                        <TabsTrigger value="STANDARD">Standard</TabsTrigger>
+                        {isMusicEvent ? (
+                          <TabsTrigger value="VIP">VIP Pass</TabsTrigger>
+                        ) : isSportsEvent ? (
+                          <TabsTrigger value="FAN_ZONE">Fan Zone</TabsTrigger>
+                        ) : (
+                          <TabsTrigger value="EARLY_BIRD">Early Bird</TabsTrigger>
+                        )}
+                      </TabsList>
+                      
+                      <TabsContent value="STANDARD" className="space-y-2">
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                          Standard entry to the event
+                        </p>
+                      </TabsContent>
+                      
+                      {isMusicEvent && (
+                        <TabsContent value="VIP" className="space-y-2">
+                          <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
+                            <h4 className="flex items-center font-medium text-yellow-800 dark:text-yellow-400">
+                              <Star className="h-4 w-4 mr-1 text-yellow-500" />
+                              VIP & Backstage Pass
+                            </h4>
+                            <p className="text-sm text-yellow-800 dark:text-yellow-400 mt-1">
+                              • Premium viewing area near the stage<br />
+                              • Meet & greet with artists (30 min)<br />
+                              • Exclusive VIP lounge access<br />
+                              • Complimentary drinks
+                            </p>
+                          </div>
+                        </TabsContent>
+                      )}
+                      
+                      {isSportsEvent && (
+                        <TabsContent value="FAN_ZONE" className="space-y-2">
+                          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                            <h4 className="flex items-center font-medium text-blue-800 dark:text-blue-400">
+                              <Star className="h-4 w-4 mr-1 text-blue-500" />
+                              Team Fan Zone
+                            </h4>
+                            <p className="text-sm text-blue-800 dark:text-blue-400 mt-1">
+                              • Seating in dedicated fan section<br />
+                              • Team colors & chant sheets<br />
+                              • Fan zone exclusive merchandise<br />
+                              • Pre-game fan activities
+                            </p>
+                          </div>
+                        </TabsContent>
+                      )}
+                      
+                      {!isMusicEvent && !isSportsEvent && (
+                        <TabsContent value="EARLY_BIRD" className="space-y-2">
+                          <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-md">
+                            <h4 className="flex items-center font-medium text-green-800 dark:text-green-400">
+                              <Star className="h-4 w-4 mr-1 text-green-500" />
+                              Early Bird Special
+                            </h4>
+                            <p className="text-sm text-green-800 dark:text-green-400 mt-1">
+                              • Discounted price<br />
+                              • Early entry (30 min before standard)<br />
+                              • Limited availability
+                            </p>
+                          </div>
+                        </TabsContent>
+                      )}
+                    </Tabs>
+                    
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 dark:text-gray-300">Price per ticket</span>
+                        <span className="font-medium text-gray-900 dark:text-white">{formatPrice(getTicketPrice())}</span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 dark:text-gray-300">Available tickets</span>
+                        <span className="font-medium text-gray-900 dark:text-white">{event.availableTickets}</span>
+                      </div>
+                      
+                      <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                        <div className="bg-nepal-red h-2.5 rounded-full" style={{ width: `${(event.totalTickets - event.availableTickets) / event.totalTickets * 100}%` }}></div>
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Number of tickets
+                        </label>
+                        <div className="flex items-center border rounded-md overflow-hidden">
+                          <button
+                            type="button"
+                            onClick={() => handleTicketQuantityChange(-1)}
+                            disabled={ticketQuantity <= 1}
+                            className="px-3 py-2 border-r text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+                          >
+                            -
+                          </button>
+                          <input
+                            type="number"
+                            min="1"
+                            max={event.availableTickets}
+                            value={ticketQuantity}
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value) || 1;
+                              if (val >= 1 && val <= event.availableTickets) {
+                                setTicketQuantity(val);
+                              }
+                            }}
+                            className="w-16 text-center py-2 border-none focus:ring-0 focus:outline-none dark:bg-gray-800"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleTicketQuantityChange(1)}
+                            disabled={ticketQuantity >= event.availableTickets}
+                            className="px-3 py-2 border-l text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between items-center pt-2">
+                        <span className="text-gray-900 dark:text-white font-semibold">Total</span>
+                        <span className="text-xl font-bold text-nepal-red">{formatPrice(getTicketPrice() * ticketQuantity)}</span>
+                      </div>
+                      
+                      <Link to={`/checkout/${event.id}?quantity=${ticketQuantity}&type=${selectedTicketType}`} className="w-full">
+                        <Button className="w-full gap-2 bg-nepal-red hover:bg-nepal-red/90" disabled={eventHasPassed}>
+                          <Ticket className="h-4 w-4" />
+                          Book Now
+                        </Button>
+                      </Link>
+                      
+                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                        Tickets cannot be refunded or exchanged.
+                      </p>
                     </div>
-                  </div>
-                  
-                  <div className="flex justify-between items-center pt-2">
-                    <span className="text-gray-900 dark:text-white font-semibold">Total</span>
-                    <span className="text-xl font-bold text-nepal-red">{formatPrice(getTicketPrice() * ticketQuantity)}</span>
-                  </div>
-                  
-                  <Link to={`/checkout/${event.id}?quantity=${ticketQuantity}&type=${selectedTicketType}`} className="w-full">
-                    <Button className="w-full gap-2 bg-nepal-red hover:bg-nepal-red/90">
-                      <Ticket className="h-4 w-4" />
-                      Book Now
-                    </Button>
-                  </Link>
-                  
-                  <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                    Tickets cannot be refunded or exchanged.
-                  </p>
-                </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

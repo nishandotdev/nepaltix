@@ -8,7 +8,8 @@ import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from 
 import { UserRole } from "@/types";
 import { authService } from "@/lib/authService";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface LoginFormProps {
   isLoading: boolean;
@@ -21,20 +22,23 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
     email: "",
     password: "",
   });
+  const [error, setError] = useState<string | null>(null);
 
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setLoginData((prev) => ({ ...prev, [name]: value }));
+    setError(null); // Clear error when input changes
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
     
     const { email, password } = loginData;
     
     if (!email || !password) {
-      toast.error("Please fill in all fields");
+      setError("Please fill in all fields");
       setIsLoading(false);
       return;
     }
@@ -61,10 +65,12 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
           }
         }
       } else {
+        setError(result.message);
         toast.error(result.message);
       }
     } catch (error) {
       console.error("Login error:", error);
+      setError("An error occurred during login");
       toast.error("An error occurred during login");
     } finally {
       setIsLoading(false);
@@ -83,6 +89,7 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
         password: 'organizer123',
       });
     }
+    setError(null);
   };
 
   return (
@@ -94,6 +101,13 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {error && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input

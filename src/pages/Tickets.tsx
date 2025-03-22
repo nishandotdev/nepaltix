@@ -30,6 +30,8 @@ const Tickets = () => {
         
         const authData = await authService.getCurrentUser();
         if (!authData.isAuthenticated || !authData.user) {
+          // Store the current path to redirect back after login
+          sessionStorage.setItem("redirectAfterLogin", window.location.pathname);
           navigate("/auth", { replace: true });
           return;
         }
