@@ -19,13 +19,13 @@ const Tickets = () => {
       try {
         setLoading(true);
         
-        const currentUser = await authService.getCurrentUser();
-        if (!currentUser) {
+        const authData = await authService.getCurrentUser();
+        if (!authData.isAuthenticated || !authData.user) {
           navigate("/auth", { replace: true });
           return;
         }
         
-        const userTickets = await dbService.getTicketsByUserId(currentUser.id);
+        const userTickets = await dbService.getTicketsByUserId(authData.user.id);
         setTickets(userTickets);
       } catch (error) {
         console.error("Error fetching tickets:", error);
