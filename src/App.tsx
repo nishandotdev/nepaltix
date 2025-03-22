@@ -13,6 +13,7 @@ import TicketScanner from "./pages/TicketScanner";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Account from "./pages/Account";
+import Tickets from "./pages/Tickets";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import About from "./pages/About";
@@ -70,6 +71,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Account />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/tickets" 
+            element={
+              <ProtectedRoute>
+                <Tickets />
               </ProtectedRoute>
             } 
           />
