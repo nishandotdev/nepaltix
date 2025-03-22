@@ -1,11 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { 
   ChevronLeft, 
   CreditCard, 
   Receipt, 
-  CheckCircle, 
-  Loader2,
+  CheckCircle,
   Calendar,
   MapPin,
   Users,
@@ -515,10 +515,12 @@ Customer: ${customer.name}
                       <div>
                         <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
                         <Tabs defaultValue="CARD" className="w-full" onValueChange={handleTabChange}>
-                          <TabsList className="grid w-full grid-cols-3">
+                          <TabsList className="grid w-full grid-cols-5">
                             <TabsTrigger value="CARD">Card</TabsTrigger>
                             <TabsTrigger value="KHALTI">Khalti</TabsTrigger>
                             <TabsTrigger value="ESEWA">eSewa</TabsTrigger>
+                            <TabsTrigger value="FONEPAY">FonePay</TabsTrigger>
+                            <TabsTrigger value="CONNECTIPS">ConnectIPS</TabsTrigger>
                           </TabsList>
                           
                           <TabsContent value="CARD" className="space-y-4 mt-4">
@@ -589,6 +591,38 @@ Customer: ${customer.name}
                               <p className="text-xs text-gray-500 mt-2">Use this number for test payments</p>
                             </div>
                           </TabsContent>
+                          
+                          <TabsContent value="FONEPAY" className="pt-4">
+                            <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                              <p className="mb-3">Continue to pay with FonePay</p>
+                              <img 
+                                src="https://fonepay.com/images/logo.png" 
+                                alt="FonePay Logo" 
+                                className="h-8 mx-auto mb-3"
+                              />
+                              <div className="flex items-center justify-center gap-2 text-sm font-medium">
+                                <Phone className="h-4 w-4" />
+                                <span>9749377349</span>
+                              </div>
+                              <p className="text-xs text-gray-500 mt-2">Use this number for test payments</p>
+                            </div>
+                          </TabsContent>
+                          
+                          <TabsContent value="CONNECTIPS" className="pt-4">
+                            <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                              <p className="mb-3">Continue to pay with ConnectIPS</p>
+                              <img 
+                                src="https://connectips.com/images/connectips.png" 
+                                alt="ConnectIPS Logo" 
+                                className="h-8 mx-auto mb-3"
+                              />
+                              <div className="flex items-center justify-center gap-2 text-sm font-medium">
+                                <Phone className="h-4 w-4" />
+                                <span>9749377349</span>
+                              </div>
+                              <p className="text-xs text-gray-500 mt-2">Use this number for test payments</p>
+                            </div>
+                          </TabsContent>
                         </Tabs>
                       </div>
                       
@@ -599,7 +633,7 @@ Customer: ${customer.name}
                       >
                         {isProcessingPayment ? (
                           <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <Loader variant="white" size={18} className="mr-2" />
                             Processing Payment...
                           </>
                         ) : isSubmitting ? (

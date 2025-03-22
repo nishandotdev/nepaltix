@@ -1,3 +1,4 @@
+
 export interface Event {
   id: string;
   title: string;
@@ -109,6 +110,8 @@ export enum PaymentMethod {
   CARD = 'CARD',
   KHALTI = 'KHALTI',
   ESEWA = 'ESEWA',
+  FONEPAY = 'FONEPAY',
+  CONNECTIPS = 'CONNECTIPS',
 }
 
 export interface User {

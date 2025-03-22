@@ -1,13 +1,14 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Filter } from "lucide-react";
+import { Filter } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DigitalTicketCard from "@/components/DigitalTicketCard";
 import { DigitalTicket, TicketType } from "@/types";
 import { dbService } from "@/lib/dbService";
 import { authService } from "@/lib/authService";
+import { Loader } from "@/components/ui/loader";
 import { 
   DropdownMenu,
   DropdownMenuContent, 
@@ -92,7 +93,7 @@ const Tickets = () => {
                   <DropdownMenuItem onClick={() => setFilterType(TicketType.EARLY_BIRD)}>
                     Early Bird Tickets
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setFilterType("FAN_ZONE")}>
+                  <DropdownMenuItem onClick={() => setFilterType(TicketType.FAN_ZONE)}>
                     Team Fan Zone Tickets
                   </DropdownMenuItem>
                   {filterType && (
@@ -107,8 +108,7 @@ const Tickets = () => {
           
           {loading ? (
             <div className="flex justify-center items-center py-20">
-              <Loader2 className="h-8 w-8 text-nepal-red animate-spin" />
-              <span className="ml-2 text-gray-600">Loading your tickets...</span>
+              <Loader size={40} text="Loading your tickets..." />
             </div>
           ) : filteredTickets.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
