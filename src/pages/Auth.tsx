@@ -5,13 +5,6 @@ import AuthForm from "@/components/AuthForm";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { authService } from "@/lib/authService";
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger 
-} from "@/components/ui/tooltip";
-import { InfoIcon } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -55,25 +48,6 @@ const Auth = () => {
                   <span>Secure payments with local options</span>
                 </li>
               </ul>
-              
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-100 relative group">
-                      <div className="absolute -top-2 -right-2 p-1 bg-gray-100 rounded-full opacity-50 group-hover:opacity-100 transition-opacity">
-                        <InfoIcon className="h-4 w-4 text-gray-500" />
-                      </div>
-                      <p className="font-medium">Demo Accounts:</p>
-                      <p className="text-sm mt-1 text-gray-500">
-                        <span className="font-mono">organizer@nepaltix.com</span> / <span className="font-mono">organizer123</span>
-                      </p>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="p-2 max-w-xs">
-                    <p className="text-xs">Admin account: <span className="font-mono">admin@nepaltix.com</span> / <span className="font-mono">admin123</span></p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
             </div>
             <div>
               <AuthForm />

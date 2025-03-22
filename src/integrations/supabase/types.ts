@@ -64,61 +64,12 @@ export type Database = {
           title?: string
           total_tickets?: number
         }
-        Relationships: []
-      }
-      orders: {
-        Row: {
-          actual_delivery_time: string | null
-          created_at: string
-          delivery_address: string
-          estimated_delivery_time: string | null
-          id: string
-          items: Json
-          rider_id: string | null
-          status: string
-          total_amount: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          actual_delivery_time?: string | null
-          created_at?: string
-          delivery_address: string
-          estimated_delivery_time?: string | null
-          id?: string
-          items: Json
-          rider_id?: string | null
-          status?: string
-          total_amount: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          actual_delivery_time?: string | null
-          created_at?: string
-          delivery_address?: string
-          estimated_delivery_time?: string | null
-          id?: string
-          items?: Json
-          rider_id?: string | null
-          status?: string
-          total_amount?: number
-          updated_at?: string
-          user_id?: string
-        }
         Relationships: [
           {
-            foreignKeyName: "orders_rider_id_fkey"
-            columns: ["rider_id"]
+            foreignKeyName: "events_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "riders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orders_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -144,48 +95,6 @@ export type Database = {
           id?: string
           name?: string
           role?: string
-        }
-        Relationships: []
-      }
-      riders: {
-        Row: {
-          available: boolean | null
-          avatar_url: string | null
-          created_at: string
-          current_location: Json | null
-          email: string
-          full_name: string
-          id: string
-          license_number: string | null
-          phone_number: string
-          rating: number | null
-          vehicle_type: string | null
-        }
-        Insert: {
-          available?: boolean | null
-          avatar_url?: string | null
-          created_at?: string
-          current_location?: Json | null
-          email: string
-          full_name: string
-          id?: string
-          license_number?: string | null
-          phone_number: string
-          rating?: number | null
-          vehicle_type?: string | null
-        }
-        Update: {
-          available?: boolean | null
-          avatar_url?: string | null
-          created_at?: string
-          current_location?: Json | null
-          email?: string
-          full_name?: string
-          id?: string
-          license_number?: string | null
-          phone_number?: string
-          rating?: number | null
-          vehicle_type?: string | null
         }
         Relationships: []
       }
@@ -228,6 +137,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "tickets_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tickets_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
@@ -235,36 +151,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      users: {
-        Row: {
-          address: string | null
-          avatar_url: string | null
-          created_at: string
-          email: string
-          full_name: string | null
-          id: string
-          phone_number: string | null
-        }
-        Insert: {
-          address?: string | null
-          avatar_url?: string | null
-          created_at?: string
-          email: string
-          full_name?: string | null
-          id?: string
-          phone_number?: string | null
-        }
-        Update: {
-          address?: string | null
-          avatar_url?: string | null
-          created_at?: string
-          email?: string
-          full_name?: string | null
-          id?: string
-          phone_number?: string | null
-        }
-        Relationships: []
       }
     }
     Views: {

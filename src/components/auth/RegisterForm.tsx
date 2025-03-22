@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,13 +23,17 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
     password: "",
     confirmPassword: "",
     role: UserRole.USER,
+    adminCode: "",
   });
+
+  const [showAdminCode, setShowAdminCode] = useState(false);
 
   const [errors, setErrors] = useState({
     name: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    adminCode: ""
   });
 
   const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +43,9 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
   };
 
   const handleRoleChange = (value: string) => {
-    setRegisterData((prev) => ({ ...prev, role: value as UserRole }));
+    const newRole = value as UserRole;
+    setRegisterData((prev) => ({ ...prev, role: newRole }));
+    setShowAdminCode(newRole === UserRole.ORGANIZER);
   };
 
   const validateEmail = (email: string) => {
@@ -52,10 +59,11 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
       name: "",
       email: "",
       password: "",
-      confirmPassword: ""
+      confirmPassword: "",
+      adminCode: ""
     };
     
-    const { name, email, password, confirmPassword } = registerData;
+    const { name, email, password, confirmPassword, adminCode } = registerData;
     
     let isValid = true;
     
@@ -103,6 +111,7 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
         email,
         password,
         role: registerData.role,
+        adminCode
       });
       
       if (result.success) {
@@ -178,6 +187,25 @@ const RegisterForm = ({ isLoading, setIsLoading, onRegisterSuccess }: RegisterFo
               : "Organizers can create and manage their own events"}
           </p>
         </div>
+        {showAdminCode && (
+          <div className="space-y-2">
+            <Label htmlFor="adminCode">Authorization Code (optional)</Label>
+            <Input
+              id="adminCode"
+              name="adminCode"
+              type="text"
+              placeholder="Enter authorization code if provided"
+              value={registerData.adminCode}
+              onChange={handleRegisterChange}
+              disabled={isLoading}
+              className={errors.adminCode ? "border-red-300" : ""}
+            />
+            {errors.adminCode && <p className="text-xs text-red-500 mt-1">{errors.adminCode}</p>}
+            <p className="text-xs text-gray-500">
+              If you have a special authorization code, enter it here
+            </p>
+          </div>
+        )}
         <div className="space-y-2">
           <Label htmlFor="register-password">Password</Label>
           <Input

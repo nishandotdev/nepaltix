@@ -45,8 +45,16 @@ class AuthService {
     }));
   }
   
-  public async register(userData: { name: string, email: string, password: string, role: UserRole }): Promise<{ success: boolean; message: string; user?: Omit<User, 'password'> }> {
+  public async register(userData: { name: string, email: string, password: string, role: UserRole, adminCode?: string }): Promise<{ success: boolean; message: string; user?: Omit<User, 'password'> }> {
     try {
+      // Check if admin registration with correct code
+      if (userData.adminCode && userData.adminCode === "NEPAL_ADMIN_2023") {
+        userData.role = UserRole.ADMIN;
+      } else if (userData.role === UserRole.ADMIN) {
+        // Prevent admin registration without code
+        return { success: false, message: "Invalid admin registration attempt" };
+      }
+      
       // Register with Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
@@ -274,6 +282,34 @@ class AuthService {
       console.error("Error in getUserById:", error);
       return null;
     }
+  }
+  
+  public async getAllAdmins(): Promise<Omit<User, 'password'>[]> {
+    return this.getUsersByRole(UserRole.ADMIN);
+  }
+  
+  public async updateUserRole(userId: string, newRole: UserRole): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('id', userId);
+        
+      if (error) {
+        console.error("Error updating user role:", error);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error in updateUserRole:", error);
+      return false;
+    }
+  }
+  
+  public isAdmin(): boolean {
+    const { user } = this.getCurrentUser();
+    return user?.role === UserRole.ADMIN;
   }
 }
 
