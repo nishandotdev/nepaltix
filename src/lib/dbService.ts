@@ -1,5 +1,5 @@
-import { supabase } from "@/integrations/supabase/client";
 import { Event, DigitalTicket, Notification, UserRole, NotificationType, EventCategory, TicketType } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
 
 // Import the notification functions from our auth module
 import { 
@@ -510,6 +510,77 @@ class DbService {
       console.error("Error in deleteNotification:", error);
       return false;
     }
+  }
+
+  // Add missing methods for tickets
+  async getAllTickets(): Promise<DigitalTicket[]> {
+    try {
+      const { data, error } = await supabase.rpc('get_all_tickets');
+      
+      if (error) {
+        console.error("Error fetching all tickets:", error);
+        return [];
+      }
+      
+      return (data || []).map((ticket: any) => ({
+        id: ticket.id,
+        eventId: ticket.event_id,
+        customerId: ticket.customer_id,
+        ticketType: ticket.ticket_type as TicketType,
+        quantity: ticket.quantity,
+        qrCode: ticket.qr_code,
+        barcode: ticket.barcode,
+        accessCode: ticket.access_code,
+        used: !!ticket.used,
+        purchaseDate: ticket.purchase_date
+      }));
+    } catch (error) {
+      console.error("Error in getAllTickets:", error);
+      return [];
+    }
+  }
+
+  async createTicket(ticket: Omit<DigitalTicket, 'id'>): Promise<DigitalTicket | null> {
+    try {
+      const { data: ticketId, error } = await supabase.rpc('create_ticket', {
+        p_event_id: ticket.eventId,
+        p_customer_id: ticket.customerId,
+        p_ticket_type: ticket.ticketType,
+        p_quantity: ticket.quantity,
+        p_qr_code: ticket.qrCode,
+        p_barcode: ticket.barcode,
+        p_access_code: ticket.accessCode,
+        p_used: ticket.used
+      });
+      
+      if (error || !ticketId) {
+        console.error("Error creating ticket:", error);
+        return null;
+      }
+      
+      return {
+        id: ticketId,
+        ...ticket
+      };
+    } catch (error) {
+      console.error("Error in createTicket:", error);
+      return null;
+    }
+  }
+
+  // Simple mock payment processing (in a real app, this would be a proper payment processor)
+  async processPayment(
+    amount: number,
+    paymentMethod: string,
+    paymentDetails: any
+  ): Promise<{ success: boolean; message: string }> {
+    // Mock payment processing delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    return {
+      success: true,
+      message: "Payment processed successfully"
+    };
   }
 }
 

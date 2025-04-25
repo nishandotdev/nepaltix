@@ -74,6 +74,36 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          title: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -157,7 +187,92 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_ticket: {
+        Args: {
+          p_event_id: string
+          p_customer_id: string
+          p_ticket_type: string
+          p_quantity: number
+          p_qr_code: string
+          p_barcode: string
+          p_access_code: string
+          p_used: boolean
+        }
+        Returns: string
+      }
+      delete_notification: {
+        Args: { p_notification_id: string }
+        Returns: boolean
+      }
+      get_all_tickets: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          event_id: string
+          customer_id: string
+          ticket_type: string
+          quantity: number
+          qr_code: string
+          barcode: string
+          access_code: string
+          used: boolean
+          purchase_date: string
+        }[]
+      }
+      get_notification_by_id: {
+        Args: { p_notification_id: string }
+        Returns: {
+          id: string
+          user_id: string
+          title: string
+          message: string
+          type: string
+          read: boolean
+          created_at: string
+        }[]
+      }
+      get_public_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          user_id: string
+          title: string
+          message: string
+          type: string
+          read: boolean
+          created_at: string
+        }[]
+      }
+      get_user_notifications: {
+        Args: { p_user_id: string }
+        Returns: {
+          id: string
+          user_id: string
+          title: string
+          message: string
+          type: string
+          read: boolean
+          created_at: string
+        }[]
+      }
+      insert_notification: {
+        Args: {
+          p_user_id: string
+          p_title: string
+          p_message: string
+          p_type: string
+          p_read: boolean
+        }
+        Returns: boolean
+      }
+      mark_notification_read: {
+        Args: { p_notification_id: string }
+        Returns: boolean
+      }
+      update_notification: {
+        Args: { p_notification_id: string; p_updates: Json }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
