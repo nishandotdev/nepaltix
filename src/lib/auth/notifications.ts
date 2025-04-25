@@ -13,18 +13,20 @@ export const addNotification = async (
   userId: string
 ): Promise<boolean> => {
   try {
-    // We're importing this from dbService in the original code
-    // Moved here for completeness, assume there's a notifications table
-    await supabase
-      .from('notifications')
-      .insert({
-        user_id: userId,
-        title,
-        message,
-        type,
-        read: false,
-        created_at: new Date().toISOString()
-      });
+    // Insert directly using the raw insert method since the table might not be defined in types
+    const { error } = await supabase.from('notifications').insert({
+      user_id: userId,
+      title,
+      message,
+      type,
+      read: false,
+      created_at: new Date().toISOString()
+    });
+    
+    if (error) {
+      console.error("Error adding notification:", error);
+      return false;
+    }
     
     // Show a toast notification for immediate feedback
     toast.success(`New notification: ${title}`);
@@ -42,6 +44,7 @@ export const addNotification = async (
  */
 export const getAllNotifications = async () => {
   try {
+    // Use the raw query method since the table might not be defined in types
     const { data, error } = await supabase
       .from('notifications')
       .select('*')
@@ -64,6 +67,7 @@ export const getAllNotifications = async () => {
  */
 export const markNotificationAsRead = async (id: string): Promise<boolean> => {
   try {
+    // Use the raw query method since the table might not be defined in types
     const { error } = await supabase
       .from('notifications')
       .update({ read: true })
@@ -80,4 +84,3 @@ export const markNotificationAsRead = async (id: string): Promise<boolean> => {
     return false;
   }
 };
-

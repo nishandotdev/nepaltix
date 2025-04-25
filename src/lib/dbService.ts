@@ -1,5 +1,6 @@
+
 import { supabase } from "@/integrations/supabase/client";
-import { Event, DigitalTicket, Notification, UserRole, NotificationType } from "@/types";
+import { Event, DigitalTicket, Notification, UserRole, NotificationType, EventCategory, TicketType } from "@/types";
 
 // Import the notification functions from our auth module
 import { 
@@ -21,7 +22,7 @@ class DbService {
         return [];
       }
       
-      // Map DB fields to our frontend model
+      // Map DB fields to our frontend model with proper type conversion
       return data.map(event => ({
         id: event.id,
         title: event.title,
@@ -31,14 +32,12 @@ class DbService {
         time: event.time,
         location: event.location,
         price: event.price,
-        category: event.category,
+        category: event.category as EventCategory, // Convert string to enum
         imageUrl: event.image_url,
-        tags: event.tags,
-        featured: event.featured,
+        tags: event.tags || [],
+        featured: !!event.featured,
         totalTickets: event.total_tickets,
-        availableTickets: event.available_tickets,
-        createdBy: event.created_by,
-        createdAt: event.created_at
+        availableTickets: event.available_tickets
       })) || [];
     } catch (error) {
       console.error("Error in getEvents:", error);
@@ -61,7 +60,7 @@ class DbService {
       
       if (!data) return null;
       
-      // Map DB fields to our frontend model
+      // Map DB fields to our frontend model with proper type conversion
       return {
         id: data.id,
         title: data.title,
@@ -71,14 +70,12 @@ class DbService {
         time: data.time,
         location: data.location,
         price: data.price,
-        category: data.category,
+        category: data.category as EventCategory, // Convert string to enum
         imageUrl: data.image_url,
-        tags: data.tags,
-        featured: data.featured,
+        tags: data.tags || [],
+        featured: !!data.featured,
         totalTickets: data.total_tickets,
-        availableTickets: data.available_tickets,
-        createdBy: data.created_by,
-        createdAt: data.created_at
+        availableTickets: data.available_tickets
       };
     } catch (error) {
       console.error("Error in getEventById:", error);
@@ -102,9 +99,7 @@ class DbService {
         tags: event.tags,
         featured: event.featured,
         total_tickets: event.totalTickets,
-        available_tickets: event.availableTickets,
-        created_by: event.createdBy,
-        created_at: event.createdAt
+        available_tickets: event.availableTickets
       };
       
       const { data, error } = await supabase
@@ -120,6 +115,62 @@ class DbService {
       
       if (!data) return null;
       
+      // Map DB response back to frontend model with proper type conversion
+      return {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        shortDescription: data.short_description,
+        date: data.date,
+        time: data.time,
+        location: data.location,
+        price: data.price,
+        category: data.category as EventCategory, // Convert string to enum
+        imageUrl: data.image_url,
+        tags: data.tags || [],
+        featured: !!data.featured,
+        totalTickets: data.total_tickets,
+        availableTickets: data.available_tickets
+      };
+    } catch (error) {
+      console.error("Error in addEvent:", error);
+      return null;
+    }
+  }
+  
+  async updateEvent(id: string, updates: Partial<Event>): Promise<Event | null> {
+    try {
+      // Convert frontend model field names to database field names
+      const dbUpdates: any = {};
+      
+      if (updates.title !== undefined) dbUpdates.title = updates.title;
+      if (updates.description !== undefined) dbUpdates.description = updates.description;
+      if (updates.shortDescription !== undefined) dbUpdates.short_description = updates.shortDescription;
+      if (updates.date !== undefined) dbUpdates.date = updates.date;
+      if (updates.time !== undefined) dbUpdates.time = updates.time;
+      if (updates.location !== undefined) dbUpdates.location = updates.location;
+      if (updates.price !== undefined) dbUpdates.price = updates.price;
+      if (updates.category !== undefined) dbUpdates.category = updates.category;
+      if (updates.imageUrl !== undefined) dbUpdates.image_url = updates.imageUrl;
+      if (updates.tags !== undefined) dbUpdates.tags = updates.tags;
+      if (updates.featured !== undefined) dbUpdates.featured = updates.featured;
+      if (updates.totalTickets !== undefined) dbUpdates.total_tickets = updates.totalTickets;
+      if (updates.availableTickets !== undefined) dbUpdates.available_tickets = updates.availableTickets;
+      
+      const { data, error } = await supabase
+        .from('events')
+        .update(dbUpdates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error("Error updating event:", error);
+        return null;
+      }
+      
+      if (!data) return null;
+      
       // Map DB response back to frontend model
       return {
         id: data.id,
@@ -130,36 +181,13 @@ class DbService {
         time: data.time,
         location: data.location,
         price: data.price,
-        category: data.category,
+        category: data.category as EventCategory,
         imageUrl: data.image_url,
-        tags: data.tags,
-        featured: data.featured,
+        tags: data.tags || [],
+        featured: !!data.featured,
         totalTickets: data.total_tickets,
-        availableTickets: data.available_tickets,
-        createdBy: data.created_by,
-        createdAt: data.created_at
+        availableTickets: data.available_tickets
       };
-    } catch (error) {
-      console.error("Error in addEvent:", error);
-      return null;
-    }
-  }
-  
-  async updateEvent(id: string, updates: Partial<Event>): Promise<Event | null> {
-    try {
-      const { data, error } = await supabase
-        .from('events')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) {
-        console.error("Error updating event:", error);
-        return null;
-      }
-      
-      return data;
     } catch (error) {
       console.error("Error in updateEvent:", error);
       return null;
@@ -198,17 +226,17 @@ class DbService {
         return [];
       }
       
-      // Map DB fields to our frontend model
+      // Map DB fields to our frontend model with proper type conversion
       return data.map(ticket => ({
         id: ticket.id,
         eventId: ticket.event_id,
         customerId: ticket.customer_id,
-        ticketType: ticket.ticket_type,
+        ticketType: ticket.ticket_type as TicketType, // Convert string to enum
         quantity: ticket.quantity,
         qrCode: ticket.qr_code,
         barcode: ticket.barcode,
         accessCode: ticket.access_code,
-        used: ticket.used,
+        used: !!ticket.used,
         purchaseDate: ticket.purchase_date
       })) || [];
     } catch (error) {
@@ -230,17 +258,17 @@ class DbService {
         return null;
       }
       
-      // Map DB fields to our frontend model
+      // Map DB fields to our frontend model with proper type conversion
       return {
         id: data.id,
         eventId: data.event_id,
         customerId: data.customer_id,
-        ticketType: data.ticket_type,
+        ticketType: data.ticket_type as TicketType, // Convert string to enum
         quantity: data.quantity,
         qrCode: data.qr_code,
         barcode: data.barcode,
         accessCode: data.access_code,
-        used: data.used,
+        used: !!data.used,
         purchaseDate: data.purchase_date
       };
     } catch (error) {
@@ -277,17 +305,17 @@ class DbService {
       
       if (!data) return null;
       
-      // Map DB response back to frontend model
+      // Map DB response back to frontend model with proper type conversion
       return {
         id: data.id,
         eventId: data.event_id,
         customerId: data.customer_id,
-        ticketType: data.ticket_type,
+        ticketType: data.ticket_type as TicketType, // Convert string to enum
         quantity: data.quantity,
         qrCode: data.qr_code,
         barcode: data.barcode,
         accessCode: data.access_code,
-        used: data.used,
+        used: !!data.used,
         purchaseDate: data.purchase_date
       };
     } catch (error) {
@@ -298,9 +326,22 @@ class DbService {
   
   async updateTicket(id: string, updates: Partial<DigitalTicket>): Promise<DigitalTicket | null> {
     try {
+      // Convert frontend model field names to database field names
+      const dbUpdates: any = {};
+      
+      if (updates.eventId !== undefined) dbUpdates.event_id = updates.eventId;
+      if (updates.customerId !== undefined) dbUpdates.customer_id = updates.customerId;
+      if (updates.ticketType !== undefined) dbUpdates.ticket_type = updates.ticketType;
+      if (updates.quantity !== undefined) dbUpdates.quantity = updates.quantity;
+      if (updates.qrCode !== undefined) dbUpdates.qr_code = updates.qrCode;
+      if (updates.barcode !== undefined) dbUpdates.barcode = updates.barcode;
+      if (updates.accessCode !== undefined) dbUpdates.access_code = updates.accessCode;
+      if (updates.used !== undefined) dbUpdates.used = updates.used;
+      if (updates.purchaseDate !== undefined) dbUpdates.purchase_date = updates.purchaseDate;
+      
       const { data, error } = await supabase
         .from('tickets')
-        .update(updates)
+        .update(dbUpdates)
         .eq('id', id)
         .select()
         .single();
@@ -310,7 +351,21 @@ class DbService {
         return null;
       }
       
-      return data;
+      if (!data) return null;
+      
+      // Map DB response back to frontend model with proper type conversion
+      return {
+        id: data.id,
+        eventId: data.event_id,
+        customerId: data.customer_id,
+        ticketType: data.ticket_type as TicketType, // Convert string to enum
+        quantity: data.quantity,
+        qrCode: data.qr_code,
+        barcode: data.barcode,
+        accessCode: data.access_code,
+        used: !!data.used,
+        purchaseDate: data.purchase_date
+      };
     } catch (error) {
       console.error("Error in updateTicket:", error);
       return null;
@@ -356,8 +411,8 @@ class DbService {
         userId: notification.user_id,
         title: notification.title,
         message: notification.message,
-        type: notification.type,
-        read: notification.read,
+        type: notification.type as NotificationType,
+        read: !!notification.read,
         createdAt: notification.created_at
       })) || [];
     } catch (error) {
@@ -385,8 +440,8 @@ class DbService {
         userId: data.user_id,
         title: data.title,
         message: data.message,
-        type: data.type,
-        read: data.read,
+        type: data.type as NotificationType,
+        read: !!data.read,
         createdAt: data.created_at
       };
     } catch (error) {
@@ -412,8 +467,8 @@ class DbService {
       userId: notification.user_id,
       title: notification.title,
       message: notification.message,
-      type: notification.type,
-      read: notification.read,
+      type: notification.type as NotificationType,
+      read: !!notification.read,
       createdAt: notification.created_at
     }));
   }

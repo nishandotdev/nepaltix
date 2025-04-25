@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   AlertDialog,
@@ -8,48 +9,61 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { TicketType, NotificationType } from '@/types';
+import { TicketType, NotificationType, Event } from '@/types';
 import { getTicketTypeLabel } from '@/lib/utils';
 import { dbService } from '@/lib/dbService';
-import { ticketService } from '@/lib/ticketService';
-import { paymentService } from '@/lib/paymentService';
 import { toast } from "sonner";
 
 interface TicketUpgradeModalProps {
-  ticket: {
+  ticket?: {
     id: string;
     customerId: string;
     ticketType: TicketType;
   };
+  ticketId: string;
+  eventId: string;
+  event: Event;
   isOpen: boolean;
   onClose: () => void;
-  onUpgrade: (newType: TicketType) => void;
+  onUpgradeComplete: (newType: TicketType) => void;
 }
 
-const TicketUpgradeModal = ({ ticket, isOpen, onClose, onUpgrade }: TicketUpgradeModalProps) => {
+const TicketUpgradeModal = ({ 
+  ticket, 
+  ticketId, 
+  eventId, 
+  event, 
+  isOpen, 
+  onClose, 
+  onUpgradeComplete 
+}: TicketUpgradeModalProps) => {
   const [selectedUpgrade, setSelectedUpgrade] = useState<TicketType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
+  // Determine the current ticket type to know which options to show
+  const currentTicketType = ticket?.ticketType || TicketType.STANDARD;
+
+  // Filter options to exclude the current ticket type
   const upgradeOptions = Object.values(TicketType).filter(
-    type => type !== ticket.ticketType
+    type => type !== currentTicketType
   );
   
   const getUpgradePrice = () => {
-    // Mock prices, replace with actual logic
+    // Base price from event
+    const basePrice = event?.price || 0;
+    
     switch (selectedUpgrade) {
       case TicketType.VIP:
-        return 500;
+        return basePrice * 2.5; // VIP tickets cost 2.5x more
       case TicketType.FAN_ZONE:
-        return 300;
+        return basePrice * 1.5; // Fan Zone tickets cost 1.5x more
       case TicketType.EARLY_BIRD:
-        return 100;
+        return basePrice * 0.8; // Early Bird tickets cost 20% less
       default:
-        return 0;
+        return basePrice;
     }
   };
 
@@ -59,45 +73,32 @@ const TicketUpgradeModal = ({ ticket, isOpen, onClose, onUpgrade }: TicketUpgrad
     setIsLoading(true);
     
     try {
-      // Process payment
-      const paymentResult = await paymentService.processPayment({
-        amount: getUpgradePrice(),
-        currency: 'NPR',
-        description: `Upgrade to ${selectedUpgrade} ticket`,
-        customerId: ticket.customerId
-      });
-      
-      if (!paymentResult.success) {
-        throw new Error(paymentResult.message || 'Payment failed');
-      }
-      
-      // Update ticket type
-      const success = await ticketService.upgradeTicket(
-        ticket.id,
-        selectedUpgrade as TicketType
+      // Update ticket type in database
+      const result = await dbService.updateTicket(
+        ticketId,
+        { ticketType: selectedUpgrade }
       );
       
-      if (!success) {
+      if (!result) {
         throw new Error('Failed to upgrade ticket');
       }
       
       // Add notification about the upgrade
+      const customerId = ticket?.customerId || '';
       await dbService.addNotification(
         'Ticket Upgraded Successfully',
-        `Your ticket has been upgraded to ${getTicketTypeLabel(selectedUpgrade as TicketType)}!`,
+        `Your ticket has been upgraded to ${getTicketTypeLabel(selectedUpgrade)}!`,
         NotificationType.SUCCESS,
-        ticket.customerId
+        customerId
       );
       
       // Show success toast notification
-      toast({
-        title: "Ticket Upgraded!",
-        description: "Your ticket has been successfully upgraded.",
-        variant: "success",
+      toast.success("Ticket Upgraded!", {
+        description: "Your ticket has been successfully upgraded."
       });
       
       // Call the onUpgrade callback
-      onUpgrade(selectedUpgrade as TicketType);
+      onUpgradeComplete(selectedUpgrade);
       
       // Close the modal
       onClose();
@@ -107,10 +108,8 @@ const TicketUpgradeModal = ({ ticket, isOpen, onClose, onUpgrade }: TicketUpgrad
       console.error("Error upgrading ticket:", error);
       
       // Show error toast notification
-      toast({
-        title: "Upgrade Failed",
-        description: errorMessage,
-        variant: "destructive",
+      toast.error("Upgrade Failed", {
+        description: errorMessage
       });
     } finally {
       setIsLoading(false);
@@ -141,7 +140,7 @@ const TicketUpgradeModal = ({ ticket, isOpen, onClose, onUpgrade }: TicketUpgrad
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
-          <AlertDialogAction disabled={isLoading} onClick={handleUpgrade}>
+          <AlertDialogAction disabled={isLoading || !selectedUpgrade} onClick={handleUpgrade}>
             {isLoading ? "Upgrading..." : "Upgrade Ticket"}
           </AlertDialogAction>
         </AlertDialogFooter>

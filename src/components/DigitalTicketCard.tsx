@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -73,14 +72,12 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
       try {
         setPrinting(true);
         
-        // Create print-optimized version
         const printWindow = window.open('', '_blank');
         if (!printWindow) {
           toast.error("Pop-up blocked. Please allow pop-ups to print tickets.");
           return;
         }
         
-        // Add print-specific styles
         printWindow.document.write(`
           <html>
             <head>
@@ -318,7 +315,6 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
 
   if (!event) return null;
 
-  // Check if the event has already happened
   const eventHasPassed = new Date(event.date) < new Date();
 
   return (
@@ -387,7 +383,6 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
                   <div className="mt-4">
                     <p className="text-sm font-medium text-gray-600 mb-2">Barcode</p>
                     <div className="bg-white p-3 border border-gray-200 rounded-md inline-block">
-                      {/* Barcode representation */}
                       <div className="flex items-end justify-center space-x-0.5 h-12 min-w-48">
                         {ticket.barcode.split('').map((digit, index) => (
                           <div 
@@ -472,10 +467,14 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
       <TicketUpgradeModal 
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
-        currentTicketType={ticketType}
         ticketId={ticket.id}
         eventId={ticket.eventId}
         event={event}
+        ticket={{
+          id: ticket.id,
+          customerId: ticket.customerId,
+          ticketType: ticketType
+        }}
         onUpgradeComplete={handleUpgradeComplete}
       />
     </>
