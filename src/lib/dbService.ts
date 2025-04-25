@@ -1,8 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Event, DigitalTicket, Notification, UserRole, NotificationType } from "@/types";
 
-// Import the notification function from our auth module
-import { addNotification as createAuthNotification } from "./auth/dbNotifications";
+// Import the notification functions from our auth module
+import { 
+  addNotification as createAuthNotification,
+  getAllNotifications,
+  markNotificationAsRead
+} from "./auth/notifications";
 
 class DbService {
   // Events
@@ -17,7 +21,25 @@ class DbService {
         return [];
       }
       
-      return data || [];
+      // Map DB fields to our frontend model
+      return data.map(event => ({
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        shortDescription: event.short_description,
+        date: event.date,
+        time: event.time,
+        location: event.location,
+        price: event.price,
+        category: event.category,
+        imageUrl: event.image_url,
+        tags: event.tags,
+        featured: event.featured,
+        totalTickets: event.total_tickets,
+        availableTickets: event.available_tickets,
+        createdBy: event.created_by,
+        createdAt: event.created_at
+      })) || [];
     } catch (error) {
       console.error("Error in getEvents:", error);
       return [];
@@ -37,7 +59,27 @@ class DbService {
         return null;
       }
       
-      return data || null;
+      if (!data) return null;
+      
+      // Map DB fields to our frontend model
+      return {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        shortDescription: data.short_description,
+        date: data.date,
+        time: data.time,
+        location: data.location,
+        price: data.price,
+        category: data.category,
+        imageUrl: data.image_url,
+        tags: data.tags,
+        featured: data.featured,
+        totalTickets: data.total_tickets,
+        availableTickets: data.available_tickets,
+        createdBy: data.created_by,
+        createdAt: data.created_at
+      };
     } catch (error) {
       console.error("Error in getEventById:", error);
       return null;
@@ -46,9 +88,28 @@ class DbService {
   
   async addEvent(event: Omit<Event, 'id'>): Promise<Event | null> {
     try {
+      // Map frontend model to DB fields
+      const dbEvent = {
+        title: event.title,
+        description: event.description,
+        short_description: event.shortDescription,
+        date: event.date,
+        time: event.time,
+        location: event.location,
+        price: event.price,
+        category: event.category,
+        image_url: event.imageUrl,
+        tags: event.tags,
+        featured: event.featured,
+        total_tickets: event.totalTickets,
+        available_tickets: event.availableTickets,
+        created_by: event.createdBy,
+        created_at: event.createdAt
+      };
+      
       const { data, error } = await supabase
         .from('events')
-        .insert([event])
+        .insert([dbEvent])
         .select()
         .single();
       
@@ -57,7 +118,27 @@ class DbService {
         return null;
       }
       
-      return data;
+      if (!data) return null;
+      
+      // Map DB response back to frontend model
+      return {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        shortDescription: data.short_description,
+        date: data.date,
+        time: data.time,
+        location: data.location,
+        price: data.price,
+        category: data.category,
+        imageUrl: data.image_url,
+        tags: data.tags,
+        featured: data.featured,
+        totalTickets: data.total_tickets,
+        availableTickets: data.available_tickets,
+        createdBy: data.created_by,
+        createdAt: data.created_at
+      };
     } catch (error) {
       console.error("Error in addEvent:", error);
       return null;
@@ -117,7 +198,19 @@ class DbService {
         return [];
       }
       
-      return data || [];
+      // Map DB fields to our frontend model
+      return data.map(ticket => ({
+        id: ticket.id,
+        eventId: ticket.event_id,
+        customerId: ticket.customer_id,
+        ticketType: ticket.ticket_type,
+        quantity: ticket.quantity,
+        qrCode: ticket.qr_code,
+        barcode: ticket.barcode,
+        accessCode: ticket.access_code,
+        used: ticket.used,
+        purchaseDate: ticket.purchase_date
+      })) || [];
     } catch (error) {
       console.error("Error in getTicketsByUserId:", error);
       return [];
@@ -132,12 +225,24 @@ class DbService {
         .eq('id', id)
         .single();
       
-      if (error) {
+      if (error || !data) {
         console.error("Error fetching ticket by ID:", error);
         return null;
       }
       
-      return data || null;
+      // Map DB fields to our frontend model
+      return {
+        id: data.id,
+        eventId: data.event_id,
+        customerId: data.customer_id,
+        ticketType: data.ticket_type,
+        quantity: data.quantity,
+        qrCode: data.qr_code,
+        barcode: data.barcode,
+        accessCode: data.access_code,
+        used: data.used,
+        purchaseDate: data.purchase_date
+      };
     } catch (error) {
       console.error("Error in getTicketById:", error);
       return null;
@@ -146,9 +251,22 @@ class DbService {
   
   async addTicket(ticket: Omit<DigitalTicket, 'id'>): Promise<DigitalTicket | null> {
     try {
+      // Map frontend model to DB fields
+      const dbTicket = {
+        event_id: ticket.eventId,
+        customer_id: ticket.customerId,
+        ticket_type: ticket.ticketType,
+        quantity: ticket.quantity,
+        qr_code: ticket.qrCode,
+        barcode: ticket.barcode,
+        access_code: ticket.accessCode,
+        used: ticket.used,
+        purchase_date: ticket.purchaseDate
+      };
+      
       const { data, error } = await supabase
         .from('tickets')
-        .insert([ticket])
+        .insert([dbTicket])
         .select()
         .single();
       
@@ -157,7 +275,21 @@ class DbService {
         return null;
       }
       
-      return data;
+      if (!data) return null;
+      
+      // Map DB response back to frontend model
+      return {
+        id: data.id,
+        eventId: data.event_id,
+        customerId: data.customer_id,
+        ticketType: data.ticket_type,
+        quantity: data.quantity,
+        qrCode: data.qr_code,
+        barcode: data.barcode,
+        accessCode: data.access_code,
+        used: data.used,
+        purchaseDate: data.purchase_date
+      };
     } catch (error) {
       console.error("Error in addTicket:", error);
       return null;
@@ -218,7 +350,16 @@ class DbService {
         return [];
       }
       
-      return data || [];
+      // Map DB fields to our frontend model
+      return data.map(notification => ({
+        id: notification.id,
+        userId: notification.user_id,
+        title: notification.title,
+        message: notification.message,
+        type: notification.type,
+        read: notification.read,
+        createdAt: notification.created_at
+      })) || [];
     } catch (error) {
       console.error("Error in getNotificationsByUserId:", error);
       return [];
@@ -233,12 +374,21 @@ class DbService {
         .eq('id', id)
         .single();
       
-      if (error) {
+      if (error || !data) {
         console.error("Error fetching notification by ID:", error);
         return null;
       }
       
-      return data || null;
+      // Map DB fields to our frontend model
+      return {
+        id: data.id,
+        userId: data.user_id,
+        title: data.title,
+        message: data.message,
+        type: data.type,
+        read: data.read,
+        createdAt: data.created_at
+      };
     } catch (error) {
       console.error("Error in getNotificationById:", error);
       return null;
@@ -253,6 +403,23 @@ class DbService {
     userId: string
   ): Promise<boolean> {
     return createAuthNotification(title, message, type, userId);
+  }
+  
+  async getAllNotifications(): Promise<Notification[]> {
+    const notifications = await getAllNotifications();
+    return notifications.map((notification: any) => ({
+      id: notification.id,
+      userId: notification.user_id,
+      title: notification.title,
+      message: notification.message,
+      type: notification.type,
+      read: notification.read,
+      createdAt: notification.created_at
+    }));
+  }
+  
+  async markNotificationAsRead(id: string): Promise<boolean> {
+    return markNotificationAsRead(id);
   }
   
   async updateNotification(id: string, updates: Partial<Notification>): Promise<Notification | null> {
