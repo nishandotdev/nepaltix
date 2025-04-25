@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Event, DigitalTicket, Notification, UserRole, NotificationType, EventCategory, TicketType } from "@/types";
 
@@ -394,19 +393,15 @@ class DbService {
   // Notifications
   async getNotificationsByUserId(userId: string): Promise<Notification[]> {
     try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+      const { data, error } = await supabase.rpc('get_user_notifications', { p_user_id: userId });
       
       if (error) {
         console.error("Error fetching notifications for user:", error);
         return [];
       }
       
-      // Map DB fields to our frontend model
-      return data.map(notification => ({
+      // Map the raw data to our frontend model
+      return (data || []).map((notification: any) => ({
         id: notification.id,
         userId: notification.user_id,
         title: notification.title,
@@ -414,7 +409,7 @@ class DbService {
         type: notification.type as NotificationType,
         read: !!notification.read,
         createdAt: notification.created_at
-      })) || [];
+      }));
     } catch (error) {
       console.error("Error in getNotificationsByUserId:", error);
       return [];
@@ -423,26 +418,23 @@ class DbService {
   
   async getNotificationById(id: string): Promise<Notification | null> {
     try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('id', id)
-        .single();
+      const { data, error } = await supabase.rpc('get_notification_by_id', { p_notification_id: id });
       
-      if (error || !data) {
+      if (error || !data || data.length === 0) {
         console.error("Error fetching notification by ID:", error);
         return null;
       }
       
-      // Map DB fields to our frontend model
+      const notification = data[0];
+      // Map the raw data to our frontend model
       return {
-        id: data.id,
-        userId: data.user_id,
-        title: data.title,
-        message: data.message,
-        type: data.type as NotificationType,
-        read: !!data.read,
-        createdAt: data.created_at
+        id: notification.id,
+        userId: notification.user_id,
+        title: notification.title,
+        message: notification.message,
+        type: notification.type as NotificationType,
+        read: !!notification.read,
+        createdAt: notification.created_at
       };
     } catch (error) {
       console.error("Error in getNotificationById:", error);
@@ -479,19 +471,23 @@ class DbService {
   
   async updateNotification(id: string, updates: Partial<Notification>): Promise<Notification | null> {
     try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
+      const updateData: any = {};
+      if (updates.title !== undefined) updateData.title = updates.title;
+      if (updates.message !== undefined) updateData.message = updates.message;
+      if (updates.type !== undefined) updateData.type = updates.type;
+      if (updates.read !== undefined) updateData.read = updates.read;
+      
+      const { data, error } = await supabase.rpc('update_notification', {
+        p_notification_id: id,
+        p_updates: updateData
+      });
       
       if (error) {
         console.error("Error updating notification:", error);
         return null;
       }
       
-      return data;
+      return this.getNotificationById(id);
     } catch (error) {
       console.error("Error in updateNotification:", error);
       return null;
@@ -500,10 +496,9 @@ class DbService {
   
   async deleteNotification(id: string): Promise<boolean> {
     try {
-      const { error } = await supabase
-        .from('notifications')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.rpc('delete_notification', {
+        p_notification_id: id
+      });
       
       if (error) {
         console.error("Error deleting notification:", error);

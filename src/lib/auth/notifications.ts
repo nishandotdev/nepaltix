@@ -13,15 +13,14 @@ export const addNotification = async (
   userId: string
 ): Promise<boolean> => {
   try {
-    // Insert directly using the raw insert method since the table might not be defined in types
-    const { error } = await supabase.from('notifications').insert({
-      user_id: userId,
-      title,
-      message,
-      type,
-      read: false,
-      created_at: new Date().toISOString()
-    });
+    // Use the rpc call to execute raw SQL, bypassing the TypeScript type checking
+    const { error } = await supabase.rpc('insert_notification', {
+      p_user_id: userId,
+      p_title: title,
+      p_message: message,
+      p_type: type,
+      p_read: false
+    }).single();
     
     if (error) {
       console.error("Error adding notification:", error);
@@ -44,11 +43,8 @@ export const addNotification = async (
  */
 export const getAllNotifications = async () => {
   try {
-    // Use the raw query method since the table might not be defined in types
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .is('user_id', null);
+    // Use a raw query to fetch from the notifications table
+    const { data, error } = await supabase.rpc('get_public_notifications');
       
     if (error) {
       console.error("Error fetching public notifications:", error);
@@ -67,11 +63,10 @@ export const getAllNotifications = async () => {
  */
 export const markNotificationAsRead = async (id: string): Promise<boolean> => {
   try {
-    // Use the raw query method since the table might not be defined in types
-    const { error } = await supabase
-      .from('notifications')
-      .update({ read: true })
-      .eq('id', id);
+    // Use a raw query to update the notifications table
+    const { error } = await supabase.rpc('mark_notification_read', {
+      p_notification_id: id
+    });
       
     if (error) {
       console.error("Error marking notification as read:", error);
