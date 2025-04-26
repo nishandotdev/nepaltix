@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Loader2, AlertTriangle, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { supabase, checkSupabaseConnection } from "@/integrations/supabase/client";
 
 interface LoginFormProps {
   isLoading: boolean;
@@ -25,6 +26,35 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
     password: "",
   });
   const [error, setError] = useState<string | null>(null);
+  const [connectionTested, setConnectionTested] = useState(false);
+
+  // Test the Supabase connection on component mount
+  useEffect(() => {
+    const testConnection = async () => {
+      const isConnected = await checkSupabaseConnection();
+      console.log("Supabase connection status:", isConnected);
+      setConnectionTested(true);
+      
+      // Check if there's already a session
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        console.log("User session already exists");
+        // Update the local session state
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.session.user.id)
+          .single();
+          
+        if (profileData) {
+          authService.getCurrentUser();
+          navigate("/");
+        }
+      }
+    };
+    
+    testConnection();
+  }, [navigate]);
 
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -46,9 +76,13 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
     }
     
     try {
+      console.log("Starting login process for:", email);
+      
       // Added login delay for better UX feedback
       await new Promise(resolve => setTimeout(resolve, 800));
       const result = await authService.login(email, password);
+      
+      console.log("Login result:", result);
       
       if (result.success) {
         toast.success(`Welcome back, ${result.user?.name || 'User'}!`);
@@ -163,69 +197,75 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
           </div>
         </div>
         
-        <TooltipProvider>
-          <div className="pt-2 space-y-2">
-            <p className="text-sm text-gray-500">Demo Accounts:</p>
-            <div className="flex flex-wrap gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm" 
-                    className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
-                    onClick={() => autoFillDemoAccount('admin')}
-                  >
-                    Admin
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>admin@nepaltix.com / admin123</p>
-                </TooltipContent>
-              </Tooltip>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm" 
-                    className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
-                    onClick={() => autoFillDemoAccount('organizer')}
-                  >
-                    Organizer
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>organizer@nepaltix.com / organizer123</p>
-                </TooltipContent>
-              </Tooltip>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm" 
-                    className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
-                    onClick={() => autoFillDemoAccount('user')}
-                  >
-                    Regular User
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>user@nepaltix.com / user123</p>
-                </TooltipContent>
-              </Tooltip>
+        {connectionTested ? (
+          <TooltipProvider>
+            <div className="pt-2 space-y-2">
+              <p className="text-sm text-gray-500">Demo Accounts:</p>
+              <div className="flex flex-wrap gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
+                      onClick={() => autoFillDemoAccount('admin')}
+                    >
+                      Admin
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>admin@nepaltix.com / admin123</p>
+                  </TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
+                      onClick={() => autoFillDemoAccount('organizer')}
+                    >
+                      Organizer
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>organizer@nepaltix.com / organizer123</p>
+                  </TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
+                      onClick={() => autoFillDemoAccount('user')}
+                    >
+                      Regular User
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>user@nepaltix.com / user123</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </div>
+          </TooltipProvider>
+        ) : (
+          <div className="py-2 text-sm text-amber-600">
+            Checking database connection...
           </div>
-        </TooltipProvider>
+        )}
       </CardContent>
       <CardFooter>
         <Button 
           type="submit" 
           className="w-full bg-nepal-red hover:bg-nepal-red/90 transition-all" 
-          disabled={isLoading}
+          disabled={isLoading || !connectionTested}
         >
           {isLoading ? (
             <>
