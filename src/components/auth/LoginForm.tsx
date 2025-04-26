@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Loader2, AlertTriangle, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion } from "framer-motion";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface LoginFormProps {
   isLoading: boolean;
@@ -45,10 +46,12 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
     }
     
     try {
+      // Added login delay for better UX feedback
+      await new Promise(resolve => setTimeout(resolve, 800));
       const result = await authService.login(email, password);
       
       if (result.success) {
-        toast.success("Login successful");
+        toast.success(`Welcome back, ${result.user?.name || 'User'}!`);
         
         // Redirect based on user role
         if (result.user?.role === UserRole.ADMIN) {
@@ -69,25 +72,30 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
         setError(result.message);
         toast.error(result.message);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
-      setError("An error occurred during login");
+      setError(error.message || "An error occurred during login");
       toast.error("An error occurred during login");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const autoFillDemoAccount = (type: 'admin' | 'organizer') => {
+  const autoFillDemoAccount = (type: 'admin' | 'organizer' | 'user') => {
     if (type === 'admin') {
       setLoginData({
         email: 'admin@nepaltix.com',
         password: 'admin123',
       });
-    } else {
+    } else if (type === 'organizer') {
       setLoginData({
         email: 'organizer@nepaltix.com',
         password: 'organizer123',
+      });
+    } else {
+      setLoginData({
+        email: 'user@nepaltix.com',
+        password: 'user123',
       });
     }
     setError(null);
@@ -155,29 +163,63 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
           </div>
         </div>
         
-        <div className="pt-2 space-y-2">
-          <p className="text-sm text-gray-500">Demo Accounts:</p>
-          <div className="flex space-x-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              size="sm" 
-              className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
-              onClick={() => autoFillDemoAccount('admin')}
-            >
-              Admin
-            </Button>
-            <Button 
-              type="button" 
-              variant="outline" 
-              size="sm" 
-              className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
-              onClick={() => autoFillDemoAccount('organizer')}
-            >
-              Organizer
-            </Button>
+        <TooltipProvider>
+          <div className="pt-2 space-y-2">
+            <p className="text-sm text-gray-500">Demo Accounts:</p>
+            <div className="flex flex-wrap gap-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
+                    onClick={() => autoFillDemoAccount('admin')}
+                  >
+                    Admin
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>admin@nepaltix.com / admin123</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
+                    onClick={() => autoFillDemoAccount('organizer')}
+                  >
+                    Organizer
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>organizer@nepaltix.com / organizer123</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
+                    onClick={() => autoFillDemoAccount('user')}
+                  >
+                    Regular User
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>user@nepaltix.com / user123</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
-        </div>
+        </TooltipProvider>
       </CardContent>
       <CardFooter>
         <Button 

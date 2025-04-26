@@ -41,6 +41,13 @@ const Auth = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+              <div className="mb-6 overflow-hidden rounded-lg">
+                <img 
+                  src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                  alt="Ticket booking experience" 
+                  className="object-cover w-full h-48 transition-transform duration-700 hover:scale-105"
+                />
+              </div>
               <h2 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white flex items-center">
                 <span className="bg-nepal-red/10 text-nepal-red p-2 rounded-full mr-3">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
