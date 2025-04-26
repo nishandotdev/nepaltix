@@ -8,8 +8,9 @@ import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from 
 import { UserRole } from "@/types";
 import { authService } from "@/lib/authService";
 import { toast } from "sonner";
-import { Loader2, AlertTriangle } from "lucide-react";
+import { Loader2, AlertTriangle, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { motion } from "framer-motion";
 
 interface LoginFormProps {
   isLoading: boolean;
@@ -94,47 +95,64 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
 
   return (
     <form onSubmit={handleLogin}>
-      <CardHeader>
-        <CardTitle>Login</CardTitle>
-        <CardDescription>
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl text-center">Login</CardTitle>
+        <CardDescription className="text-center">
           Enter your credentials to access your account
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {error && (
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            <Alert variant="destructive" className="border-red-300 bg-red-50 text-red-800">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          </motion.div>
         )}
         
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="email@example.com"
-            value={loginData.email}
-            onChange={handleLoginChange}
-            required
-            disabled={isLoading}
-          />
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="email@example.com"
+              value={loginData.email}
+              onChange={handleLoginChange}
+              required
+              disabled={isLoading}
+              className="pl-10 transition-all focus:border-nepal-red focus:ring-nepal-red"
+            />
+          </div>
         </div>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="password">Password</Label>
+            <Button variant="link" size="sm" className="text-xs text-nepal-red p-0 h-auto">
+              Forgot password?
+            </Button>
           </div>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            placeholder="••••••••"
-            value={loginData.password}
-            onChange={handleLoginChange}
-            required
-            disabled={isLoading}
-          />
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              value={loginData.password}
+              onChange={handleLoginChange}
+              required
+              disabled={isLoading}
+              className="pl-10 transition-all focus:border-nepal-red focus:ring-nepal-red"
+            />
+          </div>
         </div>
         
         <div className="pt-2 space-y-2">
@@ -144,7 +162,7 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
               type="button" 
               variant="outline" 
               size="sm" 
-              className="text-xs"
+              className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
               onClick={() => autoFillDemoAccount('admin')}
             >
               Admin
@@ -153,7 +171,7 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
               type="button" 
               variant="outline" 
               size="sm" 
-              className="text-xs"
+              className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
               onClick={() => autoFillDemoAccount('organizer')}
             >
               Organizer
@@ -164,7 +182,7 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
       <CardFooter>
         <Button 
           type="submit" 
-          className="w-full bg-nepal-red hover:bg-nepal-red/90" 
+          className="w-full bg-nepal-red hover:bg-nepal-red/90 transition-all" 
           disabled={isLoading}
         >
           {isLoading ? (
