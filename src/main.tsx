@@ -21,6 +21,18 @@ checkSupabaseConnection().then(isConnected => {
   
   if (isConnected) {
     console.log('Application ready to use');
+    
+    // Listen for auth state changes
+    supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event);
+      
+      // Only update the local state after we receive auth events
+      if (event === 'SIGNED_OUT') {
+        sessionStorage.removeItem('nepal_ticketing_auth');
+      } else if (event === 'SIGNED_IN' && session) {
+        // We'll handle this in the appropriate component
+      }
+    });
   } else {
     console.error('WARNING: Supabase connection failed. Some features may not work correctly.');
   }

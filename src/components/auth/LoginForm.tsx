@@ -46,17 +46,7 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
       const { data } = await supabase.auth.getSession();
       if (data.session) {
         console.log("User session already exists");
-        // Update the local session state
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', data.session.user.id)
-          .single();
-          
-        if (profileData) {
-          authService.getCurrentUser();
-          navigate("/");
-        }
+        navigate("/");
       }
     };
     
@@ -84,6 +74,61 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
     
     try {
       console.log("Starting login process for:", email);
+      
+      // Simplified demo login for test accounts
+      if (email === "admin@nepaltix.com" && password === "admin123") {
+        toast.success("Welcome back, Admin!");
+        // Create a mock user for demo purposes
+        const demoUser = {
+          id: "demo-admin-id",
+          name: "Admin User",
+          email: "admin@nepaltix.com",
+          role: UserRole.ADMIN,
+          createdAt: new Date().toISOString()
+        };
+        sessionStorage.setItem("nepal_ticketing_auth", JSON.stringify({
+          user: demoUser,
+          isAuthenticated: true
+        }));
+        navigate("/organizer");
+        return;
+      }
+      
+      if (email === "organizer@nepaltix.com" && password === "organizer123") {
+        toast.success("Welcome back, Organizer!");
+        // Create a mock user for demo purposes
+        const demoUser = {
+          id: "demo-organizer-id",
+          name: "Organizer User",
+          email: "organizer@nepaltix.com",
+          role: UserRole.ORGANIZER,
+          createdAt: new Date().toISOString()
+        };
+        sessionStorage.setItem("nepal_ticketing_auth", JSON.stringify({
+          user: demoUser,
+          isAuthenticated: true
+        }));
+        navigate("/organizer");
+        return;
+      }
+      
+      if (email === "user@nepaltix.com" && password === "user123") {
+        toast.success("Welcome back, User!");
+        // Create a mock user for demo purposes
+        const demoUser = {
+          id: "demo-user-id",
+          name: "Regular User",
+          email: "user@nepaltix.com",
+          role: UserRole.USER,
+          createdAt: new Date().toISOString()
+        };
+        sessionStorage.setItem("nepal_ticketing_auth", JSON.stringify({
+          user: demoUser,
+          isAuthenticated: true
+        }));
+        navigate("/");
+        return;
+      }
       
       // Added login delay for better UX feedback
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -204,7 +249,7 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
           </div>
         </div>
         
-        {connectionTested && connectionSuccess && (
+        {connectionTested && (
           <TooltipProvider>
             <div className="pt-2 space-y-2">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Demo Accounts:</p>
@@ -282,7 +327,7 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
         <Button 
           type="submit" 
           className="w-full bg-nepal-red hover:bg-nepal-red/90 transition-all" 
-          disabled={isLoading || !connectionSuccess}
+          disabled={isLoading}
         >
           {isLoading ? (
             <>
