@@ -22,59 +22,57 @@ const AuthForm = () => {
   if (!mounted) return null;
   
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Card className="w-full max-w-md mx-auto overflow-hidden border-0 shadow-xl">
-        <Tabs 
-          value={activeTab} 
-          onValueChange={setActiveTab}
-          className="w-full"
-        >
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger 
-              value="login"
-              className={activeTab === "login" ? "data-[state=active]:bg-nepal-red data-[state=active]:text-white" : ""}
-            >
-              Login
-            </TabsTrigger>
-            <TabsTrigger 
-              value="register"
-              className={activeTab === "register" ? "data-[state=active]:bg-nepal-red data-[state=active]:text-white" : ""}
-            >
-              Register
-            </TabsTrigger>
-          </TabsList>
-          
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, x: activeTab === "login" ? -20 : 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: activeTab === "login" ? 20 : -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <TabsContent value="login" className="mt-0">
-                <LoginForm 
-                  isLoading={isLoading} 
-                  setIsLoading={setIsLoading} 
-                />
-              </TabsContent>
-              
-              <TabsContent value="register" className="mt-0">
-                <RegisterForm 
-                  isLoading={isLoading} 
-                  setIsLoading={setIsLoading}
-                  onRegisterSuccess={handleRegisterSuccess}
-                />
-              </TabsContent>
-            </motion.div>
-          </AnimatePresence>
-        </Tabs>
-      </Card>
-    </motion.div>
+    <Card className="w-full border-0 overflow-hidden">
+      <Tabs 
+        value={activeTab} 
+        onValueChange={setActiveTab}
+        className="w-full"
+      >
+        <TabsList className="grid w-full grid-cols-2 rounded-none bg-gray-50 dark:bg-gray-900 p-0">
+          <TabsTrigger 
+            value="login"
+            className={`py-3 ${activeTab === "login" 
+              ? "data-[state=active]:bg-nepal-red data-[state=active]:text-white" 
+              : "data-[state=active]:bg-transparent"}`}
+          >
+            Login
+          </TabsTrigger>
+          <TabsTrigger 
+            value="register"
+            className={`py-3 ${activeTab === "register" 
+              ? "data-[state=active]:bg-nepal-red data-[state=active]:text-white" 
+              : "data-[state=active]:bg-transparent"}`}
+          >
+            Register
+          </TabsTrigger>
+        </TabsList>
+        
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, x: activeTab === "login" ? -20 : 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: activeTab === "login" ? 20 : -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <TabsContent value="login" className="mt-0">
+              <LoginForm 
+                isLoading={isLoading} 
+                setIsLoading={setIsLoading} 
+              />
+            </TabsContent>
+            
+            <TabsContent value="register" className="mt-0">
+              <RegisterForm 
+                isLoading={isLoading} 
+                setIsLoading={setIsLoading}
+                onRegisterSuccess={handleRegisterSuccess}
+              />
+            </TabsContent>
+          </motion.div>
+        </AnimatePresence>
+      </Tabs>
+    </Card>
   );
 };
 

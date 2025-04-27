@@ -25,7 +25,7 @@ console.log("Supabase client initialized");
 export const checkSupabaseConnection = async () => {
   try {
     // Make a simple query to check if the connection works
-    const { data, error } = await supabase.from('profiles').select('count').limit(1);
+    const { data, error } = await supabase.from('events').select('count').limit(1);
     
     if (error) {
       console.error("Supabase connection test failed:", error);

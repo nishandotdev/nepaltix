@@ -35,11 +35,43 @@ class AuthService {
   constructor() {
     // Initialize auth state from supabase session if available
     this.initAuthState();
+    
+    // Set up auth state change listener
+    this.setupAuthListener();
   }
   
   // Initialize auth state from Supabase session
   private async initAuthState() {
+    console.log('Initializing auth state...');
     await initAuthState();
+  }
+  
+  // Set up auth state change listener
+  private setupAuthListener() {
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event);
+      
+      if (event === 'SIGNED_OUT') {
+        clearSession();
+      } else if (event === 'SIGNED_IN' && session) {
+        // Fetch profile data
+        const { data: profileData, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+            
+        if (profileData && !error) {
+          saveToSession({
+            id: session.user.id,
+            name: profileData.name,
+            email: profileData.email,
+            role: profileData.role as UserRole,
+            createdAt: profileData.created_at
+          });
+        }
+      }
+    });
   }
   
   // Save user to session

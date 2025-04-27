@@ -27,6 +27,7 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
   });
   const [error, setError] = useState<string | null>(null);
   const [connectionTested, setConnectionTested] = useState(false);
+  const [connectionSuccess, setConnectionSuccess] = useState(false);
 
   // Test the Supabase connection on component mount
   useEffect(() => {
@@ -34,6 +35,12 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
       const isConnected = await checkSupabaseConnection();
       console.log("Supabase connection status:", isConnected);
       setConnectionTested(true);
+      setConnectionSuccess(isConnected);
+      
+      if (!isConnected) {
+        setError("Database connection failed. Please try again later.");
+        return;
+      }
       
       // Check if there's already a session
       const { data } = await supabase.auth.getSession();
@@ -136,9 +143,9 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
   };
 
   return (
-    <form onSubmit={handleLogin}>
+    <form onSubmit={handleLogin} className="animate-in fade-in-50">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl text-center">Login</CardTitle>
+        <CardTitle className="text-2xl text-center font-serif">Sign In</CardTitle>
         <CardDescription className="text-center">
           Enter your credentials to access your account
         </CardDescription>
@@ -150,7 +157,7 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
           >
-            <Alert variant="destructive" className="border-red-300 bg-red-50 text-red-800">
+            <Alert variant="destructive" className="border-red-300 bg-red-50 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
@@ -197,10 +204,10 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
           </div>
         </div>
         
-        {connectionTested ? (
+        {connectionTested && connectionSuccess && (
           <TooltipProvider>
             <div className="pt-2 space-y-2">
-              <p className="text-sm text-gray-500">Demo Accounts:</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Demo Accounts:</p>
               <div className="flex flex-wrap gap-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -208,7 +215,7 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
                       type="button" 
                       variant="outline" 
                       size="sm" 
-                      className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
+                      className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red border-nepal-red/20"
                       onClick={() => autoFillDemoAccount('admin')}
                     >
                       Admin
@@ -225,7 +232,7 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
                       type="button" 
                       variant="outline" 
                       size="sm" 
-                      className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
+                      className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red border-nepal-red/20"
                       onClick={() => autoFillDemoAccount('organizer')}
                     >
                       Organizer
@@ -242,7 +249,7 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
                       type="button" 
                       variant="outline" 
                       size="sm" 
-                      className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red"
+                      className="text-xs transition-all hover:bg-nepal-red/10 hover:text-nepal-red border-nepal-red/20"
                       onClick={() => autoFillDemoAccount('user')}
                     >
                       Regular User
@@ -255,9 +262,19 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
               </div>
             </div>
           </TooltipProvider>
-        ) : (
-          <div className="py-2 text-sm text-amber-600">
-            Checking database connection...
+        )}
+        
+        {connectionTested && !connectionSuccess && (
+          <div className="py-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md flex items-center space-x-2">
+            <AlertTriangle size={16} />
+            <span>Database connection failed. Please try again later.</span>
+          </div>
+        )}
+        
+        {!connectionTested && (
+          <div className="py-2 text-sm text-gray-600 dark:text-gray-400 flex items-center space-x-2">
+            <Loader2 size={16} className="animate-spin" />
+            <span>Checking database connection...</span>
           </div>
         )}
       </CardContent>
@@ -265,15 +282,15 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
         <Button 
           type="submit" 
           className="w-full bg-nepal-red hover:bg-nepal-red/90 transition-all" 
-          disabled={isLoading || !connectionTested}
+          disabled={isLoading || !connectionSuccess}
         >
           {isLoading ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Logging in...
+              Signing in...
             </>
           ) : (
-            'Login'
+            'Sign In'
           )}
         </Button>
       </CardFooter>
