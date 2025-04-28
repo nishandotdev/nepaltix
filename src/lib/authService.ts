@@ -14,11 +14,9 @@ import {
   isAdmin
 } from "./auth/core";
 
-import {
-  register,
-  login,
-  logout
-} from "./auth/authentication";
+import { register } from "./auth/register";
+import { login } from "./auth/login";
+import { logout } from "./auth/logout";
 
 import {
   getUsersByRole,
@@ -72,11 +70,6 @@ class AuthService {
         }
       }
     });
-  }
-  
-  // Save user to session
-  private saveToSession(user: Omit<User, 'password'>): void {
-    saveToSession(user);
   }
   
   // Register a new user

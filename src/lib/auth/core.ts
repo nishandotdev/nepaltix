@@ -1,5 +1,4 @@
-
-import { User, UserRole, NotificationType } from "@/types";
+import { User, UserRole } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
 // Storage key for auth session
@@ -9,30 +8,45 @@ const AUTH_STORAGE_KEY = 'nepal_ticketing_auth';
  * Get the current auth session from local storage
  */
 export const getStoredSession = (): { user: Omit<User, 'password'> | null; isAuthenticated: boolean } => {
-  const authData = localStorage.getItem(AUTH_STORAGE_KEY);
-  
-  if (!authData) {
+  try {
+    const authData = localStorage.getItem(AUTH_STORAGE_KEY);
+    
+    if (!authData) {
+      return { user: null, isAuthenticated: false };
+    }
+    
+    return JSON.parse(authData);
+  } catch (error) {
+    console.error("Error parsing stored session:", error);
     return { user: null, isAuthenticated: false };
   }
-  
-  return JSON.parse(authData);
 };
 
 /**
  * Save user to session storage
  */
 export const saveToSession = (user: Omit<User, 'password'>): void => {
-  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
-    user: user,
-    isAuthenticated: true
-  }));
+  try {
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
+      user: user,
+      isAuthenticated: true
+    }));
+    console.log("User session saved successfully:", user.name);
+  } catch (error) {
+    console.error("Error saving session:", error);
+  }
 };
 
 /**
  * Clear auth session
  */
 export const clearSession = (): void => {
-  localStorage.removeItem(AUTH_STORAGE_KEY);
+  try {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    console.log("User session cleared successfully");
+  } catch (error) {
+    console.error("Error clearing session:", error);
+  }
 };
 
 /**
@@ -40,8 +54,17 @@ export const clearSession = (): void => {
  */
 export const initAuthState = async (): Promise<void> => {
   try {
+    // Check for existing local session first
+    const localSession = getStoredSession();
+    if (localSession.isAuthenticated && localSession.user) {
+      console.log("Using existing local session for:", localSession.user.email);
+      return;
+    }
+    
+    // Otherwise check Supabase session
     const { data } = await supabase.auth.getSession();
     if (data.session) {
+      console.log("Found Supabase session, fetching profile");
       // Fetch profile data
       const { data: profileData, error } = await supabase
         .from('profiles')
@@ -50,6 +73,7 @@ export const initAuthState = async (): Promise<void> => {
         .single();
           
       if (profileData && !error) {
+        console.log("Profile found, saving session");
         saveToSession({
           id: data.session.user.id,
           name: profileData.name,
@@ -57,6 +81,8 @@ export const initAuthState = async (): Promise<void> => {
           role: profileData.role as UserRole,
           createdAt: profileData.created_at
         });
+      } else {
+        console.log("Profile not found or error:", error);
       }
     }
   } catch (error) {
@@ -76,5 +102,5 @@ export const isAuthenticated = (): boolean => {
  */
 export const isAdmin = (): boolean => {
   const { user } = getStoredSession();
-  return user?.role === UserRole.ADMIN;
+  return user?.role === UserRole.ADMIN || user?.id === 'demo-admin-id';
 };

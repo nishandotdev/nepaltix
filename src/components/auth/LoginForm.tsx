@@ -33,7 +33,7 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
       setConnectionSuccess(isConnected);
       
       if (!isConnected) {
-        setError("Database connection failed. Please try again later.");
+        setError("Database connection failed. Please try again later or use demo accounts.");
         return;
       }
       
@@ -70,22 +70,6 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
     setError(null);
     
     try {
-      // Handle demo accounts
-      if (loginData.email === "admin@nepaltix.com" && loginData.password === "admin123") {
-        handleDemoLogin("Admin User", UserRole.ADMIN);
-        return;
-      }
-      
-      if (loginData.email === "organizer@nepaltix.com" && loginData.password === "organizer123") {
-        handleDemoLogin("Organizer User", UserRole.ORGANIZER);
-        return;
-      }
-      
-      if (loginData.email === "user@nepaltix.com" && loginData.password === "user123") {
-        handleDemoLogin("Regular User", UserRole.USER);
-        return;
-      }
-      
       await new Promise(resolve => setTimeout(resolve, 800));
       const result = await authService.login(loginData.email, loginData.password);
       
@@ -102,21 +86,6 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleDemoLogin = (name: string, role: UserRole) => {
-    toast.success(`Welcome back, ${name}!`);
-    sessionStorage.setItem("nepal_ticketing_auth", JSON.stringify({
-      user: {
-        id: `demo-${role.toLowerCase()}-id`,
-        name,
-        email: `${role.toLowerCase()}@nepaltix.com`,
-        role,
-        createdAt: new Date().toISOString()
-      },
-      isAuthenticated: true
-    }));
-    navigate(role === UserRole.USER ? "/" : "/organizer");
   };
 
   const handleSuccessfulLogin = (name?: string, role?: UserRole) => {

@@ -62,6 +62,22 @@ const ProtectedRoute = ({ children, requiredRoles }: ProtectedRouteProps) => {
     }
   }, [isAuthenticated, location.pathname]);
   
+  // Handle demo accounts
+  if (user && user.id.startsWith('demo-')) {
+    // Skip role check for demo admin
+    if (user.id === 'demo-admin-id') {
+      return <>{children}</>;
+    }
+    
+    // For other demos, check role
+    if (requiredRoles && !requiredRoles.includes(user.role as UserRole)) {
+      toast.error("You don't have permission to access this page");
+      return <Navigate to="/" replace />;
+    }
+    
+    return <>{children}</>;
+  }
+  
   // Check if the user is authenticated
   if (!isAuthenticated) {
     toast.warning("Please log in to access this page");
