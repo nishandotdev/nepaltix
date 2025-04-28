@@ -1,6 +1,5 @@
 
 import { User, UserRole } from "@/types";
-import { supabase } from "@/integrations/supabase/client";
 
 // Storage key for auth session
 const AUTH_STORAGE_KEY = 'nepal_ticketing_auth';
@@ -52,73 +51,13 @@ export const clearSession = (): void => {
 };
 
 /**
- * Initialize auth state from Supabase session
+ * Initialize auth state from stored session
  */
 export const initAuthState = async (): Promise<void> => {
-  try {
-    // Check for existing local session first
-    const localSession = getStoredSession();
-    if (localSession.isAuthenticated && localSession.user) {
-      console.log("Using existing local session for:", localSession.user.email);
-      return;
-    }
-    
-    // Otherwise check Supabase session
-    const { data } = await supabase.auth.getSession();
-    
-    if (data && data.session) {
-      console.log("Found Supabase session, fetching profile");
-      // Fetch profile data
-      const { data: profileData, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', data.session.user.id)
-        .single();
-          
-      if (profileData && !error) {
-        console.log("Profile found, saving session");
-        saveToSession({
-          id: data.session.user.id,
-          name: profileData.name,
-          email: profileData.email,
-          role: profileData.role as UserRole,
-          createdAt: profileData.created_at
-        });
-      } else {
-        console.log("Profile not found or error:", error);
-        
-        // If profile doesn't exist but we have a session, create a profile
-        if (data.session.user.email) {
-          console.log("Creating missing profile for authenticated user");
-          
-          // Try to create profile
-          const { data: newProfile, error: insertError } = await supabase
-            .from('profiles')
-            .insert({
-              id: data.session.user.id,
-              name: data.session.user.email.split('@')[0] || 'User',
-              email: data.session.user.email,
-              role: UserRole.USER,
-              created_at: new Date().toISOString()
-            })
-            .select()
-            .single();
-            
-          if (newProfile && !insertError) {
-            saveToSession({
-              id: data.session.user.id,
-              name: newProfile.name,
-              email: newProfile.email,
-              role: newProfile.role as UserRole,
-              createdAt: newProfile.created_at
-            });
-            console.log("Created and saved new profile");
-          }
-        }
-      }
-    }
-  } catch (error) {
-    console.error("Failed to initialize auth state:", error);
+  // Just check local storage - no Supabase
+  const localSession = getStoredSession();
+  if (localSession.isAuthenticated && localSession.user) {
+    console.log("Using existing local session for:", localSession.user.email);
   }
 };
 
