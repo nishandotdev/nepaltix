@@ -1,4 +1,3 @@
-
 import { Event, EventCategory } from '@/types';
 
 export const events: Event[] = [
@@ -139,7 +138,7 @@ export const events: Event[] = [
     time: "Various Screenings",
     location: "QFX Cinemas, Kathmandu",
     price: 1200,
-    imageUrl: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    imageUrl: "https://images.unsplash.com/photo-1485846234645-213aa15265a2?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     category: EventCategory.CULTURE,
     featured: true,
     totalTickets: 800,
@@ -193,5 +192,69 @@ export const events: Event[] = [
     totalTickets: 500,
     availableTickets: 320,
     tags: ["Tea", "Culture", "Food", "Agricultural"]
+  },
+  {
+    id: "13",
+    title: "Dashain Music Festival 2025",
+    shortDescription: "Celebrate Nepal's biggest festival with live music and performances",
+    description: "Immerse yourself in the festive spirit of Dashain with this special music festival bringing together Nepal's top artists. Experience traditional and contemporary Nepali music in a vibrant outdoor setting. This day-long celebration includes performances from both established and emerging artists, traditional dance showcases, and special Dashain-themed activities. Food stalls will serve festival specialties and local delicacies. Join us for this unique celebration that combines Nepal's most important festival with amazing musical performances.",
+    date: "2025-10-10",
+    time: "12:00 PM - 10:00 PM",
+    location: "Tundikhel Ground, Kathmandu",
+    price: 2200,
+    imageUrl: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: EventCategory.MUSIC,
+    featured: true,
+    totalTickets: 3000,
+    availableTickets: 3000,
+    tags: ["Music", "Festival", "Dashain", "Cultural"]
+  },
+  {
+    id: "14",
+    title: "Himalayan Trail Running Championship 2025",
+    shortDescription: "Challenge yourself on Nepal's scenic mountain trails",
+    description: "The Himalayan Trail Running Championship invites runners of all levels to experience Nepal's breathtaking landscapes on foot. Choose from three distances: 10km, 25km, or the challenging 50km ultra route. All courses take you through stunning scenery, traditional villages, and offer spectacular mountain views. Professional timing, well-stocked aid stations, and safety personnel will be present throughout the routes. Finishers receive a medal, technical t-shirt, and post-race meal. Join runners from around the world for this unforgettable running adventure in the foothills of the Himalayas.",
+    date: "2025-05-15",
+    time: "5:00 AM - 6:00 PM",
+    location: "Shivapuri National Park, Kathmandu",
+    price: 4500,
+    imageUrl: "https://images.unsplash.com/photo-1483721310020-03333e577078?q=80&w=2028&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: EventCategory.ADVENTURE,
+    featured: true,
+    totalTickets: 500,
+    availableTickets: 350,
+    tags: ["Running", "Sports", "Adventure", "Outdoor"]
+  },
+  {
+    id: "15",
+    title: "Kathmandu International Art Festival 2025",
+    shortDescription: "A showcase of contemporary art from Nepal and around the world",
+    description: "The Kathmandu International Art Festival returns with its most ambitious edition yet, featuring works from over 100 artists representing 30 countries. Explore diverse exhibitions spanning painting, sculpture, photography, installation, and digital media across multiple venues throughout the city. The festival includes artist talks, workshops, guided tours, and interactive sessions for art enthusiasts of all ages. This year's theme 'Bridges' explores how art connects cultures, histories, and futures. Experience how Kathmandu becomes a living canvas for two weeks of artistic exploration and cultural exchange.",
+    date: "2025-11-25",
+    time: "10:00 AM - 7:00 PM",
+    location: "Various Venues, Kathmandu",
+    price: 1000,
+    imageUrl: "https://images.unsplash.com/photo-1561839561-b13bcfe95249?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: EventCategory.CULTURE,
+    featured: false,
+    totalTickets: 2000,
+    availableTickets: 1800,
+    tags: ["Art", "Exhibition", "Cultural", "International"]
+  },
+  {
+    id: "16",
+    title: "Nepalese Food Festival 2025",
+    shortDescription: "Experience the diverse flavors of Nepal's culinary traditions",
+    description: "Discover Nepal's rich culinary heritage at this three-day food festival celebrating the country's diverse regional cuisines. Sample authentic dishes from all seven provinces of Nepal prepared by skilled local chefs. The festival features cooking demonstrations, tasting sessions, and workshops where you can learn to prepare traditional Nepalese dishes. Special themed zones highlight different aspects of Nepali cuisine, from street food favorites to royal court specialties. Enjoy live cultural performances while savoring the flavors that make Nepal's cuisine one of the most unique in South Asia.",
+    date: "2025-08-20",
+    time: "11:00 AM - 9:00 PM",
+    location: "Bhrikutimandap, Kathmandu",
+    price: 800,
+    imageUrl: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: EventCategory.FOOD,
+    featured: false,
+    totalTickets: 5000,
+    availableTickets: 4200,
+    tags: ["Food", "Culinary", "Festival", "Cultural"]
   }
 ];

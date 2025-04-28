@@ -2,7 +2,6 @@
 import { useEffect } from 'react';
 import Hero from '@/components/Hero';
 import FeaturedEvents from '@/components/FeaturedEvents';
-import { events } from '@/data/events';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import AnimatedSection from '@/components/AnimatedSection';
@@ -20,7 +19,7 @@ const Index = () => {
       <Navbar />
       <main className="flex-grow">
         <Hero />
-        <FeaturedEvents events={events} />
+        <FeaturedEvents />
         
         <section className="py-16 bg-white dark:bg-gray-800">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
