@@ -51,6 +51,9 @@ export const login = async (email: string, password: string): Promise<{ success:
       return { success: true, message: 'Demo login successful', user: demoUser };
     }
     
+    // Clear any previous session before attempting login
+    localStorage.removeItem('nepal_ticketing_auth');
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -66,7 +69,7 @@ export const login = async (email: string, password: string): Promise<{ success:
       return { success: false, message: error.message || "Login failed" };
     }
     
-    if (!data.user) {
+    if (!data || !data.user) {
       console.error("No user data returned from login");
       return { success: false, message: "Login failed" };
     }
@@ -83,14 +86,14 @@ export const login = async (email: string, password: string): Promise<{ success:
         console.error("Profile fetch error:", profileError);
         
         // If profile doesn't exist, create it using auth metadata
-        const userData = data.user.user_metadata;
+        const userData = data.user.user_metadata || {};
         
         const { data: newProfile, error: insertError } = await supabase
           .from('profiles')
           .insert({
             id: data.user.id,
             name: userData.name || data.user.email?.split('@')[0] || 'User',
-            email: data.user.email,
+            email: data.user.email || '',
             role: userData.role || UserRole.USER,
             created_at: new Date().toISOString()
           })
@@ -119,7 +122,7 @@ export const login = async (email: string, password: string): Promise<{ success:
           `Welcome back, ${user.name}!`,
           NotificationType.SUCCESS,
           user.id
-        );
+        ).catch(err => console.error("Error adding notification:", err));
         
         return { success: true, message: 'Login successful', user };
       }
@@ -141,7 +144,7 @@ export const login = async (email: string, password: string): Promise<{ success:
         `Welcome back, ${user.name}!`,
         NotificationType.SUCCESS,
         user.id
-      );
+      ).catch(err => console.error("Error adding notification:", err));
       
       return { success: true, message: 'Login successful', user };
       
@@ -150,7 +153,7 @@ export const login = async (email: string, password: string): Promise<{ success:
       return { success: false, message: "Failed to process user profile" };
     }
     
-  } catch (error) {
+  } catch (error: any) {
     console.error("Login error:", error);
     return { success: false, message: 'An unexpected error occurred during login' };
   }

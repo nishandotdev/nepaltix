@@ -1,3 +1,4 @@
+
 import { User, UserRole } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -18,6 +19,7 @@ export const getStoredSession = (): { user: Omit<User, 'password'> | null; isAut
     return JSON.parse(authData);
   } catch (error) {
     console.error("Error parsing stored session:", error);
+    localStorage.removeItem(AUTH_STORAGE_KEY);
     return { user: null, isAuthenticated: false };
   }
 };
@@ -63,7 +65,8 @@ export const initAuthState = async (): Promise<void> => {
     
     // Otherwise check Supabase session
     const { data } = await supabase.auth.getSession();
-    if (data.session) {
+    
+    if (data && data.session) {
       console.log("Found Supabase session, fetching profile");
       // Fetch profile data
       const { data: profileData, error } = await supabase
@@ -83,6 +86,35 @@ export const initAuthState = async (): Promise<void> => {
         });
       } else {
         console.log("Profile not found or error:", error);
+        
+        // If profile doesn't exist but we have a session, create a profile
+        if (data.session.user.email) {
+          console.log("Creating missing profile for authenticated user");
+          
+          // Try to create profile
+          const { data: newProfile, error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              id: data.session.user.id,
+              name: data.session.user.email.split('@')[0] || 'User',
+              email: data.session.user.email,
+              role: UserRole.USER,
+              created_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+            
+          if (newProfile && !insertError) {
+            saveToSession({
+              id: data.session.user.id,
+              name: newProfile.name,
+              email: newProfile.email,
+              role: newProfile.role as UserRole,
+              createdAt: newProfile.created_at
+            });
+            console.log("Created and saved new profile");
+          }
+        }
       }
     }
   } catch (error) {

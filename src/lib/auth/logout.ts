@@ -20,16 +20,18 @@ export const logout = async (): Promise<void> => {
           'You have been successfully logged out.',
           NotificationType.INFO,
           user.id
-        );
+        ).catch(err => console.error("Error creating logout notification:", err));
       }
     } catch (error) {
       console.error("Error creating logout notification:", error);
     }
   }
   
-  // Sign out from Supabase
-  await supabase.auth.signOut();
-  
-  // Clear session from local storage
+  // Clear session first to prevent race conditions
   clearSession();
+  
+  // Then sign out from Supabase
+  await supabase.auth.signOut().catch(err => {
+    console.error("Error signing out from Supabase:", err);
+  });
 };

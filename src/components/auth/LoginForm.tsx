@@ -37,10 +37,14 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
         return;
       }
       
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        console.log("User session already exists");
-        navigate("/");
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data && data.session) {
+          console.log("User session already exists");
+          navigate("/");
+        }
+      } catch (err) {
+        console.error("Error checking session:", err);
       }
     };
     
@@ -69,15 +73,24 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
     setIsLoading(true);
     setError(null);
     
+    if (!loginData.email || !loginData.password) {
+      setError("Email and password are required");
+      setIsLoading(false);
+      return;
+    }
+    
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await new Promise(resolve => setTimeout(resolve, 800)); // UI feedback delay
+      console.log("Attempting login with:", loginData.email);
+      
       const result = await authService.login(loginData.email, loginData.password);
       
       if (result.success) {
         handleSuccessfulLogin(result.user?.name, result.user?.role);
       } else {
+        console.error("Login failed with message:", result.message);
         setError(result.message);
-        toast.error(result.message);
+        toast.error(result.message || "Login failed");
       }
     } catch (error: any) {
       console.error("Login error:", error);
