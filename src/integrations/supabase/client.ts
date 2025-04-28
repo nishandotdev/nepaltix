@@ -11,8 +11,8 @@ export const supabase = createClient<Database>(
   SUPABASE_PUBLISHABLE_KEY,
   {
     auth: {
-      // Use sessionStorage instead of localStorage for better security
-      storage: sessionStorage,
+      // Use localStorage for persistent sessions across browser refreshes
+      storage: localStorage,
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,

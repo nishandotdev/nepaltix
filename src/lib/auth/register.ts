@@ -45,6 +45,22 @@ export const register = async (userData: {
       return { success: false, message: "Registration failed" };
     }
     
+    // Insert user profile data into profiles table
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert({
+        id: data.user.id,
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+        created_at: new Date().toISOString()
+      });
+      
+    if (profileError) {
+      console.error("Profile creation error:", profileError);
+      // Continue anyway since auth was created successfully
+    }
+    
     // Create welcome notification
     await addNotification(
       'Welcome to NepalTix',

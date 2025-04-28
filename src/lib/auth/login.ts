@@ -36,11 +36,57 @@ export const login = async (email: string, password: string): Promise<{ success:
         .from('profiles')
         .select('*')
         .eq('id', data.user.id)
-        .maybeSingle();
+        .single();
         
-      if (profileError || !profileData) {
+      if (profileError) {
         console.error("Profile fetch error:", profileError);
+        
+        // If profile doesn't exist, create it using auth metadata
+        if (profileError.code === 'PGRST116') {
+          const userData = data.user.user_metadata;
+          
+          const { data: newProfile, error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              id: data.user.id,
+              name: userData.name || 'User',
+              email: data.user.email,
+              role: userData.role || UserRole.USER,
+              created_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+            
+          if (insertError) {
+            console.error("Profile creation error:", insertError);
+            return { success: false, message: "Failed to create user profile" };
+          }
+          
+          const user = {
+            id: data.user.id,
+            name: newProfile.name,
+            email: newProfile.email,
+            role: newProfile.role as UserRole,
+            createdAt: newProfile.created_at
+          };
+          
+          // Create login notification
+          await addNotification(
+            'Login Successful',
+            `Welcome back, ${user.name}!`,
+            NotificationType.SUCCESS,
+            user.id
+          );
+          
+          return { success: true, message: 'Login successful', user };
+        }
+        
         return { success: false, message: "Failed to fetch user profile" };
+      }
+      
+      if (!profileData) {
+        console.error("No profile data found");
+        return { success: false, message: "User profile not found" };
       }
       
       const user = {
