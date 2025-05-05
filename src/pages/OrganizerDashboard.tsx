@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CalendarPlus, Edit, Trash2, QrCode, Users, TicketCheck } from 'lucide-react';
@@ -20,7 +21,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const OrganizerDashboard = () => {
   const queryClient = useQueryClient();
-  const [events, setEvents] = useState<Event[]>([]);
+  // Remove the local state for events as we'll use React Query instead
   const [formData, setFormData] = useState<Partial<Event>>({
     title: '',
     shortDescription: '',
@@ -44,7 +45,7 @@ const OrganizerDashboard = () => {
   const { toast } = useToast();
   
   // Fetch events using React Query
-  const { data: events = [] } = useQuery({
+  const { data: eventsList = [] } = useQuery({
     queryKey: ['events'],
     queryFn: () => eventService.getAllEvents(),
     initialData: []
@@ -117,48 +118,72 @@ const OrganizerDashboard = () => {
       availableTickets: formData.totalTickets || 0
     };
     
-    setEvents(prev => [...prev, newEvent]);
-    
-    toast({
-      title: "Event Created",
-      description: `${newEvent.title} has been created successfully.`
-    });
-    
-    // Reset form
-    setFormData({
-      title: '',
-      shortDescription: '',
-      description: '',
-      date: '',
-      time: '',
-      location: '',
-      price: 0,
-      imageUrl: '',
-      category: EventCategory.FESTIVAL,
-      featured: false,
-      totalTickets: 100,
-      availableTickets: 100,
-      tags: []
-    });
+    // Instead of updating local state, create event in database via service
+    eventService.createEvent(newEvent)
+      .then(() => {
+        toast({
+          title: "Event Created",
+          description: `${newEvent.title} has been created successfully.`
+        });
+        
+        // Invalidate queries to refresh data
+        queryClient.invalidateQueries({ queryKey: ['events'] });
+        queryClient.invalidateQueries({ queryKey: ['featuredEvents'] });
+        
+        // Reset form
+        setFormData({
+          title: '',
+          shortDescription: '',
+          description: '',
+          date: '',
+          time: '',
+          location: '',
+          price: 0,
+          imageUrl: '',
+          category: EventCategory.FESTIVAL,
+          featured: false,
+          totalTickets: 100,
+          availableTickets: 100,
+          tags: []
+        });
+      })
+      .catch(error => {
+        console.error("Failed to create event:", error);
+        toast({
+          title: "Creation Failed",
+          description: "Failed to create the event. Please try again.",
+          variant: "destructive"
+        });
+      });
   };
   
   const handleUpdateEvent = () => {
     if (!selectedEvent || !validateForm()) return;
     
-    const updatedEvents = events.map(event => 
-      event.id === selectedEvent.id 
-        ? { ...formData, id: event.id } as Event
-        : event
-    );
+    const updatedEvent = { ...formData, id: selectedEvent.id } as Event;
     
-    setEvents(updatedEvents);
-    
-    toast({
-      title: "Event Updated",
-      description: `${formData.title} has been updated successfully.`
-    });
-    
-    setSelectedEvent(null);
+    // Update the event via service instead of local state
+    eventService.updateEvent(selectedEvent.id, formData)
+      .then(() => {
+        toast({
+          title: "Event Updated",
+          description: `${formData.title} has been updated successfully.`
+        });
+        
+        // Invalidate queries to refresh data
+        queryClient.invalidateQueries({ queryKey: ['events'] });
+        queryClient.invalidateQueries({ queryKey: ['featuredEvents'] });
+        
+        setSelectedEvent(null);
+      })
+      .catch(error => {
+        console.error("Failed to update event:", error);
+        toast({
+          title: "Update Failed",
+          description: "Failed to update the event. Please try again.",
+          variant: "destructive"
+        });
+      });
   };
   
   const handleEditEvent = (event: Event) => {
@@ -210,8 +235,8 @@ const OrganizerDashboard = () => {
   
   const handleScanTicket = () => {
     // Simulate scanning a ticket
-    const randomEventIndex = Math.floor(Math.random() * events.length);
-    const randomEvent = events[randomEventIndex];
+    const randomEventIndex = Math.floor(Math.random() * eventsList.length);
+    const randomEvent = eventsList[randomEventIndex];
     const ticketId = `TKT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
     
     setScannedTickets(prev => [
@@ -454,9 +479,9 @@ const OrganizerDashboard = () => {
                 </Dialog>
               </div>
               
-              {events.length > 0 ? (
+              {eventsList.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {events.map(event => (
+                  {eventsList.map(event => (
                     <div 
                       key={event.id} 
                       className="border rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm"
@@ -604,12 +629,12 @@ const OrganizerDashboard = () => {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-semibold">Attendees</h2>
                 
-                <Select defaultValue={events[0]?.id}>
+                <Select defaultValue={eventsList[0]?.id}>
                   <SelectTrigger className="w-[280px]">
                     <SelectValue placeholder="Select event" />
                   </SelectTrigger>
                   <SelectContent>
-                    {events.map(event => (
+                    {eventsList.map(event => (
                       <SelectItem key={event.id} value={event.id}>
                         {event.title}
                       </SelectItem>

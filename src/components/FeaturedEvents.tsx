@@ -17,13 +17,15 @@ const FeaturedEvents = () => {
       const featuredEvents = await eventService.getFeaturedEvents();
       return featuredEvents.slice(0, 3);
     },
-    onError: (error) => {
-      console.error("Error loading featured events:", error);
-      toast({
-        title: "Error loading events",
-        description: "Could not load featured events. Please try again later.",
-        variant: "destructive"
-      });
+    meta: {
+      onError: (error: Error) => {
+        console.error("Error loading featured events:", error);
+        toast({
+          title: "Error loading events",
+          description: "Could not load featured events. Please try again later.",
+          variant: "destructive"
+        });
+      }
     }
   });
 
