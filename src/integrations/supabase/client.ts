@@ -5,7 +5,7 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://ywdlmodikgstzbbykuho.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3ZGxtb2Rpa2dzdHpiYnlrdWhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE5MTg2ODIsImV4cCI6MjA1NzQ5NDY4Mn0.Fz4HC9TWCpePrxyLcCNJiDAs-g2iI-EswOqYVAyUbeU";
 
-// Create the Supabase client with explicit auth config
+// Create the Supabase client with optimized config
 export const supabase = createClient<Database>(
   SUPABASE_URL, 
   SUPABASE_PUBLISHABLE_KEY,
@@ -15,6 +15,14 @@ export const supabase = createClient<Database>(
       storage: typeof window !== 'undefined' ? localStorage : undefined,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+    },
+    db: {
+      schema: 'public',
+    },
+    global: {
+      headers: {
+        'Cache-Control': 'no-store, max-age=0',
+      },
     },
   }
 );

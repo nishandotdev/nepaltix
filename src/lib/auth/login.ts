@@ -4,14 +4,19 @@ import { saveToSession } from "./core";
 
 /**
  * Login a user using demo accounts only
+ * Optimized for performance
  */
 export const login = async (email: string, password: string): Promise<{ success: boolean; message: string; user?: Omit<User, 'password'> }> => {
   try {
+    // Simple pre-check to avoid unnecessary processing
+    if (!email || !password) {
+      return { success: false, message: 'Email and password are required' };
+    }
+    
     console.log("Attempting demo login for:", email);
     
-    // Handle demo accounts
+    // Handle demo accounts with optimized conditions
     if (email === "admin@nepaltix.com" && password === "admin123") {
-      console.log("Using admin demo account");
       const demoUser = {
         id: "demo-admin-id",
         name: "Admin User",
@@ -24,7 +29,6 @@ export const login = async (email: string, password: string): Promise<{ success:
     }
     
     if (email === "organizer@nepaltix.com" && password === "organizer123") {
-      console.log("Using organizer demo account");
       const demoUser = {
         id: "demo-organizer-id",
         name: "Organizer User",
@@ -37,7 +41,6 @@ export const login = async (email: string, password: string): Promise<{ success:
     }
     
     if (email === "user@nepaltix.com" && password === "user123") {
-      console.log("Using regular user demo account");
       const demoUser = {
         id: "demo-user-id",
         name: "Regular User",

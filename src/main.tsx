@@ -4,6 +4,9 @@ import React from 'react'; // Explicitly import React
 import App from './App.tsx'
 import './index.css'
 
+// Import the optimized query client
+import { queryClient, prefetchCommonData } from './lib/queryClient';
+
 // Initialize the database and services
 import { dbService } from './lib/dbService';
 import { authService } from './lib/authService';
@@ -22,6 +25,9 @@ checkSupabaseConnection().then(isConnected => {
   if (isConnected) {
     console.log('Application ready to use');
     
+    // Prefetch common data for performance
+    prefetchCommonData().catch(console.error);
+    
     // Listen for auth state changes
     supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event);
@@ -29,8 +35,6 @@ checkSupabaseConnection().then(isConnected => {
       // Only update the local state after we receive auth events
       if (event === 'SIGNED_OUT') {
         sessionStorage.removeItem('nepal_ticketing_auth');
-      } else if (event === 'SIGNED_IN' && session) {
-        // We'll handle this in the appropriate component
       }
     });
   } else {

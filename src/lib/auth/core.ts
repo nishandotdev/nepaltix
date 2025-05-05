@@ -28,10 +28,19 @@ export const getStoredSession = (): { user: Omit<User, 'password'> | null; isAut
  */
 export const saveToSession = (user: Omit<User, 'password'>): void => {
   try {
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
-      user: user,
+    // Use a more efficient approach by storing only what's needed
+    const sessionData = {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt
+      },
       isAuthenticated: true
-    }));
+    };
+    
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionData));
     console.log("User session saved successfully:", user.name);
   } catch (error) {
     console.error("Error saving session:", error);
@@ -54,7 +63,7 @@ export const clearSession = (): void => {
  * Initialize auth state from stored session
  */
 export const initAuthState = async (): Promise<void> => {
-  // Just check local storage - no Supabase
+  // Simple check without unnecessary processing
   const localSession = getStoredSession();
   if (localSession.isAuthenticated && localSession.user) {
     console.log("Using existing local session for:", localSession.user.email);
