@@ -593,7 +593,7 @@ const OrganizerDashboard = () => {
               {scannedTickets.length > 0 ? (
                 <div className="space-y-3">
                   {scannedTickets.map((ticket, index) => {
-                    const event = events.find(e => e.id === ticket.eventId);
+                    const event = eventsList.find(e => e.id === ticket.eventId);
                     return (
                       <div 
                         key={index} 
