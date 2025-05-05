@@ -2,6 +2,7 @@
 import { Event, EventCategory } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { events as localEvents } from '@/data/events';
+import { queryClient } from '@/lib/queryClient';
 
 class EventService {
   // Get all events - fetches from Supabase, falls back to local data
@@ -260,6 +261,11 @@ class EventService {
         console.error("Error deleting event:", error);
         return false;
       }
+      
+      // Invalidate all event-related queries to ensure UI updates correctly
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['featuredEvents'] });
+      console.log(`Event ${id} deleted successfully and cache invalidated`);
       
       return true;
     } catch (error) {

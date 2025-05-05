@@ -24,6 +24,11 @@ export const supabase = createClient<Database>(
         'Cache-Control': 'no-store, max-age=0',
       },
     },
+    realtime: {
+      params: {
+        eventsPerSecond: 10
+      }
+    }
   }
 );
 

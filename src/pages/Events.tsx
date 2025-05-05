@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Search, Filter, Loader2, Calendar, Map, Tag, SlidersHorizontal } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -13,8 +12,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import EventCard from '@/components/EventCard';
-import { events } from '@/data/events';
+import { eventService } from '@/lib/eventService';
 import { Event, EventCategory } from '@/types';
+import { useQuery } from '@tanstack/react-query';
 
 const categoryLabels: Record<EventCategory, string> = {
   [EventCategory.MUSIC]: 'Music',
@@ -36,54 +36,54 @@ const categoryIcons: Record<EventCategory, React.ReactNode> = {
 
 const Events = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<EventCategory[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [sortBy, setSortBy] = useState("date-asc");
   const [showDialog, setShowDialog] = useState(false);
+  
+  // Fetch events using React Query
+  const { data: events = [], isLoading } = useQuery({
+    queryKey: ['events'],
+    queryFn: () => eventService.getAllEvents(),
+  });
+  
+  // Filter and sort events based on user criteria
+  const filteredEvents = applyFilters(events, searchQuery, selectedCategories, sortBy);
   
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = "NepalTix - Discover Events";
-    
-    // Simulate loading from API
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      applyFilters();
-      setIsLoading(false);
-    }, 800);
-    
-    return () => clearTimeout(timer);
   }, []);
   
-  useEffect(() => {
-    applyFilters();
-  }, [searchQuery, selectedCategories, sortBy]);
-  
-  const applyFilters = () => {
-    let results = [...events];
+  // Function to filter and sort events
+  function applyFilters(
+    eventList: Event[], 
+    query: string, 
+    categories: EventCategory[], 
+    sort: string
+  ): Event[] {
+    let results = [...eventList];
     
     // Apply search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+    if (query) {
+      const searchLower = query.toLowerCase();
       results = results.filter(event => 
-        event.title.toLowerCase().includes(query) || 
-        event.description.toLowerCase().includes(query) || 
-        event.location.toLowerCase().includes(query) ||
-        event.tags.some(tag => tag.toLowerCase().includes(query))
+        event.title.toLowerCase().includes(searchLower) || 
+        event.description.toLowerCase().includes(searchLower) || 
+        event.location.toLowerCase().includes(searchLower) ||
+        event.tags.some(tag => tag.toLowerCase().includes(searchLower))
       );
     }
     
     // Apply category filter
-    if (selectedCategories.length > 0) {
-      results = results.filter(event => selectedCategories.includes(event.category));
+    if (categories.length > 0) {
+      results = results.filter(event => categories.includes(event.category));
     }
     
     // Apply sorting
-    results = sortEvents(results, sortBy);
+    results = sortEvents(results, sort);
     
-    setFilteredEvents(results);
-  };
+    return results;
+  }
   
   const sortEvents = (eventList: Event[], sortOption: string) => {
     const sorted = [...eventList];

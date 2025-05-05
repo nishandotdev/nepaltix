@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CalendarPlus, Edit, Trash2, QrCode, Users, TicketCheck } from 'lucide-react';
@@ -16,10 +15,12 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { EventCategory, Event } from '@/types';
-import { events as initialEvents } from '@/data/events';
+import { eventService } from '@/lib/eventService';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const OrganizerDashboard = () => {
-  const [events, setEvents] = useState<Event[]>(initialEvents);
+  const queryClient = useQueryClient();
+  const [events, setEvents] = useState<Event[]>([]);
   const [formData, setFormData] = useState<Partial<Event>>({
     title: '',
     shortDescription: '',
@@ -41,6 +42,35 @@ const OrganizerDashboard = () => {
   
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // Fetch events using React Query
+  const { data: events = [] } = useQuery({
+    queryKey: ['events'],
+    queryFn: () => eventService.getAllEvents(),
+    initialData: []
+  });
+  
+  // Delete event mutation
+  const deleteEventMutation = useMutation({
+    mutationFn: (eventId: string) => eventService.deleteEvent(eventId),
+    onSuccess: () => {
+      toast({
+        title: "Event Deleted",
+        description: "The event has been deleted successfully."
+      });
+      // Invalidate and refetch events query after deletion
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['featuredEvents'] });
+    },
+    onError: (error) => {
+      console.error('Failed to delete event:', error);
+      toast({
+        title: "Deletion Failed",
+        description: "Failed to delete the event. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -137,12 +167,7 @@ const OrganizerDashboard = () => {
   };
   
   const handleDeleteEvent = (eventId: string) => {
-    setEvents(prev => prev.filter(event => event.id !== eventId));
-    
-    toast({
-      title: "Event Deleted",
-      description: "The event has been deleted successfully."
-    });
+    deleteEventMutation.mutate(eventId);
   };
   
   const validateForm = () => {

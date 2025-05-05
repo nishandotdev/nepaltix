@@ -1,38 +1,31 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import EventCard from './EventCard';
 import { Event } from '@/types';
 import { eventService } from '@/lib/eventService';
 import { useToast } from '@/components/ui/use-toast';
+import { useQuery } from '@tanstack/react-query';
 
 const FeaturedEvents = () => {
-  const [visibleEvents, setVisibleEvents] = useState<Event[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   
-  useEffect(() => {
-    // Load featured events from service
-    const loadFeaturedEvents = async () => {
-      setIsLoading(true);
-      try {
-        const featuredEvents = await eventService.getFeaturedEvents();
-        setVisibleEvents(featuredEvents.slice(0, 3));
-      } catch (error) {
-        console.error("Error loading featured events:", error);
-        toast({
-          title: "Error loading events",
-          description: "Could not load featured events. Please try again later.",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadFeaturedEvents();
-  }, [toast]);
+  const { data: visibleEvents = [], isLoading } = useQuery({
+    queryKey: ['featuredEvents'],
+    queryFn: async () => {
+      const featuredEvents = await eventService.getFeaturedEvents();
+      return featuredEvents.slice(0, 3);
+    },
+    onError: (error) => {
+      console.error("Error loading featured events:", error);
+      toast({
+        title: "Error loading events",
+        description: "Could not load featured events. Please try again later.",
+        variant: "destructive"
+      });
+    }
+  });
 
   return (
     <section className="py-16 sm:py-24 bg-gray-50 dark:bg-gray-900">
