@@ -59,35 +59,35 @@ const Navbar = () => {
     <header
       className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md py-3 shadow-soft' 
-          : 'bg-transparent py-5'
+          ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md py-2 sm:py-3 shadow-soft' 
+          : 'bg-transparent py-3 sm:py-5'
       }`}
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <Link 
             to="/" 
             className="flex items-center space-x-2 text-nepal-red"
           >
-            <Ticket className="h-6 w-6" />
-            <span className="font-serif text-xl font-bold tracking-tight">
+            <Ticket className="h-5 w-5 sm:h-6 sm:w-6" />
+            <span className="font-serif text-lg sm:text-xl font-bold tracking-tight">
               NepalTix
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-4 lg:space-x-8">
             <NavLink to="/" label="Home" />
             <NavLink to="/events" label="Events" />
             <NavLink to="/about" label="About" />
             <NavLink to="/contact" label="Contact" />
           </nav>
 
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
             {isAuthenticated ? (
               <>
                 <Link
                   to="/checkout"
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                     isScrolled
                       ? 'bg-nepal-red text-white hover:bg-opacity-90'
                       : 'bg-white/20 backdrop-blur-md border border-white/30 text-gray-900 hover:bg-white/30'
@@ -97,8 +97,8 @@ const Navbar = () => {
                 </Link>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 p-0">
-                      <Avatar className="h-9 w-9">
+                    <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 p-0">
+                      <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
                         <AvatarFallback className="bg-nepal-red/10 text-nepal-red">
                           {user ? getInitials(user.name) : "U"}
                         </AvatarFallback>
@@ -132,7 +132,7 @@ const Navbar = () => {
               <>
                 <Link
                   to="/checkout"
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                     isScrolled
                       ? 'bg-nepal-red text-white hover:bg-opacity-90'
                       : 'bg-white/20 backdrop-blur-md border border-white/30 text-gray-900 hover:bg-white/30'
@@ -142,13 +142,13 @@ const Navbar = () => {
                 </Link>
                 <Link
                   to="/auth"
-                  className={`flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  className={`flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                     isScrolled
                       ? 'border border-nepal-red text-nepal-red hover:bg-nepal-red/10'
                       : 'bg-white/10 backdrop-blur-md border border-white/20 text-gray-900 hover:bg-white/20'
                   }`}
                 >
-                  <User className="h-4 w-4 mr-2" />
+                  <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   Login
                 </Link>
               </>
@@ -160,7 +160,7 @@ const Navbar = () => {
             onClick={toggleMobileMenu}
             aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isMobileMenuOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
           </button>
         </div>
       </div>
@@ -168,7 +168,7 @@ const Navbar = () => {
       {/* Mobile menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg absolute top-full left-0 right-0 shadow-lg animate-fade-in border-t border-gray-100 dark:border-gray-800">
-          <div className="px-4 pt-2 pb-4 space-y-3">
+          <div className="px-4 pt-2 pb-4 space-y-2">
             <MobileNavLink to="/" label="Home" />
             <MobileNavLink to="/events" label="Events" />
             <MobileNavLink to="/about" label="About" />
@@ -190,7 +190,7 @@ const Navbar = () => {
             ) : (
               <Link
                 to="/auth"
-                className="block w-full text-center px-4 py-3 mt-4 rounded-full text-sm font-medium bg-nepal-red text-white hover:bg-opacity-90 transition-all duration-300"
+                className="block w-full text-center px-4 py-2.5 mt-3 rounded-full text-sm font-medium bg-nepal-red text-white hover:bg-opacity-90 transition-all duration-300"
               >
                 Login / Register
               </Link>
@@ -199,7 +199,7 @@ const Navbar = () => {
             {isAuthenticated && (
               <Link
                 to="/checkout"
-                className="block w-full text-center px-4 py-3 mt-4 rounded-full text-sm font-medium bg-nepal-red text-white hover:bg-opacity-90 transition-all duration-300"
+                className="block w-full text-center px-4 py-2.5 mt-3 rounded-full text-sm font-medium bg-nepal-red text-white hover:bg-opacity-90 transition-all duration-300"
               >
                 Book Tickets
               </Link>

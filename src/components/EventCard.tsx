@@ -65,6 +65,7 @@ const EventCard = ({ event, featured = false }: EventCardProps) => {
       }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
+      className="h-full"
     >
       <Link 
         to={`/events/${event.id}`}
@@ -91,68 +92,68 @@ const EventCard = ({ event, featured = false }: EventCardProps) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-70"></div>
           
           {event.featured && (
-            <div className="absolute top-4 left-4 z-10">
-              <Badge className="bg-nepal-red text-white border-none px-3 py-1 font-medium">
+            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
+              <Badge className="bg-nepal-red text-white border-none px-2 py-0.5 sm:px-3 sm:py-1 text-xs sm:text-sm font-medium">
                 Featured
               </Badge>
             </div>
           )}
           
-          <div className="absolute top-4 right-4 z-10">
-            <Badge className={`${availabilityStatus.color} border px-3 py-1`}>
+          <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
+            <Badge className={`${availabilityStatus.color} border px-2 py-0.5 sm:px-3 sm:py-1 text-xs sm:text-sm`}>
               {availabilityStatus.text}
             </Badge>
           </div>
           
           {isSoldOut && (
             <div className="absolute inset-0 flex items-center justify-center z-20">
-              <div className="transform rotate-45 bg-red-600 text-white py-1 px-16 font-bold text-xl shadow-lg">
+              <div className="transform rotate-45 bg-red-600 text-white py-1 px-12 sm:px-16 font-bold text-lg sm:text-xl shadow-lg">
                 SOLD OUT
               </div>
             </div>
           )}
           
-          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 text-white">
-            <div className="space-y-2">
-              <span className="inline-block text-xs font-medium uppercase tracking-wider text-nepal-cream bg-black/50 px-2 py-1 rounded-sm backdrop-blur-sm">
+          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-5 text-white">
+            <div className="space-y-1 sm:space-y-2">
+              <span className="inline-block text-xs font-medium uppercase tracking-wider text-nepal-cream bg-black/50 px-2 py-0.5 rounded-sm backdrop-blur-sm">
                 {event.category}
               </span>
-              <h3 className={`font-serif font-bold ${featured ? 'text-xl sm:text-2xl' : 'text-lg'} line-clamp-2`}>
+              <h3 className={`font-serif font-bold ${featured ? 'text-lg sm:text-xl md:text-2xl' : 'text-base sm:text-lg'} line-clamp-2`}>
                 {event.title}
               </h3>
             </div>
           </div>
         </div>
         
-        <div className="p-4 sm:p-5 space-y-3">
-          <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+        <div className="p-3 sm:p-4 md:p-5 space-y-2 sm:space-y-3">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
             {event.shortDescription}
           </p>
           
-          <div className="grid grid-cols-1 gap-2">
+          <div className="grid grid-cols-1 gap-1 sm:gap-2">
             <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-              <Calendar className="h-3.5 w-3.5 mr-1.5 flex-shrink-0 text-nepal-red/70" />
+              <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1 sm:mr-1.5 flex-shrink-0 text-nepal-red/70" />
               <span>{formatDate(event.date)}</span>
             </div>
             
             <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-              <Clock className="h-3.5 w-3.5 mr-1.5 flex-shrink-0 text-nepal-red/70" />
+              <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1 sm:mr-1.5 flex-shrink-0 text-nepal-red/70" />
               <span>{event.time}</span>
             </div>
             
             <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-              <MapPin className="h-3.5 w-3.5 mr-1.5 flex-shrink-0 text-nepal-red/70" />
+              <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1 sm:mr-1.5 flex-shrink-0 text-nepal-red/70" />
               <span className="truncate">{event.location}</span>
             </div>
           </div>
           
-          <div className="pt-2 flex items-center justify-between">
-            <div className="font-medium text-nepal-red">
+          <div className="pt-1 sm:pt-2 flex items-center justify-between">
+            <div className="font-medium text-xs sm:text-sm md:text-base text-nepal-red">
               {formatPrice(event.price)}
             </div>
             
             {!isSoldOut && (
-              <div className="relative w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="relative w-16 sm:w-20 md:w-24 h-1.5 sm:h-2 bg-gray-200 rounded-full overflow-hidden">
                 <motion.div 
                   className="absolute top-0 left-0 h-full bg-nepal-red"
                   initial={{ width: 0 }}
