@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   Calendar, 
   Clock, 
@@ -10,7 +10,8 @@ import {
   ChevronLeft,
   Share2,
   Star,
-  AlertTriangle
+  AlertTriangle,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -23,23 +24,57 @@ import {
 } from '@/components/ui/tabs';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { events } from '@/data/events';
 import { useToast } from '@/components/ui/use-toast';
 import { TicketType } from '@/types';
 import NotFound from './NotFound';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import SoldOutBadge from '@/components/SoldOutBadge';
+import { useQuery } from '@tanstack/react-query';
+import { eventService } from '@/lib/eventService';
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [ticketQuantity, setTicketQuantity] = useState(1);
   const [selectedTicketType, setSelectedTicketType] = useState<TicketType>(TicketType.STANDARD);
   
-  const event = events.find(e => e.id === id);
+  // Fetch event data using React Query
+  const { 
+    data: event, 
+    isLoading, 
+    isError 
+  } = useQuery({
+    queryKey: ['event', id],
+    queryFn: () => eventService.getEventById(id || ''),
+    meta: {
+      onSettled: (data, error) => {
+        if (error || !data) {
+          console.error("Error fetching event:", error || "Event not found");
+        }
+      }
+    }
+  });
   
-  if (!event) {
+  // Redirect to NotFound if event is not found
+  if (isError || (!isLoading && !event)) {
     return <NotFound />;
+  }
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <>
+        <Navbar />
+        <div className="bg-white dark:bg-gray-900 min-h-screen">
+          <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center">
+            <Loader2 className="h-10 w-10 text-nepal-red animate-spin mb-4" />
+            <p className="text-gray-600 dark:text-gray-300 text-lg">Loading event details...</p>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
   }
 
   const isSoldOut = event.availableTickets <= 0;
@@ -241,7 +276,7 @@ const EventDetails = () => {
                       </Alert>
                     )}
                     
-                    <Tabs defaultValue="standard" className="mb-6" onValueChange={(value) => {
+                    <Tabs defaultValue="STANDARD" className="mb-6" onValueChange={(value) => {
                       setSelectedTicketType(value as TicketType);
                     }}>
                       <TabsList className="grid grid-cols-2 mb-2">

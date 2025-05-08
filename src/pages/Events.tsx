@@ -1,4 +1,6 @@
+
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Loader2, Calendar, Map, Tag, SlidersHorizontal } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -9,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import EventCard from '@/components/EventCard';
@@ -35,15 +38,24 @@ const categoryIcons: Record<EventCategory, React.ReactNode> = {
 };
 
 const Events = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<EventCategory[]>([]);
   const [sortBy, setSortBy] = useState("date-asc");
   const [showDialog, setShowDialog] = useState(false);
   
   // Fetch events using React Query
-  const { data: events = [], isLoading } = useQuery({
+  const { data: events = [], isLoading, error } = useQuery({
     queryKey: ['events'],
     queryFn: () => eventService.getAllEvents(),
+    meta: {
+      onSettled: (data, error) => {
+        if (error) {
+          console.error("Error loading events:", error);
+          toast.error("Failed to load events. Please try again.");
+        }
+      }
+    }
   });
   
   // Filter and sort events based on user criteria
@@ -120,29 +132,33 @@ const Events = () => {
     setSelectedCategories([]);
     setSortBy("date-asc");
   };
+  
+  const handleEventClick = (eventId: string) => {
+    navigate(`/events/${eventId}`);
+  };
 
   return (
     <>
       <Navbar />
       
       <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
-        <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
           <motion.div 
-            className="text-center max-w-3xl mx-auto mb-10"
+            className="text-center max-w-3xl mx-auto mb-8 sm:mb-10"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
               Discover Events in Nepal
             </h1>
-            <p className="text-gray-600 dark:text-gray-300 text-lg">
+            <p className="text-gray-600 dark:text-gray-300 text-base sm:text-lg">
               Find and book tickets for the best events happening across Nepal
             </p>
           </motion.div>
           
           <motion.div 
-            className="flex flex-col sm:flex-row gap-4 mb-6"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-5 sm:mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -272,12 +288,26 @@ const Events = () => {
           )}
           
           {isLoading ? (
-            <div className="flex justify-center items-center py-20">
+            <div className="flex justify-center items-center py-16 sm:py-20">
               <Loader2 className="h-8 w-8 text-nepal-red animate-spin" />
+              <span className="ml-3 text-lg text-gray-600 dark:text-gray-300">Loading events...</span>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <h3 className="text-xl font-medium mb-2 text-red-600">Failed to load events</h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
+                Sorry, we couldn't load the events. Please try again.
+              </p>
+              <Button 
+                className="bg-nepal-red hover:bg-nepal-red/90" 
+                onClick={() => window.location.reload()}
+              >
+                Retry
+              </Button>
             </div>
           ) : filteredEvents.length > 0 ? (
             <motion.div 
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -290,6 +320,8 @@ const Events = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.3, delay: 0.05 * index }}
+                    onClick={() => handleEventClick(event.id)}
+                    className="cursor-pointer"
                   >
                     <EventCard event={event} />
                   </motion.div>
@@ -298,7 +330,7 @@ const Events = () => {
             </motion.div>
           ) : (
             <motion.div 
-              className="text-center py-20"
+              className="text-center py-16 sm:py-20"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}

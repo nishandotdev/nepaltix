@@ -10,9 +10,10 @@ import { motion } from 'framer-motion';
 interface EventCardProps {
   event: Event;
   featured?: boolean;
+  onClick?: () => void;
 }
 
-const EventCard = ({ event, featured = false }: EventCardProps) => {
+const EventCard = ({ event, featured = false, onClick }: EventCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -57,6 +58,14 @@ const EventCard = ({ event, featured = false }: EventCardProps) => {
 
   const availabilityStatus = getAvailabilityStatus();
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // If onClick prop is provided, use that instead of the default Link behavior
+    if (onClick) {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
   return (
     <motion.div
       whileHover={{ 
@@ -66,6 +75,7 @@ const EventCard = ({ event, featured = false }: EventCardProps) => {
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       className="h-full"
+      onClick={handleCardClick}
     >
       <Link 
         to={`/events/${event.id}`}
