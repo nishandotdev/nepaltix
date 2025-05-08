@@ -49,6 +49,7 @@
   padding-left: 1rem;
   margin-right: auto;
   margin-left: auto;
+  max-width: 100%;
 }
 
 @media (min-width: 640px) {
@@ -81,27 +82,28 @@
 
 /* Responsive spacing */
 .section-padding {
-  padding-top: 3rem;
-  padding-bottom: 3rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
 
 @media (min-width: 768px) {
+  .section-padding {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
   .section-padding {
     padding-top: 4rem;
     padding-bottom: 4rem;
   }
 }
 
-@media (min-width: 1024px) {
-  .section-padding {
-    padding-top: 5rem;
-    padding-bottom: 5rem;
-  }
-}
-
-/* Animations and transitions */
+/* Animations and transitions with performance optimization */
 .animate-entrance {
-  animation: entrance 0.8s ease-out;
+  animation: entrance 0.6s ease-out;
+  will-change: opacity, transform;
 }
 
 @keyframes entrance {
@@ -116,7 +118,8 @@
 }
 
 .animate-float {
-  animation: float 2s ease-in-out infinite;
+  animation: float 3s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes float {
@@ -132,7 +135,8 @@
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeIn 0.4s ease-in-out;
+  will-change: opacity;
 }
 
 @keyframes fadeIn {
@@ -161,6 +165,11 @@
   .card-compact {
     padding: 0.75rem;
   }
+  
+  /* Improve tap targets on mobile */
+  button, a, input, select, textarea {
+    min-height: 44px;
+  }
 }
 
 /* Touch device improvements */
@@ -168,9 +177,39 @@
   .touch-target {
     min-height: 44px;
     min-width: 44px;
+    padding: 0.5rem;
   }
   
   .touch-padding {
     padding: 0.5rem 0.75rem;
   }
+  
+  /* Disable hover effects that might cause flicker */
+  .hover\:shadow-none:hover {
+    box-shadow: none !important;
+  }
+}
+
+/* Reduce unnecessary animations for better performance */
+@media (prefers-reduced-motion: reduce) {
+  *, 
+  *::before, 
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Performance optimizations */
+.img-optimize {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
+}
+
+/* Hardware acceleration for smoother animations */
+.hardware-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
