@@ -26,11 +26,12 @@ const FeaturedEvents = () => {
           variant: "destructive"
         });
       }
-    }
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   return (
-    <section className="py-16 sm:py-24 bg-gray-50 dark:bg-gray-900">
+    <section className="py-16 sm:py-24 bg-gray-50/80 backdrop-blur-sm dark:bg-gray-900/80">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
           <span className="inline-block px-3 py-1 text-xs font-medium text-nepal-red bg-nepal-red/10 rounded-full mb-4">
@@ -48,7 +49,7 @@ const FeaturedEvents = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {[1, 2, 3].map((_, index) => (
               <div key={index} className="rounded-lg overflow-hidden shadow-sm">
-                <div className="aspect-[4/3] bg-gray-200 animate-pulse"></div>
+                <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
                 <div className="p-5 bg-white dark:bg-gray-800 space-y-3">
                   <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4"></div>
                   <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
@@ -61,8 +62,12 @@ const FeaturedEvents = () => {
         ) : visibleEvents.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {visibleEvents.map((event) => (
-                <div key={event.id} className="animate-fade-in">
+              {visibleEvents.map((event, index) => (
+                <div 
+                  key={event.id} 
+                  className="animate-fade-in hardware-accelerated"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
                   <EventCard event={event} featured />
                 </div>
               ))}
@@ -79,7 +84,7 @@ const FeaturedEvents = () => {
             </div>
           </>
         ) : (
-          <div className="text-center py-10">
+          <div className="text-center py-10 bg-white/50 backdrop-blur-sm dark:bg-gray-800/50 rounded-xl shadow-sm">
             <p className="text-gray-500 dark:text-gray-400">No featured events available at the moment</p>
             <div className="mt-6">
               <Link

@@ -21,7 +21,7 @@ const Index = () => {
         <Hero />
         <FeaturedEvents />
         
-        <section className="py-16 bg-white dark:bg-gray-800">
+        <section className="py-16 bg-white/80 dark:bg-gray-800/80 backdrop-filter backdrop-blur-sm">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
               <AnimatedSection className="order-2 lg:order-1" type="fade-right">
@@ -82,18 +82,20 @@ const Index = () => {
               
               <AnimatedSection className="order-1 lg:order-2" type="fade-left">
                 <div className="relative">
-                  <div className="rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300">
+                  <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
                     <img 
-                      src="https://images.unsplash.com/photo-1565073624497-7144503de59a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                      src="https://images.unsplash.com/photo-1469504512102-900f29606341?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" 
                       alt="Traditional Nepali Festival" 
                       className="w-full h-[500px] object-cover hover:scale-105 transition-transform duration-700"
+                      loading="lazy"
                     />
                   </div>
                   <div className="absolute -bottom-6 -right-6 rounded-2xl overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg w-48 h-48 md:w-64 md:h-64 transform hover:translate-y-2 hover:translate-x-2 transition-transform duration-300">
                     <img 
-                      src="https://images.unsplash.com/photo-1519120944692-1a8d8cfc107f?q=80&w=2036&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                      src="https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=80&w=2000&auto=format&fit=crop&ixlib=rb-4.0.3" 
                       alt="Nepali Cultural Performance" 
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   </div>
                   <div className="absolute top-6 -left-6 glass-card rounded-lg p-4 hidden sm:block backdrop-blur-md bg-white/70 dark:bg-gray-900/70 shadow-lg hover:transform hover:scale-105 transition-all duration-300">

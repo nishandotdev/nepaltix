@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, MapPin, Calendar } from 'lucide-react';
 import { Event } from '@/types';
@@ -17,6 +17,7 @@ const EventCard = ({ event, featured = false, onClick }: EventCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
+  // Format date in a performant way
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { 
       year: 'numeric', 
@@ -26,6 +27,8 @@ const EventCard = ({ event, featured = false, onClick }: EventCardProps) => {
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
+  const formattedDate = formatDate(event.date);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ne-NP', {
       style: 'currency',
@@ -33,6 +36,8 @@ const EventCard = ({ event, featured = false, onClick }: EventCardProps) => {
       minimumFractionDigits: 0
     }).format(price);
   };
+
+  const formattedPrice = formatPrice(event.price);
 
   const getSoldPercentage = (total: number, available: number) => {
     if (total <= 0) return 0;
@@ -74,24 +79,25 @@ const EventCard = ({ event, featured = false, onClick }: EventCardProps) => {
       }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="h-full"
+      className="h-full hardware-accelerated"
       onClick={handleCardClick}
     >
       <Link 
         to={`/events/${event.id}`}
         className={`block overflow-hidden transition-all duration-300 h-full ${
           featured 
-            ? 'rounded-xl bg-white dark:bg-gray-800 shadow-md hover:shadow-xl' 
-            : 'rounded-lg bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg'
+            ? 'rounded-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-md hover:shadow-lg' 
+            : 'rounded-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-sm hover:shadow-md'
         }`}
       >
         <div className={`relative overflow-hidden ${featured ? 'aspect-[16/9]' : 'aspect-[4/3]'}`}>
           {!imageLoaded && (
-            <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
+            <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
           )}
           <img
             src={event.imageUrl}
             alt={event.title}
+            loading="lazy"
             onLoad={() => setImageLoaded(true)}
             className={`w-full h-full object-cover transition-transform duration-500 ${
               isHovered ? 'scale-110' : 'scale-100'
@@ -99,7 +105,7 @@ const EventCard = ({ event, featured = false, onClick }: EventCardProps) => {
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-70"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-60"></div>
           
           {event.featured && (
             <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
@@ -143,7 +149,7 @@ const EventCard = ({ event, featured = false, onClick }: EventCardProps) => {
           <div className="grid grid-cols-1 gap-1 sm:gap-2">
             <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
               <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1 sm:mr-1.5 flex-shrink-0 text-nepal-red/70" />
-              <span>{formatDate(event.date)}</span>
+              <span>{formattedDate}</span>
             </div>
             
             <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
@@ -159,7 +165,7 @@ const EventCard = ({ event, featured = false, onClick }: EventCardProps) => {
           
           <div className="pt-1 sm:pt-2 flex items-center justify-between">
             <div className="font-medium text-xs sm:text-sm md:text-base text-nepal-red">
-              {formatPrice(event.price)}
+              {formattedPrice}
             </div>
             
             {!isSoldOut && (

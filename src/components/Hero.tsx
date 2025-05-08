@@ -1,48 +1,75 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { debounce } from '@/lib/performance';
 
 const heroImages = [
-  "https://images.unsplash.com/photo-1609924211018-5526c55bad5b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1572456020147-19ce91597e1b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1623647756180-760c2dc2a0ab?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+  "https://images.unsplash.com/photo-1469504512102-900f29606341?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3",
+  "https://images.unsplash.com/photo-1532375810709-75b1da00537c?q=80&w=2076&auto=format&fit=crop&ixlib=rb-4.0.3",
+  "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=1920&auto=format&fit=crop&ixlib=rb-4.0.3"
 ];
 
 const Hero = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const timerRef = useRef<number | null>(null);
 
+  // Preload images for smoother transitions
   useEffect(() => {
-    const timer = setInterval(() => {
-      setIsImageLoaded(false);
-      setCurrentImageIndex((prevIndex) => 
-        prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
-      );
-    }, 6000);
-
-    return () => clearInterval(timer);
+    heroImages.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
   }, []);
 
-  const handleImageLoad = () => {
-    setIsImageLoaded(true);
+  useEffect(() => {
+    startImageTimer();
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [currentImageIndex]);
+
+  const startImageTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    timerRef.current = window.setInterval(() => {
+      setIsTransitioning(true);
+      setIsImageLoaded(false);
+      
+      // Delay the index change slightly to allow for transitions
+      setTimeout(() => {
+        setCurrentImageIndex((prevIndex) => 
+          prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
+        );
+      }, 300);
+    }, 6000);
   };
+
+  const handleImageLoad = debounce(() => {
+    setIsImageLoaded(true);
+    setIsTransitioning(false);
+  }, 100);
 
   return (
     <div className="relative h-[100svh] w-full overflow-hidden">
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70 z-10"></div>
+      {/* Gradient overlay - lighter than before */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/60 z-10"></div>
       
-      {/* Background pattern */}
-      <div className="absolute inset-0 bg-nepal-pattern opacity-50 z-0"></div>
+      {/* Background pattern - more subtle */}
+      <div className="absolute inset-0 bg-nepal-pattern opacity-30 z-0"></div>
       
       {/* Background image */}
       {heroImages.map((image, index) => (
         <div
           key={index}
           className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
-            currentImageIndex === index ? (isImageLoaded ? 'opacity-100' : 'opacity-0') : 'opacity-0'
-          }`}
+            currentImageIndex === index 
+              ? (isImageLoaded ? 'opacity-100' : 'opacity-0') 
+              : 'opacity-0'
+          } ${isTransitioning ? 'scale-105' : 'scale-100'} transition-transform duration-2000`}
           style={{ backgroundImage: `url(${image})` }}
         >
           <img
@@ -84,7 +111,7 @@ const Hero = () => {
         </div>
       </div>
       
-      {/* Decorative elements */}
+      {/* Decorative elements - lighter gradient */}
       <div className="absolute bottom-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-t from-background to-transparent z-20"></div>
       
       {/* Scroll indicator */}
