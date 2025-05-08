@@ -84,7 +84,7 @@ const Index = () => {
                 <div className="relative">
                   <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
                     <img 
-                      src="https://images.unsplash.com/photo-1469504512102-900f29606341?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                      src="https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?q=80&w=3648&auto=format&fit=crop&ixlib=rb-4.0.3" 
                       alt="Traditional Nepali Festival" 
                       className="w-full h-[500px] object-cover hover:scale-105 transition-transform duration-700"
                       loading="lazy"
