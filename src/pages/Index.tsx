@@ -84,15 +84,15 @@ const Index = () => {
                 <div className="relative">
                   <div className="rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300">
                     <img 
-                      src="https://images.unsplash.com/photo-1585147457016-a838195bfa12?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-                      alt="Nepali Festival" 
+                      src="https://images.unsplash.com/photo-1565073624497-7144503de59a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                      alt="Traditional Nepali Festival" 
                       className="w-full h-[500px] object-cover hover:scale-105 transition-transform duration-700"
                     />
                   </div>
                   <div className="absolute -bottom-6 -right-6 rounded-2xl overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg w-48 h-48 md:w-64 md:h-64 transform hover:translate-y-2 hover:translate-x-2 transition-transform duration-300">
                     <img 
-                      src="https://images.unsplash.com/photo-1514037337613-ee3db0475f7f?q=80&w=1976&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-                      alt="Nepali Music" 
+                      src="https://images.unsplash.com/photo-1519120944692-1a8d8cfc107f?q=80&w=2036&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                      alt="Nepali Cultural Performance" 
                       className="w-full h-full object-cover"
                     />
                   </div>
