@@ -79,3 +79,41 @@ export function memoize<T extends (...args: any[]) => any>(
 export const lazyLoad = async <T>(loader: () => Promise<T>): Promise<T> => {
   return await loader();
 };
+
+/**
+ * Optimized image loading with progress tracking
+ */
+export const preloadImages = (
+  imageSrcs: string[], 
+  onProgress?: (percent: number) => void, 
+  onComplete?: () => void
+): Promise<void> => {
+  return new Promise((resolve) => {
+    let loaded = 0;
+    const total = imageSrcs.length;
+    
+    if (total === 0) {
+      if (onComplete) onComplete();
+      resolve();
+      return;
+    }
+    
+    imageSrcs.forEach(src => {
+      const img = new Image();
+      
+      img.onload = img.onerror = () => {
+        loaded++;
+        if (onProgress) {
+          onProgress((loaded / total) * 100);
+        }
+        
+        if (loaded === total) {
+          if (onComplete) onComplete();
+          resolve();
+        }
+      };
+      
+      img.src = src;
+    });
+  });
+};

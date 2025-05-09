@@ -4,23 +4,35 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { debounce } from '@/lib/performance';
 
+// Optimized image URLs (using smaller sizes and optimized formats)
 const heroImages = [
-  "https://images.unsplash.com/photo-1469504512102-900f29606341?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3",
-  "https://images.unsplash.com/photo-1532375810709-75b1da00537c?q=80&w=2076&auto=format&fit=crop&ixlib=rb-4.0.3",
-  "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=1920&auto=format&fit=crop&ixlib=rb-4.0.3"
+  "https://images.unsplash.com/photo-1469504512102-900f29606341?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3",
+  "https://images.unsplash.com/photo-1532375810709-75b1da00537c?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3",
+  "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3"
 ];
 
 const Hero = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [imagesPreloaded, setImagesPreloaded] = useState(false);
   const timerRef = useRef<number | null>(null);
 
-  // Preload images for smoother transitions
+  // Preload images with progress tracking
   useEffect(() => {
+    let loadedCount = 0;
+    const totalImages = heroImages.length;
+    
     const preloadImages = () => {
       heroImages.forEach((src) => {
         const img = new Image();
+        img.onload = () => {
+          loadedCount++;
+          if (loadedCount === totalImages) {
+            setImagesPreloaded(true);
+            setIsImageLoaded(true);
+          }
+        };
         img.src = src;
       });
     };
@@ -28,8 +40,10 @@ const Hero = () => {
     preloadImages();
   }, []);
 
-  // Handle image rotation with timer
+  // Handle image rotation with timer - only start after preloading
   useEffect(() => {
+    if (!imagesPreloaded) return;
+    
     const startImageTimer = () => {
       if (timerRef.current) window.clearInterval(timerRef.current);
       
@@ -51,7 +65,7 @@ const Hero = () => {
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current);
     };
-  }, [currentImageIndex]);
+  }, [currentImageIndex, imagesPreloaded]);
 
   const handleImageLoad = debounce(() => {
     setIsImageLoaded(true);
@@ -60,6 +74,16 @@ const Hero = () => {
 
   return (
     <div className="relative h-[100svh] w-full overflow-hidden">
+      {/* Loading state */}
+      {!imagesPreloaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 z-30">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-nepal-red border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-white">Loading amazing experiences...</p>
+          </div>
+        </div>
+      )}
+      
       {/* Gradient overlay - lighter than before */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/60 z-10"></div>
       
@@ -82,6 +106,7 @@ const Hero = () => {
             alt="Traditional Nepali Festival"
             className="hidden"
             onLoad={index === currentImageIndex ? handleImageLoad : undefined}
+            loading={index === 0 ? "eager" : "lazy"}
           />
         </div>
       ))}
