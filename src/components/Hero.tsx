@@ -5,9 +5,9 @@ import { ArrowRight } from 'lucide-react';
 import { debounce } from '@/lib/performance';
 
 const heroImages = [
-  "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=1920&auto=format&fit=crop&ixlib=rb-4.0.3",
-  "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=80&w=2000&auto=format&fit=crop&ixlib=rb-4.0.3",
-  "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?q=80&w=3648&auto=format&fit=crop&ixlib=rb-4.0.3"
+  "https://images.unsplash.com/photo-1469504512102-900f29606341?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3",
+  "https://images.unsplash.com/photo-1532375810709-75b1da00537c?q=80&w=2076&auto=format&fit=crop&ixlib=rb-4.0.3",
+  "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=1920&auto=format&fit=crop&ixlib=rb-4.0.3"
 ];
 
 const Hero = () => {
@@ -56,7 +56,7 @@ const Hero = () => {
   return (
     <div className="relative h-[100svh] w-full overflow-hidden">
       {/* Gradient overlay - lighter than before */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60 z-10"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/60 z-10"></div>
       
       {/* Background pattern - more subtle */}
       <div className="absolute inset-0 bg-nepal-pattern opacity-30 z-0"></div>
@@ -74,7 +74,7 @@ const Hero = () => {
         >
           <img
             src={image}
-            alt="Nepal Landscape"
+            alt="Traditional Nepali Festival"
             className="hidden"
             onLoad={index === currentImageIndex ? handleImageLoad : undefined}
           />

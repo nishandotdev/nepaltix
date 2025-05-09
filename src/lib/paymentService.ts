@@ -11,8 +11,10 @@ class PaymentService {
     onError: (message: string) => void
   ): Promise<void> {
     try {
+      console.log('Processing payment with method:', paymentInfo.paymentMethod);
+      
       // For performance - optimize network simulation time
-      const processingDelay = Math.floor(Math.random() * 500) + 500; // 0.5-1 second (improved from 1-2 seconds)
+      const processingDelay = Math.floor(Math.random() * 300) + 300; // 0.3-0.6 second (improved for faster demo)
       
       await new Promise(resolve => setTimeout(resolve, processingDelay));
       
@@ -37,20 +39,10 @@ class PaymentService {
           throw new Error('Unsupported payment method');
       }
       
-      // For demos, always succeed to provide consistent experience
-      // In production, you'd replace this with actual payment validation
-      if (import.meta.env.DEV || window.location.hostname.includes('lovable')) {
-        console.log('Demo payment processed successfully');
-        onSuccess();
-        return;
-      }
-      
-      // Simulate success (90% chance)
-      if (Math.random() < 0.9) {
-        onSuccess();
-      } else {
-        throw new Error('Payment declined by the payment provider');
-      }
+      // For demo purposes, always succeed to provide consistent experience
+      console.log('Demo payment processed successfully for', paymentInfo.paymentMethod);
+      onSuccess();
+      return;
     } catch (error) {
       console.error('Payment processing error:', error);
       onError(error instanceof Error ? error.message : 'An unexpected error occurred');
@@ -59,60 +51,47 @@ class PaymentService {
   
   // Process card payment
   private async processCardPayment(paymentInfo: PaymentInfo, amount: number): Promise<void> {
-    // Enhance validation
-    if (!this.validateCardNumber(paymentInfo.cardNumber)) {
-      throw new Error('Invalid card number');
+    // For demo, accept any card input
+    if (paymentInfo.cardNumber && !this.validateCardNumber(paymentInfo.cardNumber)) {
+      console.log('Demo mode: Accepting any card number format');
     }
     
-    if (!this.validateExpiryDate(paymentInfo.expiryDate)) {
-      throw new Error('Invalid expiry date');
-    }
-    
-    if (!this.validateCVC(paymentInfo.cvc)) {
-      throw new Error('Invalid CVC');
-    }
-    
-    // In a real implementation, this would call a payment gateway API
     console.log(`Processing card payment of NPR ${amount}`);
-    // Performance improvement: reduce wait time on validation
+    // Simulating API call for payment
     await new Promise(resolve => setTimeout(resolve, 200));
   }
   
   // Process eSewa payment
   private async processEsewaPayment(paymentInfo: PaymentInfo, amount: number): Promise<void> {
-    // In a real implementation, this would redirect to eSewa or call their API
+    // In demo mode, we'll accept any eSewa payment
     console.log(`Processing eSewa payment of NPR ${amount}`);
-    // Reduce simulation time for better performance
     await new Promise(resolve => setTimeout(resolve, 200));
   }
   
   // Process Khalti payment
   private async processKhaltiPayment(paymentInfo: PaymentInfo, amount: number): Promise<void> {
-    // In a real implementation, this would redirect to Khalti or call their API
+    // In demo mode, we'll accept any Khalti payment
     console.log(`Processing Khalti payment of NPR ${amount}`);
-    // Reduce simulation time for better performance
     await new Promise(resolve => setTimeout(resolve, 200));
   }
   
   // Process FonePay payment
   private async processFonepayPayment(paymentInfo: PaymentInfo, amount: number): Promise<void> {
-    // In a real implementation, this would redirect to FonePay or call their API
+    // In demo mode, we'll accept any FonePay payment
     console.log(`Processing FonePay payment of NPR ${amount}`);
-    // Reduce simulation time for better performance
     await new Promise(resolve => setTimeout(resolve, 200));
   }
   
   // Process ConnectIPS payment
   private async processConnectIpsPayment(paymentInfo: PaymentInfo, amount: number): Promise<void> {
-    // In a real implementation, this would redirect to ConnectIPS or call their API
+    // In demo mode, we'll accept any ConnectIPS payment
     console.log(`Processing ConnectIPS payment of NPR ${amount}`);
-    // Reduce simulation time for better performance
     await new Promise(resolve => setTimeout(resolve, 200));
   }
   
-  // Validate card number (simple Luhn algorithm check)
+  // Validate card number (simple Luhn algorithm check) - but in demo mode we're more permissive
   private validateCardNumber(cardNumber: string): boolean {
-    // For demo purposes, accept common test card numbers
+    // For demo purposes, accept common test card numbers and any input
     const testCards = [
       '4242424242424242', // Visa test card
       '5555555555554444', // Mastercard test card
@@ -128,46 +107,20 @@ class PaymentService {
       return true;
     }
     
-    // Check if empty or not the right length
-    if (!sanitizedNumber || sanitizedNumber.length < 13 || sanitizedNumber.length > 19) {
-      return false;
-    }
-    
-    // More permissive validation for demo purposes
+    // In demo mode, be very permissive
+    return sanitizedNumber.length >= 4;
+  }
+  
+  // Validate expiry date (MM/YY format) - but in demo mode we're more permissive
+  private validateExpiryDate(expiryDate: string): boolean {
+    // For demo, be more forgiving with date formats
     return true;
   }
   
-  // Validate expiry date (MM/YY format)
-  private validateExpiryDate(expiryDate: string): boolean {
-    // For demo, be more forgiving with date formats
-    if (!/^\d{2}\/\d{2}$/.test(expiryDate)) {
-      return false;
-    }
-    
-    const [monthStr, yearStr] = expiryDate.split('/');
-    const month = parseInt(monthStr, 10);
-    const year = 2000 + parseInt(yearStr, 10); // Convert YY to 20YY
-    
-    // In demo mode, accept any future date
-    if (import.meta.env.DEV || window.location.hostname.includes('lovable')) {
-      return month >= 1 && month <= 12;
-    }
-    
-    // Create a date for the last day of the expiry month
-    const expiryDateObj = new Date(year, month, 0);
-    const today = new Date();
-    
-    // Check if the card is expired
-    return expiryDateObj > today && month >= 1 && month <= 12;
-  }
-  
-  // Validate CVC (3-4 digits)
+  // Validate CVC (3-4 digits) - but in demo mode we're more permissive
   private validateCVC(cvc: string): boolean {
     // For demo purposes, be more permissive
-    if (import.meta.env.DEV || window.location.hostname.includes('lovable')) {
-      return /^\d{3,4}$/.test(cvc) || cvc === '123';
-    }
-    return /^\d{3,4}$/.test(cvc);
+    return true;
   }
   
   // Get available payment methods for the region

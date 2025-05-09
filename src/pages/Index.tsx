@@ -84,7 +84,7 @@ const Index = () => {
                 <div className="relative">
                   <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
                     <img 
-                      src="https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?q=80&w=3648&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                      src="https://images.unsplash.com/photo-1469504512102-900f29606341?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" 
                       alt="Traditional Nepali Festival" 
                       className="w-full h-[500px] object-cover hover:scale-105 transition-transform duration-700"
                       loading="lazy"
@@ -92,7 +92,7 @@ const Index = () => {
                   </div>
                   <div className="absolute -bottom-6 -right-6 rounded-2xl overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg w-48 h-48 md:w-64 md:h-64 transform hover:translate-y-2 hover:translate-x-2 transition-transform duration-300">
                     <img 
-                      src="https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=80&w=2000&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                      src="https://images.unsplash.com/photo-1532375810709-75b1da00537c?q=80&w=2076&auto=format&fit=crop&ixlib=rb-4.0.3" 
                       alt="Nepali Cultural Performance" 
                       className="w-full h-full object-cover"
                       loading="lazy"
