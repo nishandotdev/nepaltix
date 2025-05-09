@@ -18,35 +18,40 @@ const Hero = () => {
 
   // Preload images for smoother transitions
   useEffect(() => {
-    heroImages.forEach((src) => {
-      const img = new Image();
-      img.src = src;
-    });
+    const preloadImages = () => {
+      heroImages.forEach((src) => {
+        const img = new Image();
+        img.src = src;
+      });
+    };
+    
+    preloadImages();
   }, []);
 
+  // Handle image rotation with timer
   useEffect(() => {
+    const startImageTimer = () => {
+      if (timerRef.current) window.clearInterval(timerRef.current);
+      
+      timerRef.current = window.setInterval(() => {
+        setIsTransitioning(true);
+        setIsImageLoaded(false);
+        
+        // Delay the index change slightly to allow for transitions
+        setTimeout(() => {
+          setCurrentImageIndex(prevIndex => 
+            prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
+          );
+        }, 300);
+      }, 6000);
+    };
+    
     startImageTimer();
-
+    
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) window.clearInterval(timerRef.current);
     };
   }, [currentImageIndex]);
-
-  const startImageTimer = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-
-    timerRef.current = window.setInterval(() => {
-      setIsTransitioning(true);
-      setIsImageLoaded(false);
-      
-      // Delay the index change slightly to allow for transitions
-      setTimeout(() => {
-        setCurrentImageIndex((prevIndex) => 
-          prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
-        );
-      }, 300);
-    }, 6000);
-  };
 
   const handleImageLoad = debounce(() => {
     setIsImageLoaded(true);
