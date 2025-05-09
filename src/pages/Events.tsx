@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Loader2, Calendar, Map, Tag, SlidersHorizontal } from 'lucide-react';
@@ -38,6 +39,59 @@ const categoryIcons: Record<EventCategory, React.ReactNode> = {
   [EventCategory.ADVENTURE]: <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>,
 };
 
+// Function to filter and sort events - defined before use
+function applyFilters(
+  eventList: Event[], 
+  query: string, 
+  categories: EventCategory[], 
+  sort: string
+): Event[] {
+  let results = [...eventList];
+  
+  // Apply search filter
+  if (query) {
+    const searchLower = query.toLowerCase();
+    results = results.filter(event => 
+      event.title.toLowerCase().includes(searchLower) || 
+      event.description.toLowerCase().includes(searchLower) || 
+      event.location.toLowerCase().includes(searchLower) ||
+      event.tags.some(tag => tag.toLowerCase().includes(searchLower))
+    );
+  }
+  
+  // Apply category filter
+  if (categories.length > 0) {
+    results = results.filter(event => categories.includes(event.category));
+  }
+  
+  // Apply sorting
+  results = sortEvents(results, sort);
+  
+  return results;
+}
+
+// Define sortEvents before use
+const sortEvents = (eventList: Event[], sortOption: string) => {
+  const sorted = [...eventList];
+  
+  switch (sortOption) {
+    case "date-asc":
+      return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    case "date-desc":
+      return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    case "price-asc":
+      return sorted.sort((a, b) => a.price - b.price);
+    case "price-desc":
+      return sorted.sort((a, b) => b.price - a.price);
+    case "alpha-asc":
+      return sorted.sort((a, b) => a.title.localeCompare(b.title));
+    case "alpha-desc":
+      return sorted.sort((a, b) => b.title.localeCompare(a.title));
+    default:
+      return sorted;
+  }
+};
+
 const Events = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -59,66 +113,13 @@ const Events = () => {
     }
   });
   
-  // Initialize filteredEvents before using
+  // Apply filters AFTER events are loaded
   const filteredEvents = applyFilters(events, searchQuery, selectedCategories, sortBy);
   
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = "NepalTix - Discover Events";
   }, []);
-  
-  // Function to filter and sort events - defined before use
-  function applyFilters(
-    eventList: Event[], 
-    query: string, 
-    categories: EventCategory[], 
-    sort: string
-  ): Event[] {
-    let results = [...eventList];
-    
-    // Apply search filter
-    if (query) {
-      const searchLower = query.toLowerCase();
-      results = results.filter(event => 
-        event.title.toLowerCase().includes(searchLower) || 
-        event.description.toLowerCase().includes(searchLower) || 
-        event.location.toLowerCase().includes(searchLower) ||
-        event.tags.some(tag => tag.toLowerCase().includes(searchLower))
-      );
-    }
-    
-    // Apply category filter
-    if (categories.length > 0) {
-      results = results.filter(event => categories.includes(event.category));
-    }
-    
-    // Apply sorting
-    results = sortEvents(results, sort);
-    
-    return results;
-  }
-  
-  // Define sortEvents before use
-  const sortEvents = (eventList: Event[], sortOption: string) => {
-    const sorted = [...eventList];
-    
-    switch (sortOption) {
-      case "date-asc":
-        return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-      case "date-desc":
-        return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      case "price-asc":
-        return sorted.sort((a, b) => a.price - b.price);
-      case "price-desc":
-        return sorted.sort((a, b) => b.price - a.price);
-      case "alpha-asc":
-        return sorted.sort((a, b) => a.title.localeCompare(b.title));
-      case "alpha-desc":
-        return sorted.sort((a, b) => b.title.localeCompare(a.title));
-      default:
-        return sorted;
-    }
-  };
   
   const toggleCategory = (category: EventCategory) => {
     setSelectedCategories(prev => 
