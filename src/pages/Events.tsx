@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Loader2, Calendar, Map, Tag, SlidersHorizontal } from 'lucide-react';
@@ -19,6 +18,7 @@ import { eventService } from '@/lib/eventService';
 import { Event, EventCategory } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 
+// Define category labels as constant before using them
 const categoryLabels: Record<EventCategory, string> = {
   [EventCategory.MUSIC]: 'Music',
   [EventCategory.CULTURE]: 'Culture',
@@ -28,6 +28,7 @@ const categoryLabels: Record<EventCategory, string> = {
   [EventCategory.ADVENTURE]: 'Adventure',
 };
 
+// Define category icons as constant before using them
 const categoryIcons: Record<EventCategory, React.ReactNode> = {
   [EventCategory.MUSIC]: <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /></svg>,
   [EventCategory.CULTURE]: <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a4 4 0 00-4-4H8.8M12 8v13m0-13V6a4 4 0 014-4h.2M5 3h14M5 8h14m-7-7v7m-7 6l7-7 7 7M5 19h14" /></svg>,
@@ -58,7 +59,7 @@ const Events = () => {
     }
   });
   
-  // Filter and sort events based on user criteria
+  // Initialize filteredEvents before using
   const filteredEvents = applyFilters(events, searchQuery, selectedCategories, sortBy);
   
   useEffect(() => {
@@ -66,7 +67,7 @@ const Events = () => {
     document.title = "NepalTix - Discover Events";
   }, []);
   
-  // Function to filter and sort events
+  // Function to filter and sort events - defined before use
   function applyFilters(
     eventList: Event[], 
     query: string, 
@@ -97,6 +98,7 @@ const Events = () => {
     return results;
   }
   
+  // Define sortEvents before use
   const sortEvents = (eventList: Event[], sortOption: string) => {
     const sorted = [...eventList];
     

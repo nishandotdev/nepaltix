@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, MapPin, Calendar } from 'lucide-react';
 import { Event } from '@/types';
@@ -14,43 +14,49 @@ interface EventCardProps {
 }
 
 const EventCard = ({ event, featured = false, onClick }: EventCardProps) => {
+  // Initialize all state at the beginning
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
+  // Pre-compute values that won't change during rendering
+  const formattedDate = formatDate(event.date);
+  const formattedPrice = formatPrice(event.price);
+  const soldPercentage = getSoldPercentage(event.totalTickets, event.availableTickets);
+  const isSoldOut = event.availableTickets <= 0;
+  const isPastEvent = new Date(event.date) < new Date();
+  const availabilityStatus = getAvailabilityStatus(isSoldOut, soldPercentage, isPastEvent, event.availableTickets);
+
   // Format date in a performant way
-  const formatDate = (dateString: string) => {
+  function formatDate(dateString: string) {
     const options: Intl.DateTimeFormatOptions = { 
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
     };
     return new Date(dateString).toLocaleDateString('en-US', options);
-  };
+  }
 
-  const formattedDate = formatDate(event.date);
-
-  const formatPrice = (price: number) => {
+  function formatPrice(price: number) {
     return new Intl.NumberFormat('ne-NP', {
       style: 'currency',
       currency: 'NPR',
       minimumFractionDigits: 0
     }).format(price);
-  };
+  }
 
-  const formattedPrice = formatPrice(event.price);
-
-  const getSoldPercentage = (total: number, available: number) => {
+  function getSoldPercentage(total: number, available: number) {
     if (total <= 0) return 0;
     const sold = total - available;
     return (sold / total) * 100;
-  };
+  }
 
-  const soldPercentage = getSoldPercentage(event.totalTickets, event.availableTickets);
-  const isSoldOut = event.availableTickets <= 0;
-  const isPastEvent = new Date(event.date) < new Date();
-  
   // Determine ticket availability status
-  const getAvailabilityStatus = () => {
+  function getAvailabilityStatus(
+    isSoldOut: boolean, 
+    soldPercentage: number, 
+    isPastEvent: boolean, 
+    availableTickets: number
+  ) {
     if (isSoldOut) {
       return { text: "Sold Out", color: "bg-red-100 text-red-800 border-red-200" };
     } else if (soldPercentage >= 80) {
@@ -58,10 +64,8 @@ const EventCard = ({ event, featured = false, onClick }: EventCardProps) => {
     } else if (isPastEvent) {
       return { text: "Event Ended", color: "bg-gray-100 text-gray-800 border-gray-200" };
     }
-    return { text: `${event.availableTickets} tickets left`, color: "bg-green-100 text-green-800 border-green-200" };
-  };
-
-  const availabilityStatus = getAvailabilityStatus();
+    return { text: `${availableTickets} tickets left`, color: "bg-green-100 text-green-800 border-green-200" };
+  }
 
   const handleCardClick = (e: React.MouseEvent) => {
     // If onClick prop is provided, use that instead of the default Link behavior

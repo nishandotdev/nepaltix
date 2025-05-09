@@ -12,6 +12,7 @@ const heroImages = [
 ];
 
 const Hero = () => {
+  // Initialize all state variables at the beginning
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -20,6 +21,7 @@ const Hero = () => {
 
   // Preload images with progress tracking
   useEffect(() => {
+    // Initialize counter variables at the beginning of the function
     let loadedCount = 0;
     const totalImages = heroImages.length;
     
@@ -27,7 +29,8 @@ const Hero = () => {
       heroImages.forEach((src) => {
         const img = new Image();
         img.onload = () => {
-          loadedCount++;
+          // Safely increment counter
+          loadedCount += 1;
           if (loadedCount === totalImages) {
             setImagesPreloaded(true);
             setIsImageLoaded(true);
@@ -38,15 +41,22 @@ const Hero = () => {
     };
     
     preloadImages();
+    
+    // Cleanup function not necessary here as image loading is fire-and-forget
   }, []);
 
   // Handle image rotation with timer - only start after preloading
   useEffect(() => {
+    // Don't start timer until images are loaded
     if (!imagesPreloaded) return;
     
     const startImageTimer = () => {
-      if (timerRef.current) window.clearInterval(timerRef.current);
+      // Clear any existing timer
+      if (timerRef.current !== null) {
+        window.clearInterval(timerRef.current);
+      }
       
+      // Set new timer
       timerRef.current = window.setInterval(() => {
         setIsTransitioning(true);
         setIsImageLoaded(false);
@@ -62,11 +72,15 @@ const Hero = () => {
     
     startImageTimer();
     
+    // Cleanup function to clear interval
     return () => {
-      if (timerRef.current) window.clearInterval(timerRef.current);
+      if (timerRef.current !== null) {
+        window.clearInterval(timerRef.current);
+      }
     };
   }, [currentImageIndex, imagesPreloaded]);
 
+  // Debounced image load handler
   const handleImageLoad = debounce(() => {
     setIsImageLoaded(true);
     setIsTransitioning(false);
