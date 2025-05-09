@@ -13,12 +13,15 @@ class PaymentService {
     try {
       console.log('Processing payment with method:', paymentInfo.paymentMethod);
       
-      // For performance - optimize network simulation time
-      const processingDelay = Math.floor(Math.random() * 300) + 300; // 0.3-0.6 second (improved for faster demo)
+      // For demo - very fast processing time
+      const processingDelay = Math.floor(Math.random() * 200) + 200; // 0.2-0.4 second (faster for demo)
       
       await new Promise(resolve => setTimeout(resolve, processingDelay));
       
-      // Different processing logic based on payment method
+      // In demo mode, all payments are successful regardless of method
+      toast.success(`Demo payment processed with ${this.getMethodName(paymentInfo.paymentMethod)}`);
+      
+      // Different processing logic based on payment method, but all succeed in demo mode
       switch (paymentInfo.paymentMethod) {
         case PaymentMethod.CARD:
           await this.processCardPayment(paymentInfo, amount);
@@ -36,90 +39,83 @@ class PaymentService {
           await this.processConnectIpsPayment(paymentInfo, amount);
           break;
         default:
-          throw new Error('Unsupported payment method');
+          // Even unknown methods succeed in pure demo mode
+          console.log(`Processing unknown payment method: ${paymentInfo.paymentMethod}`);
       }
       
-      // For demo purposes, always succeed to provide consistent experience
       console.log('Demo payment processed successfully for', paymentInfo.paymentMethod);
       onSuccess();
       return;
     } catch (error) {
+      // In pure demo mode, we should never reach this
       console.error('Payment processing error:', error);
       onError(error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
   
-  // Process card payment
+  // Get friendly name for payment method
+  private getMethodName(method: PaymentMethod): string {
+    switch (method) {
+      case PaymentMethod.CARD: return "Credit/Debit Card";
+      case PaymentMethod.ESEWA: return "eSewa";
+      case PaymentMethod.KHALTI: return "Khalti";
+      case PaymentMethod.FONEPAY: return "FonePay";
+      case PaymentMethod.CONNECTIPS: return "ConnectIPS";
+      default: return "Unknown Method";
+    }
+  }
+  
+  // Process card payment - always succeeds in demo mode
   private async processCardPayment(paymentInfo: PaymentInfo, amount: number): Promise<void> {
-    // For demo, accept any card input
-    if (paymentInfo.cardNumber && !this.validateCardNumber(paymentInfo.cardNumber)) {
-      console.log('Demo mode: Accepting any card number format');
-    }
-    
-    console.log(`Processing card payment of NPR ${amount}`);
-    // Simulating API call for payment
-    await new Promise(resolve => setTimeout(resolve, 200));
+    console.log(`DEMO MODE: Processing card payment of NPR ${amount}`);
+    console.log('Card payment always succeeds in demo mode');
+    // Simulating API call for payment - very short in demo mode
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
   
-  // Process eSewa payment
+  // Process eSewa payment - always succeeds in demo mode
   private async processEsewaPayment(paymentInfo: PaymentInfo, amount: number): Promise<void> {
-    // In demo mode, we'll accept any eSewa payment
-    console.log(`Processing eSewa payment of NPR ${amount}`);
-    await new Promise(resolve => setTimeout(resolve, 200));
+    console.log(`DEMO MODE: Processing eSewa payment of NPR ${amount}`);
+    console.log('eSewa payment always succeeds in demo mode');
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
   
-  // Process Khalti payment
+  // Process Khalti payment - always succeeds in demo mode
   private async processKhaltiPayment(paymentInfo: PaymentInfo, amount: number): Promise<void> {
-    // In demo mode, we'll accept any Khalti payment
-    console.log(`Processing Khalti payment of NPR ${amount}`);
-    await new Promise(resolve => setTimeout(resolve, 200));
+    console.log(`DEMO MODE: Processing Khalti payment of NPR ${amount}`);
+    console.log('Khalti payment always succeeds in demo mode');
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
   
-  // Process FonePay payment
+  // Process FonePay payment - always succeeds in demo mode
   private async processFonepayPayment(paymentInfo: PaymentInfo, amount: number): Promise<void> {
-    // In demo mode, we'll accept any FonePay payment
-    console.log(`Processing FonePay payment of NPR ${amount}`);
-    await new Promise(resolve => setTimeout(resolve, 200));
+    console.log(`DEMO MODE: Processing FonePay payment of NPR ${amount}`);
+    console.log('FonePay payment always succeeds in demo mode');
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
   
-  // Process ConnectIPS payment
+  // Process ConnectIPS payment - always succeeds in demo mode
   private async processConnectIpsPayment(paymentInfo: PaymentInfo, amount: number): Promise<void> {
-    // In demo mode, we'll accept any ConnectIPS payment
-    console.log(`Processing ConnectIPS payment of NPR ${amount}`);
-    await new Promise(resolve => setTimeout(resolve, 200));
+    console.log(`DEMO MODE: Processing ConnectIPS payment of NPR ${amount}`);
+    console.log('ConnectIPS payment always succeeds in demo mode');
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
   
-  // Validate card number (simple Luhn algorithm check) - but in demo mode we're more permissive
+  // Validate card number - accept any input in demo mode
   private validateCardNumber(cardNumber: string): boolean {
-    // For demo purposes, accept common test card numbers and any input
-    const testCards = [
-      '4242424242424242', // Visa test card
-      '5555555555554444', // Mastercard test card
-      '378282246310005',  // Amex test card
-      '6011111111111117', // Discover test card
-    ];
-    
-    // Remove spaces and non-numeric characters
-    const sanitizedNumber = cardNumber.replace(/\D/g, '');
-    
-    // Accept test cards for demo
-    if (testCards.includes(sanitizedNumber)) {
-      return true;
-    }
-    
-    // In demo mode, be very permissive
-    return sanitizedNumber.length >= 4;
-  }
-  
-  // Validate expiry date (MM/YY format) - but in demo mode we're more permissive
-  private validateExpiryDate(expiryDate: string): boolean {
-    // For demo, be more forgiving with date formats
+    console.log('DEMO MODE: Accepting any card number');
     return true;
   }
   
-  // Validate CVC (3-4 digits) - but in demo mode we're more permissive
+  // Validate expiry date - accept any format in demo mode
+  private validateExpiryDate(expiryDate: string): boolean {
+    console.log('DEMO MODE: Accepting any expiry date format');
+    return true;
+  }
+  
+  // Validate CVC - accept any input in demo mode
   private validateCVC(cvc: string): boolean {
-    // For demo purposes, be more permissive
+    console.log('DEMO MODE: Accepting any CVC');
     return true;
   }
   
