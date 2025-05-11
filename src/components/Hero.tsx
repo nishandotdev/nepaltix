@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { debounce } from '@/lib/performance';
 
-// Optimized image URLs (using smaller sizes and optimized formats)
+// Updated image URLs with Nepali scenes
 const heroImages = [
-  "https://images.unsplash.com/photo-1469504512102-900f29606341?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3",
-  "https://images.unsplash.com/photo-1532375810709-75b1da00537c?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3",
-  "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3"
+  "https://images.unsplash.com/photo-1532186651327-6ac23687d189?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3", // Annapurna mountain range
+  "https://images.unsplash.com/photo-1565073624497-7144194b4742?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3", // Pashupatinath Temple in Kathmandu
+  "https://images.unsplash.com/photo-1526716167444-c2b88cdb6b1a?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3"  // Swayambhunath Stupa
 ];
 
 const Hero = () => {
