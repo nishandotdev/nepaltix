@@ -28,12 +28,14 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
 
   useEffect(() => {
     const testConnection = async () => {
+      setIsLoading(true);
       const isConnected = await checkSupabaseConnection();
       setConnectionTested(true);
       setConnectionSuccess(isConnected);
       
       if (!isConnected) {
         setError("Database connection failed. Please try again later or use demo accounts.");
+        setIsLoading(false);
         return;
       }
       
@@ -41,15 +43,22 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
         const { data } = await supabase.auth.getSession();
         if (data && data.session) {
           console.log("User session already exists");
-          navigate("/");
+          // Small delay for better UX
+          setTimeout(() => {
+            navigate("/");
+            setIsLoading(false);
+          }, 300);
+        } else {
+          setIsLoading(false);
         }
       } catch (err) {
         console.error("Error checking session:", err);
+        setIsLoading(false);
       }
     };
     
     testConnection();
-  }, [navigate]);
+  }, [navigate, setIsLoading]);
 
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -66,6 +75,11 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
       setLoginData({ email: 'user@nepaltix.com', password: 'user123' });
     }
     setError(null);
+    
+    // Auto-login for better demo experience
+    setTimeout(() => {
+      handleLogin(new Event('click') as unknown as React.FormEvent);
+    }, 500);
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -80,7 +94,7 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
     }
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 800)); // UI feedback delay
+      await new Promise(resolve => setTimeout(resolve, 400)); // Reduced UI feedback delay for faster experience
       console.log("Attempting login with:", loginData.email);
       
       const result = await authService.login(loginData.email, loginData.password);

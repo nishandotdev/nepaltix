@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Loader2, Calendar, Map, Tag, SlidersHorizontal } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,7 @@ import EventCard from '@/components/EventCard';
 import { eventService } from '@/lib/eventService';
 import { Event, EventCategory } from '@/types';
 import { useQuery } from '@tanstack/react-query';
+import { debounce } from '@/lib/performance';
 
 // Define category labels as constant before using them
 const categoryLabels: Record<EventCategory, string> = {
@@ -98,20 +99,37 @@ const Events = () => {
   const [selectedCategories, setSelectedCategories] = useState<EventCategory[]>([]);
   const [sortBy, setSortBy] = useState("date-asc");
   const [showDialog, setShowDialog] = useState(false);
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
   
-  // Fetch events using React Query
+  // Fetch events using React Query with improved caching
   const { data: events = [], isLoading, error } = useQuery({
     queryKey: ['events'],
     queryFn: () => eventService.getAllEvents(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
     meta: {
       onSettled: (data, error) => {
         if (error) {
           console.error("Error loading events:", error);
           toast.error("Failed to load events. Please try again.");
+        } else {
+          // Mark page as loaded once data is available
+          setTimeout(() => setIsPageLoaded(true), 300);
         }
       }
     }
   });
+  
+  // Debounced search handler for better performance
+  const debouncedSetSearchQuery = useCallback(
+    debounce((value: string) => {
+      setSearchQuery(value);
+    }, 300),
+    []
+  );
+  
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedSetSearchQuery(e.target.value);
+  };
   
   // Apply filters AFTER events are loaded
   const filteredEvents = applyFilters(events, searchQuery, selectedCategories, sortBy);
@@ -119,6 +137,16 @@ const Events = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = "NepalTix - Discover Events";
+    
+    // Show demo payment success message if coming from checkout
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('payment') === 'success') {
+      setTimeout(() => {
+        toast.success("Payment successful! Your ticket has been emailed to you.", {
+          duration: 5000,
+        });
+      }, 500);
+    }
   }, []);
   
   const toggleCategory = (category: EventCategory) => {
@@ -149,7 +177,7 @@ const Events = () => {
           <motion.div 
             className="text-center max-w-3xl mx-auto mb-8 sm:mb-10"
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: isPageLoaded ? 1 : 0, y: isPageLoaded ? 0 : 20 }}
             transition={{ duration: 0.5 }}
           >
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
@@ -163,7 +191,7 @@ const Events = () => {
           <motion.div 
             className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-5 sm:mb-6"
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: isPageLoaded ? 1 : 0, y: isPageLoaded ? 0 : 20 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <div className="relative flex-grow">
@@ -171,8 +199,8 @@ const Events = () => {
               <Input
                 className="pl-10 focus-visible:ring-nepal-red"
                 placeholder="Search events, venues, or cities"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                defaultValue={searchQuery}
+                onChange={handleSearchInputChange}
               />
             </div>
             
@@ -312,7 +340,7 @@ const Events = () => {
             <motion.div 
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              animate={{ opacity: isPageLoaded ? 1 : 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
               <AnimatePresence>
@@ -322,9 +350,10 @@ const Events = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3, delay: 0.05 * index }}
+                    transition={{ duration: 0.3, delay: Math.min(0.05 * index, 1) }}
                     onClick={() => handleEventClick(event.id)}
                     className="cursor-pointer"
+                    layout
                   >
                     <EventCard event={event} />
                   </motion.div>
@@ -335,7 +364,7 @@ const Events = () => {
             <motion.div 
               className="text-center py-16 sm:py-20"
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              animate={{ opacity: isPageLoaded ? 1 : 0 }}
               transition={{ duration: 0.5 }}
             >
               <h3 className="text-xl font-medium mb-2">No events found</h3>

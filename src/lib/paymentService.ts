@@ -13,13 +13,28 @@ class PaymentService {
     try {
       console.log('Processing payment with method:', paymentInfo.paymentMethod);
       
-      // For demo - very fast processing time
-      const processingDelay = Math.floor(Math.random() * 200) + 200; // 0.2-0.4 second (faster for demo)
+      // For demo - even faster processing time (100-200ms)
+      const processingDelay = Math.floor(Math.random() * 100) + 100;
+      
+      // Show processing toast
+      const toastId = toast.loading("Processing payment...");
       
       await new Promise(resolve => setTimeout(resolve, processingDelay));
       
       // In demo mode, all payments are successful regardless of method
-      toast.success(`Demo payment processed with ${this.getMethodName(paymentInfo.paymentMethod)}`);
+      toast.dismiss(toastId);
+      toast.success(`Payment successful with ${this.getMethodName(paymentInfo.paymentMethod)}`, {
+        duration: 3000,
+        icon: "✅",
+      });
+      
+      // Add payment success parameter to URL for demonstration
+      const url = new URL(window.location.href);
+      if (!url.pathname.includes('/checkout')) {
+        // Only add this when not on checkout page to avoid infinite loop
+        url.searchParams.set('payment', 'success');
+        window.history.replaceState({}, '', url.toString());
+      }
       
       // Different processing logic based on payment method, but all succeed in demo mode
       switch (paymentInfo.paymentMethod) {
@@ -70,35 +85,35 @@ class PaymentService {
     console.log(`DEMO MODE: Processing card payment of NPR ${amount}`);
     console.log('Card payment always succeeds in demo mode');
     // Simulating API call for payment - very short in demo mode
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 50));
   }
   
   // Process eSewa payment - always succeeds in demo mode
   private async processEsewaPayment(paymentInfo: PaymentInfo, amount: number): Promise<void> {
     console.log(`DEMO MODE: Processing eSewa payment of NPR ${amount}`);
     console.log('eSewa payment always succeeds in demo mode');
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 50));
   }
   
   // Process Khalti payment - always succeeds in demo mode
   private async processKhaltiPayment(paymentInfo: PaymentInfo, amount: number): Promise<void> {
     console.log(`DEMO MODE: Processing Khalti payment of NPR ${amount}`);
     console.log('Khalti payment always succeeds in demo mode');
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 50));
   }
   
   // Process FonePay payment - always succeeds in demo mode
   private async processFonepayPayment(paymentInfo: PaymentInfo, amount: number): Promise<void> {
     console.log(`DEMO MODE: Processing FonePay payment of NPR ${amount}`);
     console.log('FonePay payment always succeeds in demo mode');
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 50));
   }
   
   // Process ConnectIPS payment - always succeeds in demo mode
   private async processConnectIpsPayment(paymentInfo: PaymentInfo, amount: number): Promise<void> {
     console.log(`DEMO MODE: Processing ConnectIPS payment of NPR ${amount}`);
     console.log('ConnectIPS payment always succeeds in demo mode');
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 50));
   }
   
   // Validate card number - accept any input in demo mode
