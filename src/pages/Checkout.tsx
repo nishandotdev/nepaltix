@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { ChevronLeft, CreditCard } from 'lucide-react';
@@ -14,9 +15,11 @@ import {
   TicketType, 
   PaymentMethod,
   PaymentInfo,
-  NotificationType
+  NotificationType,
+  Event as EventType
 } from '@/types';
 import NotFound from './NotFound';
+import { Loader } from '@/components/ui/loader';
 import LoadingState from '@/components/checkout/LoadingState';
 import CustomerForm from '@/components/checkout/CustomerForm';
 import PaymentMethodSelector from '@/components/checkout/PaymentMethodSelector';
@@ -49,7 +52,7 @@ const Checkout = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [showTicket, setShowTicket] = useState(false);
   const [ticketData, setTicketData] = useState<DigitalTicket | null>(null);
-  const [event, setEvent] = useState<Event | null>(null);
+  const [event, setEvent] = useState<EventType | null>(null);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
