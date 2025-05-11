@@ -1,23 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { 
-  ChevronLeft, 
-  CreditCard, 
-  Receipt, 
-  CheckCircle,
-  Calendar,
-  MapPin,
-  Users,
-  User,
-  Lock,
-  Phone
-} from 'lucide-react';
+import { ChevronLeft, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -29,11 +14,14 @@ import {
   TicketType, 
   PaymentMethod,
   PaymentInfo,
-  NotificationType,
-  Event
+  NotificationType
 } from '@/types';
 import NotFound from './NotFound';
-import { Loader } from "@/components/ui/loader";
+import LoadingState from '@/components/checkout/LoadingState';
+import CustomerForm from '@/components/checkout/CustomerForm';
+import PaymentMethodSelector from '@/components/checkout/PaymentMethodSelector';
+import OrderSummary from '@/components/checkout/OrderSummary';
+import TicketDisplay from '@/components/checkout/TicketDisplay';
 
 const Checkout = () => {
   const { id } = useParams<{ id: string }>();
@@ -83,9 +71,7 @@ const Checkout = () => {
     return (
       <>
         <Navbar />
-        <div className="min-h-[60vh] flex items-center justify-center">
-          <Loader size={36} text="Loading checkout..." className="animate-pulse" />
-        </div>
+        <LoadingState />
         <Footer />
       </>
     );
@@ -101,16 +87,6 @@ const Checkout = () => {
       currency: 'NPR',
       minimumFractionDigits: 0
     }).format(price);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCustomer(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handlePaymentInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setPaymentInfo(prev => ({ ...prev, [name]: value }));
   };
 
   const validateForm = () => {
@@ -154,13 +130,6 @@ const Checkout = () => {
     }
     
     return true;
-  };
-
-  const handleTabChange = (value: string) => {
-    setPaymentInfo(prev => ({
-      ...prev,
-      paymentMethod: value as PaymentMethod
-    }));
   };
 
   const handlePayment = async () => {
@@ -306,111 +275,13 @@ Customer: ${customer.name}
       <>
         <Navbar />
         <div className="bg-white dark:bg-gray-900 min-h-[80vh] flex items-center justify-center">
-          <div className="container max-w-md mx-auto px-4 py-10">
-            <div className="text-center mb-6">
-              <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Booking Confirmed!</h1>
-              <p className="text-gray-600 dark:text-gray-300">
-                Your tickets for {event.title} have been booked.
-              </p>
-            </div>
-            
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-md mb-6">
-              <div className="p-4 bg-nepal-red/10 border-b border-nepal-red/20">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">E-Ticket</h3>
-                    <p className="text-lg font-bold text-gray-900 dark:text-white">{ticketData.id}</p>
-                  </div>
-                  <Receipt className="h-8 w-8 text-nepal-red" />
-                </div>
-              </div>
-              
-              <div className="p-4">
-                <h2 className="font-serif text-xl font-bold text-gray-900 dark:text-white mb-2">{event.title}</h2>
-                
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 text-nepal-red mr-2" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      {new Date(event.date).toLocaleDateString()}, {event.time}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <MapPin className="h-4 w-4 text-nepal-red mr-2" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{event.location}</span>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <Users className="h-4 w-4 text-nepal-red mr-2" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{ticketData.quantity} ticket(s)</span>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <User className="h-4 w-4 text-nepal-red mr-2" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{customer.name}</span>
-                  </div>
-                </div>
-                
-                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded text-center mb-3">
-                    <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">Access Code</p>
-                    <div className="bg-white dark:bg-gray-800 p-2 rounded">
-                      <p className="font-mono text-lg font-bold tracking-widest">{ticketData.accessCode}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded text-center">
-                    <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">Barcode</p>
-                    <div className="inline-block">
-                      <div className="bg-white dark:bg-gray-800 p-3 rounded">
-                        {/* Simple barcode representation */}
-                        <div className="flex items-center justify-center space-x-0.5 h-12">
-                          {ticketData.barcode.split('').map((digit, index) => (
-                            <div 
-                              key={index}
-                              className="h-full w-0.5 bg-gray-900 dark:bg-gray-200"
-                              style={{ 
-                                height: `${Math.max(30, parseInt(digit) * 5 + 30)}%`,
-                                width: parseInt(digit) % 2 === 0 ? '1px' : '2px'
-                              }}
-                            />
-                          ))}
-                        </div>
-                        <p className="mt-2 font-mono text-xs">{ticketData.barcode}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="p-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
-                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                  <Lock className="h-3 w-3 mr-1" />
-                  Secured with blockchain verification
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex flex-col gap-4">
-              <Button 
-                variant="default" 
-                className="w-full bg-nepal-red hover:bg-nepal-red/90"
-                onClick={handleDownloadTicket}
-              >
-                Download Ticket
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => navigate('/?payment=success')}
-              >
-                Return to Home
-              </Button>
-            </div>
-          </div>
+          <TicketDisplay 
+            ticketData={ticketData} 
+            event={event} 
+            customer={customer}
+            onDownload={handleDownloadTicket}
+            onReturn={() => navigate('/?payment=success')}
+          />
         </div>
         <Footer />
       </>
@@ -431,13 +302,7 @@ Customer: ${customer.name}
           </Link>
           
           {isSuccess ? (
-            <div className="text-center py-16 bg-white rounded-lg shadow-sm border border-gray-100 animate-fade-in">
-              <div className="mb-6">
-                <Loader size={36} text="Generating your tickets..." />
-              </div>
-              <h2 className="text-2xl font-bold mb-2 text-gray-900">Almost there!</h2>
-              <p className="text-gray-600">Please wait while we prepare your digital tickets.</p>
-            </div>
+            <LoadingState isSuccess />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
               <div className="md:col-span-3">
@@ -448,166 +313,20 @@ Customer: ${customer.name}
                     <div className="space-y-6">
                       <div>
                         <h2 className="text-lg font-semibold mb-4">Your Information</h2>
-                        <div className="space-y-4">
-                          <div>
-                            <Label htmlFor="name">Full Name</Label>
-                            <Input
-                              id="name"
-                              name="name"
-                              value={customer.name}
-                              onChange={handleInputChange}
-                              placeholder="Enter your full name"
-                              required
-                            />
-                          </div>
-                          
-                          <div>
-                            <Label htmlFor="email">Email Address</Label>
-                            <Input
-                              id="email"
-                              name="email"
-                              type="email"
-                              value={customer.email}
-                              onChange={handleInputChange}
-                              placeholder="Enter your email address"
-                              required
-                            />
-                            <p className="text-xs text-gray-500 mt-1">We'll email your tickets to this address</p>
-                          </div>
-                          
-                          <div>
-                            <Label htmlFor="phone">Phone Number</Label>
-                            <Input
-                              id="phone"
-                              name="phone"
-                              type="tel"
-                              value={customer.phone}
-                              onChange={handleInputChange}
-                              placeholder="Enter your phone number"
-                              required
-                            />
-                          </div>
-                        </div>
+                        <CustomerForm 
+                          initialCustomer={customer}
+                          onChange={setCustomer}
+                        />
                       </div>
                       
                       <Separator />
                       
                       <div>
                         <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
-                        <Tabs defaultValue="CARD" className="w-full" onValueChange={handleTabChange}>
-                          <TabsList className="grid w-full grid-cols-5">
-                            <TabsTrigger value="CARD">Card</TabsTrigger>
-                            <TabsTrigger value="KHALTI">Khalti</TabsTrigger>
-                            <TabsTrigger value="ESEWA">eSewa</TabsTrigger>
-                            <TabsTrigger value="FONEPAY">FonePay</TabsTrigger>
-                            <TabsTrigger value="CONNECTIPS">ConnectIPS</TabsTrigger>
-                          </TabsList>
-                          
-                          <TabsContent value="CARD" className="space-y-4 mt-4">
-                            <div>
-                              <Label htmlFor="cardNumber">Card Number</Label>
-                              <Input
-                                id="cardNumber"
-                                name="cardNumber"
-                                value={paymentInfo.cardNumber}
-                                onChange={handlePaymentInfoChange}
-                                placeholder="1234 5678 9012 3456"
-                              />
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="expiryDate">Expiry Date</Label>
-                                <Input
-                                  id="expiryDate"
-                                  name="expiryDate"
-                                  value={paymentInfo.expiryDate}
-                                  onChange={handlePaymentInfoChange}
-                                  placeholder="MM/YY"
-                                />
-                              </div>
-                              
-                              <div>
-                                <Label htmlFor="cvc">CVC</Label>
-                                <Input
-                                  id="cvc"
-                                  name="cvc"
-                                  value={paymentInfo.cvc}
-                                  onChange={handlePaymentInfoChange}
-                                  placeholder="123"
-                                />
-                              </div>
-                            </div>
-                          </TabsContent>
-                          
-                          <TabsContent value="KHALTI" className="pt-4">
-                            <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                              <p className="mb-3">Continue to pay with Khalti</p>
-                              <img 
-                                src="https://seeklogo.com/images/K/khalti-logo-F0B049E68F-seeklogo.com.png" 
-                                alt="Khalti Logo" 
-                                className="h-8 mx-auto mb-3"
-                                loading="lazy"
-                              />
-                              <div className="flex items-center justify-center gap-2 text-sm font-medium">
-                                <Phone className="h-4 w-4" />
-                                <span>9749377349</span>
-                              </div>
-                              <p className="text-xs text-gray-500 mt-2">Use this number for test payments</p>
-                            </div>
-                          </TabsContent>
-                          
-                          <TabsContent value="ESEWA" className="pt-4">
-                            <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                              <p className="mb-3">Continue to pay with eSewa</p>
-                              <img 
-                                src="https://esewa.com.np/common/images/esewa_logo.png" 
-                                alt="eSewa Logo" 
-                                className="h-8 mx-auto mb-3"
-                                loading="lazy"
-                              />
-                              <div className="flex items-center justify-center gap-2 text-sm font-medium">
-                                <Phone className="h-4 w-4" />
-                                <span>9749377349</span>
-                              </div>
-                              <p className="text-xs text-gray-500 mt-2">Use this number for test payments</p>
-                            </div>
-                          </TabsContent>
-                          
-                          <TabsContent value="FONEPAY" className="pt-4">
-                            <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                              <p className="mb-3">Continue to pay with FonePay</p>
-                              <img 
-                                src="https://fonepay.com/images/logo.png" 
-                                alt="FonePay Logo" 
-                                className="h-8 mx-auto mb-3"
-                                loading="lazy"
-                              />
-                              <div className="flex items-center justify-center gap-2 text-sm font-medium">
-                                <Phone className="h-4 w-4" />
-                                <span>9749377349</span>
-                              </div>
-                              <p className="text-xs text-gray-500 mt-2">Use this number for test payments</p>
-                            </div>
-                          </TabsContent>
-                          
-                          <TabsContent value="CONNECTIPS" className="pt-4">
-                            <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                              <p className="mb-3">Continue to pay with ConnectIPS</p>
-                              <img 
-                                src="https://connectips.com/images/connectips.png" 
-                                alt="ConnectIPS Logo" 
-                                className="h-8 mx-auto mb-3"
-                                loading="lazy"
-                              />
-                              <div className="flex items-center justify-center gap-2 text-sm font-medium">
-                                <Phone className="h-4 w-4" />
-                                <span>9749377349</span>
-                              </div>
-                              <p className="text-xs text-gray-500 mt-2">Use this number for test payments</p>
-                            </div>
-                          </TabsContent>
-                        </Tabs>
+                        <PaymentMethodSelector 
+                          initialPaymentInfo={paymentInfo}
+                          onChange={setPaymentInfo}
+                        />
                       </div>
                       
                       <Button 
@@ -635,61 +354,7 @@ Customer: ${customer.name}
               </div>
               
               <div className="md:col-span-2">
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 sticky top-24">
-                  <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
-                  
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0">
-                      <img 
-                        src={event.imageUrl} 
-                        alt={event.title} 
-                        className="w-full h-full object-cover"
-                        loading="eager"
-                      />
-                    </div>
-                    
-                    <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white">{event.title}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {new Date(event.date).toLocaleDateString()}, {event.time}
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{event.location}</p>
-                    </div>
-                  </div>
-                  
-                  <Separator className="my-4" />
-                  
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Price per ticket</span>
-                      <span>{formatPrice(event.price)}</span>
-                    </div>
-                    
-                    <div className="flex justify-between">
-                      <span>Quantity</span>
-                      <span>{quantity}</span>
-                    </div>
-                    
-                    <div className="flex justify-between">
-                      <span>Subtotal</span>
-                      <span>{formatPrice(event.price * quantity)}</span>
-                    </div>
-                    
-                    <div className="flex justify-between">
-                      <span>Service fee</span>
-                      <span>{formatPrice(event.price * quantity * 0.05)}</span>
-                    </div>
-                  </div>
-                  
-                  <Separator className="my-4" />
-                  
-                  <div className="flex justify-between font-bold text-lg">
-                    <span>Total</span>
-                    <span className="text-nepal-red">
-                      {formatPrice(event.price * quantity * 1.05)}
-                    </span>
-                  </div>
-                </div>
+                <OrderSummary event={event} quantity={quantity} />
               </div>
             </div>
           )}
