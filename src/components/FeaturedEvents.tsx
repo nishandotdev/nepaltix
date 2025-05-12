@@ -1,7 +1,7 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Loader } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import EventCard from './EventCard';
 import { useToast } from '@/components/ui/use-toast';
 import { useQuery } from '@tanstack/react-query';
@@ -10,33 +10,47 @@ import { Loader as LoaderComponent } from '@/components/ui/loader';
 
 const FeaturedEvents = () => {
   const { toast } = useToast();
+  const [isLoaded, setIsLoaded] = useState(false);
   
+  // Improved query configuration with better error handling and retry logic
   const { data: visibleEvents = [], isLoading, error, refetch } = useQuery({
     queryKey: ['featuredEvents'],
     queryFn: async () => {
       try {
+        console.log("Fetching featured events...");
         const featuredEvents = await eventService.getFeaturedEvents();
+        console.log("Featured events fetched:", featuredEvents?.length || 0);
         // Return up to 3 featured events
-        return featuredEvents.slice(0, 3);
+        return featuredEvents?.slice(0, 3) || [];
       } catch (err) {
         console.error("Error fetching featured events:", err);
-        return [];
+        throw err; // Let React Query handle the error
       }
     },
-    meta: {
-      onError: (error: Error) => {
-        console.error("Error loading featured events:", error);
-        toast({
-          title: "Error loading events",
-          description: "Could not load featured events. Please try again later.",
-          variant: "destructive"
-        });
-      }
-    },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    retry: 2,
+    retry: 3,
     retryDelay: attempt => Math.min(attempt > 1 ? 2000 : 1000, 5000),
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    refetchOnWindowFocus: false,
   });
+
+  // Set loaded state once data is available or on error
+  useEffect(() => {
+    if (!isLoading || error) {
+      setIsLoaded(true);
+    }
+  }, [isLoading, error]);
+
+  // Handle error with toast notification
+  useEffect(() => {
+    if (error) {
+      console.error("Featured events error:", error);
+      toast({
+        title: "Error loading events",
+        description: "Could not load featured events. Please try again later.",
+        variant: "destructive"
+      });
+    }
+  }, [error, toast]);
 
   return (
     <section className="py-16 sm:py-24 bg-gray-50/80 backdrop-blur-sm dark:bg-gray-900/80">
@@ -67,7 +81,7 @@ const FeaturedEvents = () => {
               Try again
             </button>
           </div>
-        ) : visibleEvents.length > 0 ? (
+        ) : visibleEvents && visibleEvents.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {visibleEvents.map((event, index) => (
