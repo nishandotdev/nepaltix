@@ -12,43 +12,59 @@ import { dbService } from './lib/dbService';
 import { authService } from './lib/authService';
 import { supabase, checkSupabaseConnection } from './integrations/supabase/client';
 
-// This serves to ensure the services are initialized at app startup
 console.log('Initializing services...');
 
 // Check Supabase connection on startup
 checkSupabaseConnection().then(isConnected => {
-  console.log('Supabase connection status:', isConnected);
+  console.log('Supabase connection status:', isConnected ? 'Connected' : 'Not connected');
   
   console.log('Database service initialized:', dbService !== undefined);
   console.log('Auth service initialized:', authService !== undefined);
   
-  if (isConnected) {
-    console.log('Application ready to use');
+  // Prefetch common data for performance
+  prefetchCommonData().catch(error => {
+    console.warn('Failed to prefetch common data:', error);
+    // Continue app initialization even if prefetch fails
+  });
+  
+  // Listen for auth state changes
+  supabase.auth.onAuthStateChange((event, session) => {
+    console.log('Auth state changed:', event);
     
-    // Prefetch common data for performance
-    prefetchCommonData().catch(console.error);
-    
-    // Listen for auth state changes
-    supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event);
-      
-      // Only update the local state after we receive auth events
-      if (event === 'SIGNED_OUT') {
-        sessionStorage.removeItem('nepal_ticketing_auth');
-      }
-    });
-  } else {
-    console.error('WARNING: Supabase connection failed. Some features may not work correctly.');
-  }
+    // Only update the local state after we receive auth events
+    if (event === 'SIGNED_OUT') {
+      sessionStorage.removeItem('nepal_ticketing_auth');
+    }
+  });
 });
 
-// Ensure DOM is fully loaded before attaching React
-document.addEventListener('DOMContentLoaded', () => {
-  const root = createRoot(document.getElementById("root")!);
+// Create a function to initialize the app
+const initApp = () => {
+  const rootElement = document.getElementById("root");
   
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
-});
+  if (!rootElement) {
+    console.error('Root element not found. Cannot mount React app.');
+    return;
+  }
+  
+  try {
+    const root = createRoot(rootElement);
+    
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    );
+    
+    console.log('React app successfully mounted.');
+  } catch (error) {
+    console.error('Failed to render React app:', error);
+  }
+};
+
+// Initialize the app either when DOM is loaded or immediately if already loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}

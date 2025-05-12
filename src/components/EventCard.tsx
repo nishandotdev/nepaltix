@@ -17,6 +17,7 @@ const EventCard = ({ event, featured = false, onClick }: EventCardProps) => {
   // Initialize all state at the beginning
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   // Pre-compute values that won't change during rendering
   const formattedDate = formatDate(event.date);
@@ -74,6 +75,15 @@ const EventCard = ({ event, featured = false, onClick }: EventCardProps) => {
       onClick();
     }
   };
+  
+  const handleImageError = () => {
+    console.warn(`Failed to load image: ${event.imageUrl}`);
+    setImageError(true);
+    setImageLoaded(true); // Mark as loaded even though it failed
+  };
+
+  // Fallback image URL if the main one fails
+  const fallbackImageUrl = "https://images.pexels.com/photos/3889815/pexels-photo-3889815.jpeg?auto=compress&cs=tinysrgb&w=1200";
 
   return (
     <motion.div
@@ -99,10 +109,11 @@ const EventCard = ({ event, featured = false, onClick }: EventCardProps) => {
             <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
           )}
           <img
-            src={event.imageUrl}
+            src={imageError ? fallbackImageUrl : event.imageUrl}
             alt={event.title}
             loading="lazy"
             onLoad={() => setImageLoaded(true)}
+            onError={handleImageError}
             className={`w-full h-full object-cover transition-transform duration-500 ${
               isHovered ? 'scale-110' : 'scale-100'
             } ${

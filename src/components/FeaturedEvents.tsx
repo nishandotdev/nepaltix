@@ -1,13 +1,12 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Loader } from 'lucide-react';
 import EventCard from './EventCard';
-import { Event } from '@/types';
-import { eventService } from '@/lib/eventService';
 import { useToast } from '@/components/ui/use-toast';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
+import { eventService } from '@/lib/eventService';
+import { Loader as LoaderComponent } from '@/components/ui/loader';
 
 const FeaturedEvents = () => {
   const { toast } = useToast();
@@ -17,6 +16,7 @@ const FeaturedEvents = () => {
     queryFn: async () => {
       try {
         const featuredEvents = await eventService.getFeaturedEvents();
+        // Return up to 3 featured events
         return featuredEvents.slice(0, 3);
       } catch (err) {
         console.error("Error fetching featured events:", err);
@@ -35,6 +35,7 @@ const FeaturedEvents = () => {
     },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     retry: 2,
+    retryDelay: attempt => Math.min(attempt > 1 ? 2000 : 1000, 5000),
   });
 
   return (
@@ -54,8 +55,7 @@ const FeaturedEvents = () => {
 
         {isLoading ? (
           <div className="flex justify-center items-center py-16">
-            <Loader2 className="h-8 w-8 text-nepal-red animate-spin" />
-            <span className="ml-3 text-lg text-gray-600 dark:text-gray-300">Loading featured events...</span>
+            <LoaderComponent size={32} text="Loading featured events..." variant="nepal-red" />
           </div>
         ) : error ? (
           <div className="text-center py-10 bg-white/50 backdrop-blur-sm dark:bg-gray-800/50 rounded-xl shadow-sm">

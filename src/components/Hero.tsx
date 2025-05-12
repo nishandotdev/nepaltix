@@ -55,7 +55,7 @@ const Hero = () => {
         setImagesPreloaded(true);
         setIsImageLoaded(true);
       }
-    }, 2000); // Reduced from 3000 to 2000ms
+    }, 1500); // Reduced from 2000 to 1500ms for faster loading
     
     preloadImages();
     
@@ -138,7 +138,7 @@ const Hero = () => {
         >
           <img
             src={image}
-            alt="Traditional Nepali Festival"
+            alt="Nepal scenic view"
             className="hidden"
             onLoad={index === currentImageIndex ? handleImageLoad : undefined}
             onError={index === currentImageIndex ? handleImageLoad : undefined}
