@@ -21,7 +21,6 @@ const Hero = () => {
 
   // Preload images with progress tracking
   useEffect(() => {
-    // Initialize counter variables at the beginning of the function
     let loadedCount = 0;
     const totalImages = heroImages.length;
     
@@ -29,7 +28,15 @@ const Hero = () => {
       heroImages.forEach((src) => {
         const img = new Image();
         img.onload = () => {
-          // Safely increment counter
+          loadedCount += 1;
+          if (loadedCount === totalImages) {
+            setImagesPreloaded(true);
+            setIsImageLoaded(true);
+          }
+        };
+        img.onerror = () => {
+          // Handle image load errors - still proceed with availability
+          console.warn(`Failed to load image: ${src}`);
           loadedCount += 1;
           if (loadedCount === totalImages) {
             setImagesPreloaded(true);
@@ -40,9 +47,19 @@ const Hero = () => {
       });
     };
     
+    // Set a fallback timeout to ensure the hero shows even if images fail
+    const fallbackTimer = setTimeout(() => {
+      if (!imagesPreloaded) {
+        console.log('Using fallback timer for hero section');
+        setImagesPreloaded(true);
+        setIsImageLoaded(true);
+      }
+    }, 3000);
+    
     preloadImages();
     
-    // Cleanup function not necessary here as image loading is fire-and-forget
+    // Clean up the fallback timer
+    return () => clearTimeout(fallbackTimer);
   }, []);
 
   // Handle image rotation with timer - only start after preloading
@@ -120,6 +137,7 @@ const Hero = () => {
             alt="Traditional Nepali Festival"
             className="hidden"
             onLoad={index === currentImageIndex ? handleImageLoad : undefined}
+            onError={index === currentImageIndex ? handleImageLoad : undefined}
             loading={index === 0 ? "eager" : "lazy"}
           />
         </div>

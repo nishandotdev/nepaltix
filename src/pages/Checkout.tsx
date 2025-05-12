@@ -8,12 +8,15 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { dbService } from '@/lib/dbService';
 import { authService } from '@/lib/authService';
+import { paymentService } from '@/lib/paymentService';
 import { 
   Customer, 
   DigitalTicket, 
   TicketType, 
   NotificationType,
-  Event as EventType
+  Event as EventType,
+  PaymentInfo,
+  PaymentMethod
 } from '@/types';
 import NotFound from './NotFound';
 import { Loader } from '@/components/ui/loader';
@@ -21,6 +24,7 @@ import LoadingState from '@/components/checkout/LoadingState';
 import CustomerForm from '@/components/checkout/CustomerForm';
 import OrderSummary from '@/components/checkout/OrderSummary';
 import TicketDisplay from '@/components/checkout/TicketDisplay';
+import PaymentMethodSelector from '@/components/checkout/PaymentMethodSelector';
 
 const Checkout = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,8 +40,16 @@ const Checkout = () => {
     phone: ''
   });
   
+  const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
+    paymentMethod: PaymentMethod.CARD,
+    cardNumber: '',
+    expiryDate: '',
+    cvc: ''
+  });
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showTicket, setShowTicket] = useState(false);
   const [ticketData, setTicketData] = useState<DigitalTicket | null>(null);
   const [event, setEvent] = useState<EventType | null>(null);
@@ -108,8 +120,38 @@ const Checkout = () => {
     return true;
   };
 
+  const processPayment = async () => {
+    setIsProcessingPayment(true);
+    
+    try {
+      // Process payment using the payment service
+      await paymentService.processPayment(
+        event.price * quantity, 
+        paymentInfo, 
+        () => {
+          // On payment success
+          processBooking();
+        },
+        (errorMessage) => {
+          // On payment error
+          toast.error("Payment Failed", {
+            description: errorMessage || "There was an error processing your payment.",
+          });
+          setIsProcessingPayment(false);
+        }
+      );
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast.error("Payment Processing Error", {
+        description: "There was an unexpected error. Please try again.",
+      });
+      setIsProcessingPayment(false);
+    }
+  };
+
   const processBooking = async () => {
     setIsSubmitting(true);
+    setIsProcessingPayment(false);
     
     try {
       // Create digital ticket
@@ -180,7 +222,7 @@ const Checkout = () => {
     
     if (!validateForm()) return;
     
-    processBooking();
+    processPayment();
   };
 
   const handleDownloadTicket = () => {
@@ -278,22 +320,39 @@ Customer: ${customer.name}
                         />
                       </div>
                       
+                      <div>
+                        <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
+                        <PaymentMethodSelector 
+                          initialPaymentInfo={paymentInfo}
+                          onChange={setPaymentInfo}
+                        />
+                      </div>
+                      
                       <Button 
                         type="submit" 
                         className="w-full bg-nepal-red hover:bg-nepal-red/90"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isProcessingPayment}
                       >
-                        {isSubmitting ? (
+                        {isProcessingPayment ? (
                           <>
                             <Loader variant="white" size={18} className="mr-2" />
-                            Processing Booking...
+                            Processing Payment...
+                          </>
+                        ) : isSubmitting ? (
+                          <>
+                            <Loader variant="white" size={18} className="mr-2" />
+                            Creating Booking...
                           </>
                         ) : (
                           <>
-                            Book Ticket {formatPrice(event.price * quantity)}
+                            Pay & Book {formatPrice(event.price * quantity)}
                           </>
                         )}
                       </Button>
+                      
+                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                        This is a demo application. No actual payment will be processed.
+                      </p>
                     </div>
                   </form>
                 </div>
