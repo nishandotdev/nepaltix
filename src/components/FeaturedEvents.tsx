@@ -7,15 +7,21 @@ import { Event } from '@/types';
 import { eventService } from '@/lib/eventService';
 import { useToast } from '@/components/ui/use-toast';
 import { useQuery } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
 
 const FeaturedEvents = () => {
   const { toast } = useToast();
   
-  const { data: visibleEvents = [], isLoading } = useQuery({
+  const { data: visibleEvents = [], isLoading, error, refetch } = useQuery({
     queryKey: ['featuredEvents'],
     queryFn: async () => {
-      const featuredEvents = await eventService.getFeaturedEvents();
-      return featuredEvents.slice(0, 3);
+      try {
+        const featuredEvents = await eventService.getFeaturedEvents();
+        return featuredEvents.slice(0, 3);
+      } catch (err) {
+        console.error("Error fetching featured events:", err);
+        return [];
+      }
     },
     meta: {
       onError: (error: Error) => {
@@ -28,6 +34,7 @@ const FeaturedEvents = () => {
       }
     },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: 2,
   });
 
   return (
@@ -46,18 +53,19 @@ const FeaturedEvents = () => {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {[1, 2, 3].map((_, index) => (
-              <div key={index} className="rounded-lg overflow-hidden shadow-sm">
-                <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
-                <div className="p-5 bg-white dark:bg-gray-800 space-y-3">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4"></div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-5/6"></div>
-                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/4 mt-4"></div>
-                </div>
-              </div>
-            ))}
+          <div className="flex justify-center items-center py-16">
+            <Loader2 className="h-8 w-8 text-nepal-red animate-spin" />
+            <span className="ml-3 text-lg text-gray-600 dark:text-gray-300">Loading featured events...</span>
+          </div>
+        ) : error ? (
+          <div className="text-center py-10 bg-white/50 backdrop-blur-sm dark:bg-gray-800/50 rounded-xl shadow-sm">
+            <p className="text-gray-500 dark:text-gray-400 mb-4">Sorry, we couldn't load the featured events</p>
+            <button 
+              className="text-nepal-red hover:text-nepal-red/80 font-medium"
+              onClick={() => refetch()}
+            >
+              Try again
+            </button>
           </div>
         ) : visibleEvents.length > 0 ? (
           <>
@@ -75,10 +83,10 @@ const FeaturedEvents = () => {
 
             <div className="mt-12 text-center">
               <Link
-                to="/events"
+                to="/featured"
                 className="inline-flex items-center font-medium text-nepal-red hover:text-nepal-red/80 transition-colors duration-300 group"
               >
-                View all events
+                View all featured events
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
             </div>

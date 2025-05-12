@@ -1,7 +1,6 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Loader2, Calendar, Map, Tag, SlidersHorizontal } from 'lucide-react';
+import { Search, Filter, Loader2, SlidersHorizontal } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -15,8 +14,8 @@ import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import EventCard from '@/components/EventCard';
-import { eventService } from '@/lib/eventService';
 import { Event, EventCategory } from '@/types';
+import { eventService } from '@/lib/eventService';
 import { useQuery } from '@tanstack/react-query';
 import { debounce } from '@/lib/performance';
 
@@ -101,22 +100,23 @@ const Events = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   
-  // Fetch events using React Query with improved caching
-  const { data: events = [], isLoading, error } = useQuery({
+  // Fetch events using React Query with improved error handling
+  const { data: events = [], isLoading, error, refetch } = useQuery({
     queryKey: ['events'],
-    queryFn: () => eventService.getAllEvents(),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    meta: {
-      onSettled: (data, error) => {
-        if (error) {
-          console.error("Error loading events:", error);
-          toast.error("Failed to load events. Please try again.");
-        } else {
-          // Mark page as loaded once data is available
-          setTimeout(() => setIsPageLoaded(true), 300);
-        }
+    queryFn: async () => {
+      try {
+        const data = await eventService.getAllEvents();
+        return data || [];
+      } catch (error) {
+        console.error("Error in events query:", error);
+        // Show error toast and return empty array to prevent crashes
+        toast.error("Failed to load events. Please try again.");
+        return [];
       }
-    }
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2,
+    retryDelay: 1000, // Retry after 1 second, then 2 seconds
   });
   
   // Debounced search handler for better performance
@@ -132,21 +132,28 @@ const Events = () => {
   };
   
   // Apply filters AFTER events are loaded
-  const filteredEvents = applyFilters(events, searchQuery, selectedCategories, sortBy);
+  const filteredEvents = events.length > 0 ? applyFilters(events, searchQuery, selectedCategories, sortBy) : [];
   
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = "NepalTix - Discover Events";
     
+    // Delayed page load effect for smoother transitions
+    const timer = setTimeout(() => {
+      setIsPageLoaded(true);
+    }, 300);
+    
     // Show demo payment success message if coming from checkout
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('payment') === 'success') {
+    if (urlParams.get('payment') === 'success' || urlParams.get('booking') === 'success') {
       setTimeout(() => {
         toast.success("Payment successful! Your ticket has been emailed to you.", {
           duration: 5000,
         });
       }, 500);
     }
+    
+    return () => clearTimeout(timer);
   }, []);
   
   const toggleCategory = (category: EventCategory) => {
@@ -181,7 +188,7 @@ const Events = () => {
             transition={{ duration: 0.5 }}
           >
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
-              Discover Events in Nepal
+              {window.location.pathname === "/featured" ? "Featured Events in Nepal" : "Discover Events in Nepal"}
             </h1>
             <p className="text-gray-600 dark:text-gray-300 text-base sm:text-lg">
               Find and book tickets for the best events happening across Nepal
@@ -331,7 +338,7 @@ const Events = () => {
               </p>
               <Button 
                 className="bg-nepal-red hover:bg-nepal-red/90" 
-                onClick={() => window.location.reload()}
+                onClick={() => refetch()}
               >
                 Retry
               </Button>
@@ -350,7 +357,7 @@ const Events = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3, delay: Math.min(0.05 * index, 1) }}
+                    transition={{ duration: 0.3, delay: Math.min(0.05 * index, 0.5) }}
                     onClick={() => handleEventClick(event.id)}
                     className="cursor-pointer"
                     layout

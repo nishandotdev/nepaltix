@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { debounce } from '@/lib/performance';
 
-// Updated image URLs with Nepali scenes
+// Updated image URLs with more reliable sources
 const heroImages = [
-  "https://images.unsplash.com/photo-1532186651327-6ac23687d189?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3", // Annapurna mountain range
-  "https://images.unsplash.com/photo-1565073624497-7144194b4742?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3", // Pashupatinath Temple in Kathmandu
-  "https://images.unsplash.com/photo-1526716167444-c2b88cdb6b1a?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3"  // Swayambhunath Stupa
+  "https://images.pexels.com/photos/2402950/pexels-photo-2402950.jpeg?auto=compress&cs=tinysrgb&w=1200", // Nepal mountains
+  "https://images.pexels.com/photos/2166553/pexels-photo-2166553.jpeg?auto=compress&cs=tinysrgb&w=1200", // Nepal temple
+  "https://images.pexels.com/photos/1659438/pexels-photo-1659438.jpeg?auto=compress&cs=tinysrgb&w=1200"  // Nepal stupa
 ];
 
 const Hero = () => {
@@ -19,9 +19,10 @@ const Hero = () => {
   const [imagesPreloaded, setImagesPreloaded] = useState(false);
   const timerRef = useRef<number | null>(null);
 
-  // Preload images with progress tracking
+  // Preload images with improved error handling
   useEffect(() => {
     let loadedCount = 0;
+    let errorCount = 0;
     const totalImages = heroImages.length;
     
     const preloadImages = () => {
@@ -29,7 +30,7 @@ const Hero = () => {
         const img = new Image();
         img.onload = () => {
           loadedCount += 1;
-          if (loadedCount === totalImages) {
+          if (loadedCount + errorCount === totalImages) {
             setImagesPreloaded(true);
             setIsImageLoaded(true);
           }
@@ -37,8 +38,8 @@ const Hero = () => {
         img.onerror = () => {
           // Handle image load errors - still proceed with availability
           console.warn(`Failed to load image: ${src}`);
-          loadedCount += 1;
-          if (loadedCount === totalImages) {
+          errorCount += 1;
+          if (loadedCount + errorCount === totalImages) {
             setImagesPreloaded(true);
             setIsImageLoaded(true);
           }
@@ -47,14 +48,14 @@ const Hero = () => {
       });
     };
     
-    // Set a fallback timeout to ensure the hero shows even if images fail
+    // Set a faster fallback timeout to ensure the hero shows even if images fail
     const fallbackTimer = setTimeout(() => {
       if (!imagesPreloaded) {
         console.log('Using fallback timer for hero section');
         setImagesPreloaded(true);
         setIsImageLoaded(true);
       }
-    }, 3000);
+    }, 2000); // Reduced from 3000 to 2000ms
     
     preloadImages();
     
@@ -105,7 +106,7 @@ const Hero = () => {
 
   return (
     <div className="relative h-[100svh] w-full overflow-hidden">
-      {/* Loading state */}
+      {/* Loading state with improved styling */}
       {!imagesPreloaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-900 z-30">
           <div className="flex flex-col items-center">
@@ -120,6 +121,9 @@ const Hero = () => {
       
       {/* Background pattern - more subtle */}
       <div className="absolute inset-0 bg-nepal-pattern opacity-30 z-0"></div>
+      
+      {/* Fallback background color in case images fail */}
+      <div className="absolute inset-0 bg-gray-800"></div>
       
       {/* Background image */}
       {heroImages.map((image, index) => (
