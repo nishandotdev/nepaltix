@@ -8,11 +8,23 @@ import { useQuery } from '@tanstack/react-query';
 import { eventService } from '@/lib/eventService';
 import { Loader as LoaderComponent } from '@/components/ui/loader';
 
+// Skeleton UI for event cards
+const EventCardSkeleton = () => (
+  <div className="animate-pulse rounded-xl bg-white/60 dark:bg-gray-800/60 shadow p-6 flex flex-col space-y-4 min-h-[320px]">
+    <div className="bg-gray-300/60 dark:bg-gray-700/30 h-36 w-full rounded-lg"></div>
+    <div className="h-5 bg-gray-200/80 dark:bg-gray-700/40 rounded w-2/3" />
+    <div className="h-4 bg-gray-100/80 dark:bg-gray-700/20 rounded w-1/3" />
+    <div className="h-4 bg-gray-100/80 dark:bg-gray-700/20 rounded w-1/2" />
+    <div className="flex-1" />
+    <div className="h-8 bg-gray-200/70 dark:bg-gray-700/25 rounded w-1/2" />
+  </div>
+);
+
 const FeaturedEvents = () => {
   const { toast } = useToast();
   const [isLoaded, setIsLoaded] = useState(false);
-  
-  // Improved query configuration with better error handling and retry logic
+
+  // React Query for featured events  
   const { data: visibleEvents = [], isLoading, error, refetch } = useQuery({
     queryKey: ['featuredEvents'],
     queryFn: async () => {
@@ -68,12 +80,16 @@ const FeaturedEvents = () => {
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center items-center py-16">
-            <LoaderComponent size={32} text="Loading featured events..." variant="nepal-red" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {Array.from({length: 3}).map((_, idx) => (
+              <EventCardSkeleton key={idx} />
+            ))}
           </div>
         ) : error ? (
           <div className="text-center py-10 bg-white/50 backdrop-blur-sm dark:bg-gray-800/50 rounded-xl shadow-sm">
-            <p className="text-gray-500 dark:text-gray-400 mb-4">Sorry, we couldn't load the featured events</p>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              Sorry, we couldn't load the featured events
+            </p>
             <button 
               className="text-nepal-red hover:text-nepal-red/80 font-medium"
               onClick={() => refetch()}
@@ -125,3 +141,4 @@ const FeaturedEvents = () => {
 };
 
 export default FeaturedEvents;
+
