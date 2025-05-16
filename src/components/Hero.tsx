@@ -1,14 +1,13 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { debounce } from '@/lib/performance';
 
-// Updated image URLs with more reliable sources
+// Updated Nepali hero images
 const heroImages = [
-  "https://images.pexels.com/photos/2402950/pexels-photo-2402950.jpeg?auto=compress&cs=tinysrgb&w=1200", // Nepal mountains
-  "https://images.pexels.com/photos/2166553/pexels-photo-2166553.jpeg?auto=compress&cs=tinysrgb&w=1200", // Nepal temple
-  "https://images.pexels.com/photos/1659438/pexels-photo-1659438.jpeg?auto=compress&cs=tinysrgb&w=1200"  // Nepal stupa
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80", // Mount Everest and Everest Base Camp
+  "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=1200&q=80", // Boudhanath Stupa
+  "https://images.unsplash.com/photo-1495106245174-55f3c4b3c1b3?auto=format&fit=crop&w=1200&q=80", // Traditional prayer flags in the Himalayas
 ];
 
 const Hero = () => {

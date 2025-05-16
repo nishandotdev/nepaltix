@@ -83,17 +83,19 @@ const Index = () => {
               <AnimatedSection className="order-1 lg:order-2" type="fade-left">
                 <div className="relative">
                   <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    {/* Main large image: Kathmandu Durbar Square */}
                     <img 
-                      src="https://images.unsplash.com/photo-1532375810709-75b1da00537c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" 
-                      alt="Traditional Nepali Festival" 
+                      src="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80" 
+                      alt="Kathmandu Durbar Square" 
                       className="w-full h-[500px] object-cover hover:scale-105 transition-transform duration-700"
                       loading="lazy"
                     />
                   </div>
                   <div className="absolute -bottom-6 -right-6 rounded-2xl overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg w-48 h-48 md:w-64 md:h-64 transform hover:translate-y-2 hover:translate-x-2 transition-transform duration-300">
+                    {/* Smaller pop image: Pashupatinath Temple */}
                     <img 
-                      src="https://images.unsplash.com/photo-1565073475228-8a77b3f3a069?q=80&w=2076&auto=format&fit=crop&ixlib=rb-4.0.3" 
-                      alt="Nepali Cultural Performance" 
+                      src="https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=600&q=80" 
+                      alt="Pashupatinath Temple, Kathmandu" 
                       className="w-full h-full object-cover"
                       loading="lazy"
                     />
