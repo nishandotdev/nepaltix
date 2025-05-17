@@ -326,9 +326,27 @@ const Events = () => {
           )}
           
           {isLoading ? (
-            <div className="flex justify-center items-center py-16 sm:py-20">
-              <Loader2 className="h-8 w-8 text-nepal-red animate-spin" />
-              <span className="ml-3 text-lg text-gray-600 dark:text-gray-300">Loading events...</span>
+            <div className="flex flex-col items-center justify-center py-16 sm:py-20 animate-fade-in">
+              {/* --- New Improved Loader UI --- */}
+              <div className="relative mb-5">
+                {/* Placeholder for Nepali event illustration */}
+                <img
+                  src="https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=480&q=80"
+                  alt="Events Nepal"
+                  className="w-36 h-36 rounded-full object-cover shadow-lg border-4 border-white animate-scale-in"
+                  loading="lazy"
+                />
+                <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5 text-xs bg-nepal-red/90 text-white font-semibold rounded-full shadow hover-scale">
+                  Loading Events...
+                </span>
+              </div>
+              <Loader2 className="h-8 w-8 text-nepal-red animate-spin mb-3" />
+              <span className="text-lg text-gray-700 dark:text-gray-200 mb-1 font-semibold">
+                Mahotsav (महोत्सव) coming soon...
+              </span>
+              <p className="text-gray-500 dark:text-gray-400">
+                Please wait while we fill your page with amazing events from across Nepal!
+              </p>
             </div>
           ) : error ? (
             <div className="text-center py-20">
