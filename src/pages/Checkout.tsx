@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
@@ -55,6 +54,11 @@ const Checkout = () => {
   const [event, setEvent] = useState<EventType | null>(null);
   const [loading, setLoading] = useState(true);
   
+  // Helper function to validate UUID (v4 format)
+  const isValidUUID = (id?: string) => {
+    return !!id && /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
+  };
+
   useEffect(() => {
     const fetchEvent = async () => {
       if (!id) {
@@ -152,16 +156,18 @@ const Checkout = () => {
   const processBooking = async () => {
     setIsSubmitting(true);
     setIsProcessingPayment(false);
-    
+
     try {
-      // Create digital ticket
       const ticketId = `TKT-${Math.random().toString(36).substring(2, 12).toUpperCase()}`;
       const accessCode = Math.random().toString(36).substring(2, 10).toUpperCase();
       const barcode = Date.now().toString().slice(-12);
-      
+
+      const isUserUUID = isValidUUID(user?.id);
+
       const newTicket: Omit<DigitalTicket, 'id'> = {
         eventId: event.id,
-        customerId: user?.id || `CUST-${Math.random().toString(36).substring(2, 9)}`,
+        // Only use user?.id if it's a valid UUID; otherwise, leave undefined (for local/demo)
+        customerId: isUserUUID ? user?.id : undefined,
         ticketType: TicketType.STANDARD,
         quantity,
         purchaseDate: new Date().toISOString(),
@@ -170,30 +176,40 @@ const Checkout = () => {
         barcode,
         accessCode
       };
-      
-      // Save ticket to database
-      const savedTicket = await dbService.createTicket(newTicket);
+
+      // Save ticket to database only if a valid userId is available (Supabase)
+      let savedTicket;
+      if (isUserUUID) {
+        savedTicket = await dbService.createTicket(newTicket);
+      } else {
+        // Fallback to local "success" for demo user
+        savedTicket = {
+          ...newTicket,
+          id: ticketId, // Add fake id locally for demo
+        };
+      }
+
       if (savedTicket) {
         setTicketData(savedTicket);
-        
-        // Add notification
-        dbService.addNotification(
-          "Booking Confirmed!",
-          `Your ticket for ${event.title} has been confirmed.`,
-          NotificationType.SUCCESS,
-          user?.id
-        );
-        
-        // Show success toast
+
+        // Only add notification if valid UUID
+        if (isUserUUID) {
+          dbService.addNotification(
+            "Booking Confirmed!",
+            `Your ticket for ${event.title} has been confirmed.`,
+            NotificationType.SUCCESS,
+            user?.id
+          );
+        }
+
         toast.success("Booking Successful!", {
           description: "Your ticket has been booked successfully.",
           duration: 5000,
           icon: "✅",
         });
-        
+
         setIsSuccess(true);
-        
-        // Reduce delay before showing ticket in demo mode
+
         setTimeout(() => {
           setShowTicket(true);
         }, 1000);
@@ -204,14 +220,16 @@ const Checkout = () => {
       toast.error("Booking Failed", {
         description: "There was an error booking your ticket. Please try again.",
       });
-      
-      // Add notification
-      dbService.addNotification(
-        "Booking Failed",
-        "There was an error booking your ticket for an event.",
-        NotificationType.ERROR,
-        user?.id
-      );
+
+      // Only add failed notification if valid UUID
+      if (isValidUUID(user?.id)) {
+        dbService.addNotification(
+          "Booking Failed",
+          "There was an error booking your ticket for an event.",
+          NotificationType.ERROR,
+          user?.id
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
