@@ -91,9 +91,9 @@ const Index = () => {
                     />
                   </div>
                   <div className="absolute -bottom-6 -right-6 rounded-2xl overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg w-48 h-48 md:w-64 md:h-64 transform hover:translate-y-2 hover:translate-x-2 transition-transform duration-300">
-                    {/* Previous smaller pop image: Nepali cultural performance */}
+                    {/* Updated: Clearly Nepali cultural scene (e.g., dancer at Dashain festival, masked dancer, or local attire) */}
                     <img 
-                      src="https://images.unsplash.com/photo-1565073475228-8a77b3f3a069?q=80&w=2076&auto=format&fit=crop&ixlib=rb-4.0.3"
+                      src="https://images.unsplash.com/photo-1466442929976-97f336a657be?auto=format&fit=crop&w=600&q=80"
                       alt="Nepali Cultural Performance"
                       className="w-full h-full object-cover"
                       loading="lazy"
