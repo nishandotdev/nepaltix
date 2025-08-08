@@ -179,116 +179,122 @@ const Events = () => {
     <>
       <Navbar />
       
-      <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen">
         <div className="container mx-auto px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
           <motion.div 
-            className="text-center max-w-3xl mx-auto mb-8 sm:mb-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: isPageLoaded ? 1 : 0, y: isPageLoaded ? 0 : 20 }}
-            transition={{ duration: 0.5 }}
+            className="text-center max-w-4xl mx-auto mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: isPageLoaded ? 1 : 0, y: isPageLoaded ? 0 : 30 }}
+            transition={{ duration: 0.6 }}
           >
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
-              {window.location.pathname === "/featured" ? "Featured Events in Nepal" : "Discover Events in Nepal"}
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-nepal-red/10 border border-nepal-red/20 text-nepal-red text-sm font-medium mb-6">
+              <span className="w-2 h-2 bg-nepal-red rounded-full mr-2 animate-pulse"></span>
+              {window.location.pathname === "/featured" ? "Featured Events" : "All Events"}
+            </div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-gray-900 dark:text-white mb-4">
+              {window.location.pathname === "/featured" ? "Nepal's Most Popular Events" : "Discover Events in Nepal"}
             </h1>
-            <p className="text-gray-600 dark:text-gray-300 text-base sm:text-lg">
-              Find and book tickets for the best events happening across Nepal
+            <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto leading-relaxed">
+              From cultural festivals to adventure expeditions, find your perfect experience in the heart of the Himalayas
             </p>
           </motion.div>
           
           <motion.div 
-            className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-5 sm:mb-6"
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: isPageLoaded ? 1 : 0, y: isPageLoaded ? 0 : 20 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <div className="relative flex-grow">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                className="pl-10 focus-visible:ring-nepal-red"
-                placeholder="Search events, venues, or cities"
-                defaultValue={searchQuery}
-                onChange={handleSearchInputChange}
-              />
-            </div>
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="relative flex-grow">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  className="pl-12 h-12 text-base border-gray-200 dark:border-gray-600 focus-visible:ring-nepal-red rounded-xl"
+                  placeholder="Search events, venues, locations..."
+                  defaultValue={searchQuery}
+                  onChange={handleSearchInputChange}
+                />
+              </div>
             
-            <div className="flex space-x-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <SlidersHorizontal className="h-4 w-4" />
-                    <span>Sort</span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-56 p-3">
-                  <div className="space-y-1">
-                    <h3 className="font-medium text-sm mb-2">Sort by</h3>
-                    <Select value={sortBy} onValueChange={setSortBy}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Sort by" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="date-asc">Date (Earliest first)</SelectItem>
-                        <SelectItem value="date-desc">Date (Latest first)</SelectItem>
-                        <SelectItem value="price-asc">Price (Low to high)</SelectItem>
-                        <SelectItem value="price-desc">Price (High to low)</SelectItem>
-                        <SelectItem value="alpha-asc">Name (A to Z)</SelectItem>
-                        <SelectItem value="alpha-desc">Name (Z to A)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </PopoverContent>
-              </Popover>
-              
-              <Dialog open={showDialog} onOpenChange={setShowDialog}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Filter className="h-4 w-4" />
-                    <span className="hidden sm:inline">Filter</span>
-                    {selectedCategories.length > 0 && (
-                      <Badge className="ml-1 bg-nepal-red text-white">{selectedCategories.length}</Badge>
-                    )}
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Filter Events</DialogTitle>
-                  </DialogHeader>
-                  
-                  <div className="py-4">
-                    <h3 className="font-medium mb-3">Event Categories</h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      {Object.values(EventCategory).map(category => (
-                        <div key={category} className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer" onClick={() => toggleCategory(category)}>
-                          <Checkbox 
-                            id={`category-${category}`}
-                            checked={selectedCategories.includes(category)}
-                            onCheckedChange={() => toggleCategory(category)}
-                            className="data-[state=checked]:bg-nepal-red data-[state=checked]:border-nepal-red"
-                          />
-                          <label 
-                            htmlFor={`category-${category}`}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center cursor-pointer"
-                          >
-                            <span className="mr-2 inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800">
-                              {categoryIcons[category]}
-                            </span>
-                            {categoryLabels[category]}
-                          </label>
-                        </div>
-                      ))}
+              <div className="flex gap-3">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="h-12 px-6 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl">
+                      <SlidersHorizontal className="h-4 w-4 mr-2" />
+                      <span>Sort</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 p-4 rounded-xl">
+                    <div className="space-y-3">
+                      <h3 className="font-semibold text-base">Sort Events</h3>
+                      <Select value={sortBy} onValueChange={setSortBy}>
+                        <SelectTrigger className="w-full h-11 rounded-xl">
+                          <SelectValue placeholder="Choose sorting option" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="date-asc">📅 Date (Earliest first)</SelectItem>
+                          <SelectItem value="date-desc">📅 Date (Latest first)</SelectItem>
+                          <SelectItem value="price-asc">💰 Price (Low to high)</SelectItem>
+                          <SelectItem value="price-desc">💰 Price (High to low)</SelectItem>
+                          <SelectItem value="alpha-asc">🔤 Name (A to Z)</SelectItem>
+                          <SelectItem value="alpha-desc">🔤 Name (Z to A)</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <Button variant="outline" onClick={clearFilters}>
-                      Clear All
+                  </PopoverContent>
+                </Popover>
+                
+                <Dialog open={showDialog} onOpenChange={setShowDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="h-12 px-6 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl">
+                      <Filter className="h-4 w-4 mr-2" />
+                      <span className="hidden sm:inline">Filter</span>
+                      {selectedCategories.length > 0 && (
+                        <Badge className="ml-1 bg-nepal-red text-white">{selectedCategories.length}</Badge>
+                      )}
                     </Button>
-                    <Button className="bg-nepal-red hover:bg-nepal-red/90" onClick={() => setShowDialog(false)}>
-                      Apply Filters
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
+                  </DialogTrigger>
+                  <DialogContent className="rounded-2xl">
+                    <DialogHeader>
+                      <DialogTitle className="text-xl">Filter Events</DialogTitle>
+                    </DialogHeader>
+                    
+                    <div className="py-4">
+                      <h3 className="font-semibold mb-4">Event Categories</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        {Object.values(EventCategory).map(category => (
+                          <div key={category} className="flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors" onClick={() => toggleCategory(category)}>
+                            <Checkbox 
+                              id={`category-${category}`}
+                              checked={selectedCategories.includes(category)}
+                              onCheckedChange={() => toggleCategory(category)}
+                              className="data-[state=checked]:bg-nepal-red data-[state=checked]:border-nepal-red"
+                            />
+                            <label 
+                              htmlFor={`category-${category}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center cursor-pointer"
+                            >
+                              <span className="mr-2 inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700">
+                                {categoryIcons[category]}
+                              </span>
+                              {categoryLabels[category]}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between pt-4">
+                      <Button variant="outline" onClick={clearFilters} className="rounded-xl">
+                        Clear All
+                      </Button>
+                      <Button className="bg-nepal-red hover:bg-nepal-red/90 rounded-xl" onClick={() => setShowDialog(false)}>
+                        Apply Filters
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
           </motion.div>
           
