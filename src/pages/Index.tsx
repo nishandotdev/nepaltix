@@ -9,7 +9,7 @@ import { ArrowRight } from 'lucide-react';
 const Index = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = 'NepalTix - Your Gateway to Nepal\'s Best Events';
+    document.title = 'Ticket Nepal - Your Gateway to Nepal\'s Best Events';
   }, []);
   return <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -18,80 +18,56 @@ const Index = () => {
         <FeaturedEvents />
 
         <section className="py-16 bg-white/80 dark:bg-gray-800/80 backdrop-filter backdrop-blur-sm">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-              <AnimatedSection className="order-2 lg:order-1" type="fade-right">
-                <span className="inline-block px-3 py-1 text-xs font-medium text-nepal-red bg-nepal-red/10 rounded-full mb-4">
-                  Why Choose Us
-                </span>
-                <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-4">
-                  The Perfect Way to Experience Nepal
-                </h2>
-                <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
-                  NepalTix offers a seamless booking experience for the most authentic and exciting events across Nepal.
-                </p>
-                
-                <div className="space-y-4">
-                  <AnimatedSection delay={300} type="fade-up">
-                    <div className="flex p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                      <div className="flex-shrink-0 h-12 w-12 rounded-full bg-nepal-red/10 flex items-center justify-center">
-                        <span className="text-nepal-red font-bold">01</span>
-                      </div>
-                      <div className="ml-4">
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Curated Experiences</h3>
-                        <p className="mt-1 text-gray-500 dark:text-gray-400">
-                          We handpick the best events to ensure quality experiences for our customers.
-                        </p>
-                      </div>
-                    </div>
-                  </AnimatedSection>
-                  
-                  <AnimatedSection delay={400} type="fade-up">
-                    <div className="flex p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                      <div className="flex-shrink-0 h-12 w-12 rounded-full bg-nepal-red/10 flex items-center justify-center">
-                        <span className="text-nepal-red font-bold">02</span>
-                      </div>
-                      <div className="ml-4">
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Secure Booking</h3>
-                        <p className="mt-1 text-gray-500 dark:text-gray-400">
-                          Easy payment options with guaranteed secure transactions.
-                        </p>
-                      </div>
-                    </div>
-                  </AnimatedSection>
-                  
-                  <AnimatedSection delay={500} type="fade-up">
-                    <div className="flex p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                      <div className="flex-shrink-0 h-12 w-12 rounded-full bg-nepal-red/10 flex items-center justify-center">
-                        <span className="text-nepal-red font-bold">03</span>
-                      </div>
-                      <div className="ml-4">
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Local Support</h3>
-                        <p className="mt-1 text-gray-500 dark:text-gray-400">
-                          Our team of local experts is always ready to assist you.
-                        </p>
-                      </div>
-                    </div>
-                  </AnimatedSection>
-                </div>
-              </AnimatedSection>
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <AnimatedSection type="fade-up">
+              <span className="inline-block px-3 py-1 text-xs font-medium text-nepal-red bg-nepal-red/10 rounded-full mb-4">
+                Why Choose Ticket Nepal
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-4">
+                Your Gateway to Nepal's Best Events
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
+                Ticket Nepal provides seamless access to authentic cultural experiences, adventure activities, and festivals across the beautiful nation of Nepal.
+              </p>
               
-              <AnimatedSection className="order-1 lg:order-2" type="fade-left">
-                <div className="relative">
-                  <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    {/* Previous main large image: Nepal festival/cultural */}
-                    
-                  </div>
-                  
-                  <div className="absolute top-6 -left-6 glass-card rounded-lg p-4 hidden sm:block backdrop-blur-md bg-white/70 dark:bg-gray-900/70 shadow-lg hover:transform hover:scale-105 transition-all duration-300">
-                    <p className="font-medium text-gray-900 dark:text-white">Explore Nepal's Festivals</p>
-                    <div className="mt-2 flex items-center text-sm">
-                      <span className="text-nepal-red font-medium">500+ events yearly</span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <AnimatedSection delay={300} type="fade-up">
+                  <div className="p-6 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                    <div className="h-12 w-12 rounded-full bg-nepal-red/10 flex items-center justify-center mx-auto mb-4">
+                      <span className="text-nepal-red font-bold text-xl">✓</span>
                     </div>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Verified Events</h3>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      All events are carefully vetted for authenticity and quality.
+                    </p>
                   </div>
-                </div>
-              </AnimatedSection>
-            </div>
+                </AnimatedSection>
+                
+                <AnimatedSection delay={400} type="fade-up">
+                  <div className="p-6 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                    <div className="h-12 w-12 rounded-full bg-nepal-red/10 flex items-center justify-center mx-auto mb-4">
+                      <span className="text-nepal-red font-bold text-xl">⚡</span>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Instant Booking</h3>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      Quick and secure ticket booking with immediate confirmation.
+                    </p>
+                  </div>
+                </AnimatedSection>
+                
+                <AnimatedSection delay={500} type="fade-up">
+                  <div className="p-6 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                    <div className="h-12 w-12 rounded-full bg-nepal-red/10 flex items-center justify-center mx-auto mb-4">
+                      <span className="text-nepal-red font-bold text-xl">🇳🇵</span>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Local Expertise</h3>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      Backed by local knowledge and cultural understanding.
+                    </p>
+                  </div>
+                </AnimatedSection>
+              </div>
+            </AnimatedSection>
           </div>
         </section>
         

@@ -153,10 +153,10 @@ const Hero = () => {
             Experience Nepal's Best Events
           </span>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-4 sm:mb-6 tracking-tight">
-            Discover & Book Amazing <span className="text-nepal-red">Events in Nepal</span>
+            <span className="text-nepal-red">Ticket Nepal</span> - Your Gateway to <span className="text-nepal-red">Amazing Events</span>
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto px-2">
-            From cultural festivals to adventure competitions, find and book tickets to the most exciting events across Nepal.
+            From cultural festivals to adventure expeditions, discover and book authentic Nepali experiences with ease.
           </p>
           <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 justify-center px-4 sm:px-0">
             <Link
