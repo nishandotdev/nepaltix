@@ -4,93 +4,112 @@ import FeaturedEvents from '@/components/FeaturedEvents';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import AnimatedSection from '@/components/AnimatedSection';
-import InteractiveBackground from '@/components/InteractiveBackground';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, CheckCircle, Zap, Globe } from 'lucide-react';
 const Index = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = 'Ticket Nepal - Your Gateway to Nepal\'s Best Events';
   }, []);
-  return <div className="min-h-screen flex flex-col">
+  return (
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow">
         <Hero />
         <FeaturedEvents />
 
-        <section className="py-16 bg-white/80 dark:bg-gray-800/80 backdrop-filter backdrop-blur-sm">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <AnimatedSection type="fade-up">
-              <span className="inline-block px-3 py-1 text-xs font-medium text-nepal-red bg-nepal-red/10 rounded-full mb-4">
+        <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <AnimatedSection type="fade-up" className="text-center mb-16">
+              <span className="inline-flex items-center px-4 py-2 text-sm font-medium text-nepal-red bg-nepal-red/10 border border-nepal-red/20 rounded-full mb-6">
+                <CheckCircle className="w-4 h-4 mr-2" />
                 Why Choose Ticket Nepal
               </span>
-              <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-4">
-                Your Gateway to Nepal's Best Events
+              <h2 className="text-4xl sm:text-5xl font-serif font-bold text-gray-900 dark:text-white mb-6">
+                Your Gateway to <span className="text-nepal-red">Nepal's Best</span>
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-                Ticket Nepal provides seamless access to authentic cultural experiences, adventure activities, and festivals across the beautiful nation of Nepal.
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                Experience authentic Nepal through carefully curated events, festivals, and adventures that showcase the true spirit of our beautiful nation.
               </p>
+            </AnimatedSection>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              <AnimatedSection delay={200} type="fade-up">
+                <div className="group relative p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-nepal-red/20">
+                  <div className="absolute top-0 left-8 w-12 h-1 bg-gradient-to-r from-nepal-red to-orange-500 rounded-full"></div>
+                  <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-nepal-red/10 to-orange-500/10 rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <CheckCircle className="w-8 h-8 text-nepal-red" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Verified Events</h3>
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Every event is carefully vetted by our local team to ensure authentic, high-quality experiences.
+                  </p>
+                </div>
+              </AnimatedSection>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-                <AnimatedSection delay={300} type="fade-up">
-                  <div className="p-6 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                    <div className="h-12 w-12 rounded-full bg-nepal-red/10 flex items-center justify-center mx-auto mb-4">
-                      <span className="text-nepal-red font-bold text-xl">✓</span>
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Verified Events</h3>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      All events are carefully vetted for authenticity and quality.
-                    </p>
+              <AnimatedSection delay={300} type="fade-up">
+                <div className="group relative p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-nepal-red/20">
+                  <div className="absolute top-0 left-8 w-12 h-1 bg-gradient-to-r from-nepal-red to-orange-500 rounded-full"></div>
+                  <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-nepal-red/10 to-orange-500/10 rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <Zap className="w-8 h-8 text-nepal-red" />
                   </div>
-                </AnimatedSection>
-                
-                <AnimatedSection delay={400} type="fade-up">
-                  <div className="p-6 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                    <div className="h-12 w-12 rounded-full bg-nepal-red/10 flex items-center justify-center mx-auto mb-4">
-                      <span className="text-nepal-red font-bold text-xl">⚡</span>
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Instant Booking</h3>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      Quick and secure ticket booking with immediate confirmation.
-                    </p>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Instant Booking</h3>
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Secure your spot in seconds with our streamlined booking process and instant confirmation.
+                  </p>
+                </div>
+              </AnimatedSection>
+              
+              <AnimatedSection delay={400} type="fade-up">
+                <div className="group relative p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-nepal-red/20">
+                  <div className="absolute top-0 left-8 w-12 h-1 bg-gradient-to-r from-nepal-red to-orange-500 rounded-full"></div>
+                  <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-nepal-red/10 to-orange-500/10 rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <Globe className="w-8 h-8 text-nepal-red" />
                   </div>
-                </AnimatedSection>
-                
-                <AnimatedSection delay={500} type="fade-up">
-                  <div className="p-6 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                    <div className="h-12 w-12 rounded-full bg-nepal-red/10 flex items-center justify-center mx-auto mb-4">
-                      <span className="text-nepal-red font-bold text-xl">🇳🇵</span>
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Local Expertise</h3>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      Backed by local knowledge and cultural understanding.
-                    </p>
-                  </div>
-                </AnimatedSection>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Local Expertise</h3>
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Backed by deep local knowledge and cultural understanding from our Nepal-based team.
+                  </p>
+                </div>
+              </AnimatedSection>
+            </div>
+          </div>
+        </section>
+        
+        <section className="py-24 relative overflow-hidden bg-gradient-to-br from-nepal-red via-red-600 to-orange-600">
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="absolute inset-0 opacity-30" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='7' cy='7' r='3'/%3E%3Ccircle cx='53' cy='7' r='3'/%3E%3Ccircle cx='7' cy='53' r='3'/%3E%3Ccircle cx='53' cy='53' r='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          }}></div>
+          
+          <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <AnimatedSection type="zoom-in">
+              <h2 className="text-4xl sm:text-5xl font-serif font-bold mb-6 text-white">
+                Ready to Experience Nepal?
+              </h2>
+              <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Join thousands of adventurers and culture enthusiasts who discover amazing experiences every day.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a 
+                  href="/events" 
+                  className="inline-flex items-center px-8 py-4 rounded-full bg-white text-nepal-red font-semibold hover:bg-gray-50 transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-xl group"
+                >
+                  Browse All Events
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                </a>
+                <a 
+                  href="/featured" 
+                  className="inline-flex items-center px-8 py-4 rounded-full border-2 border-white text-white font-semibold hover:bg-white hover:text-nepal-red transition-all duration-300 transform hover:translate-y-[-2px]"
+                >
+                  Featured Events
+                </a>
               </div>
             </AnimatedSection>
           </div>
         </section>
-        
-        <section className="py-16 relative overflow-hidden">
-          <InteractiveBackground>
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center py-16">
-              <AnimatedSection type="zoom-in">
-                <h2 className="text-3xl sm:text-4xl font-serif font-bold mb-4 text-nepal-red">
-                  Ready to Experience Nepal's Best Events?
-                </h2>
-                <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-                  Join thousands of visitors and locals who find and book amazing experiences every day.
-                </p>
-                <a href="/events" className="inline-flex items-center px-8 py-4 rounded-full bg-nepal-red text-white font-medium hover:bg-opacity-90 transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-lg group">
-                  Browse Events
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-                </a>
-              </AnimatedSection>
-            </div>
-          </InteractiveBackground>
-        </section>
       </main>
       <Footer />
-    </div>;
+    </div>
+  );
 };
 export default Index;
