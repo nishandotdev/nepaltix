@@ -9,16 +9,24 @@ import {
 } from "./auth/notifications";
 
 class DbService {
-  // Events
+  // Events - with fallback to local data for faster loading
   async getEvents(): Promise<Event[]> {
     try {
-      const { data, error } = await supabase
+      // Quick timeout to prevent long loading
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Database timeout')), 2000)
+      );
+      
+      const dbPromise = supabase
         .from('events')
         .select('*');
       
+      const { data, error } = await Promise.race([dbPromise, timeoutPromise]) as any;
+      
       if (error) {
-        console.error("Error fetching events:", error);
-        return [];
+        console.warn("Database not available, using local data:", error);
+        // Return local fallback data
+        return this.getFallbackEvents();
       }
       
       // Map DB fields to our frontend model with proper type conversion
@@ -39,25 +47,38 @@ class DbService {
         availableTickets: event.available_tickets
       })) || [];
     } catch (error) {
-      console.error("Error in getEvents:", error);
-      return [];
+      console.warn("Database connection failed, using local data:", error);
+      return this.getFallbackEvents();
     }
+  }
+
+  private async getFallbackEvents(): Promise<Event[]> {
+    // Import local events data as fallback
+    const { events } = await import('@/data/events');
+    return events;
   }
   
   async getEventById(id: string): Promise<Event | null> {
     try {
-      const { data, error } = await supabase
+      // Quick timeout to prevent long loading
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Database timeout')), 2000)
+      );
+      
+      const dbPromise = supabase
         .from('events')
         .select('*')
         .eq('id', id)
         .single();
       
-      if (error) {
-        console.error("Error fetching event by ID:", error);
-        return null;
-      }
+      const { data, error } = await Promise.race([dbPromise, timeoutPromise]) as any;
       
-      if (!data) return null;
+      if (error || !data) {
+        console.warn("Database not available, using local data for event:", id);
+        // Fallback to local data
+        const { events } = await import('@/data/events');
+        return events.find(event => event.id === id) || null;
+      }
       
       // Map DB fields to our frontend model with proper type conversion
       return {
@@ -77,8 +98,9 @@ class DbService {
         availableTickets: data.available_tickets
       };
     } catch (error) {
-      console.error("Error in getEventById:", error);
-      return null;
+      console.warn("Database connection failed, using local data for event:", id);
+      const { events } = await import('@/data/events');
+      return events.find(event => event.id === id) || null;
     }
   }
   

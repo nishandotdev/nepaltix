@@ -4,7 +4,10 @@ import FeaturedEvents from '@/components/FeaturedEvents';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import AnimatedSection from '@/components/AnimatedSection';
-import { ArrowRight, CheckCircle, Zap, Globe } from 'lucide-react';
+import { ArrowRight, CheckCircle, Zap, Globe, Mountain, Users, Calendar } from 'lucide-react';
+import nepalMountains from '@/assets/nepal-mountains.jpg';
+import nepalFestival from '@/assets/nepal-festival.jpg';
+import kathmanduCity from '@/assets/kathmandu-city.jpg';
 const Index = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -75,7 +78,82 @@ const Index = () => {
           </div>
         </section>
         
-        <section className="py-24 relative overflow-hidden bg-gradient-to-br from-nepal-red via-red-600 to-orange-600">
+        <section className="py-16 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <AnimatedSection type="fade-up" className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-4">
+                Discover the Beauty of <span className="text-nepal-red">Nepal</span>
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                From majestic mountains to vibrant cultural festivals, experience the best of Nepal
+              </p>
+            </AnimatedSection>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              <AnimatedSection delay={200} type="fade-up">
+                <div className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                  <img 
+                    src={nepalMountains} 
+                    alt="Nepal Himalayas" 
+                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500" 
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <div className="flex items-center mb-2">
+                      <Mountain className="w-5 h-5 mr-2 text-nepal-red" />
+                      <span className="text-sm font-medium">Adventure</span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-1">Himalayan Adventures</h3>
+                    <p className="text-sm opacity-90">Trek through world's highest peaks</p>
+                  </div>
+                </div>
+              </AnimatedSection>
+              
+              <AnimatedSection delay={300} type="fade-up">
+                <div className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                  <img 
+                    src={nepalFestival} 
+                    alt="Nepal Festival" 
+                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500" 
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <div className="flex items-center mb-2">
+                      <Users className="w-5 h-5 mr-2 text-nepal-red" />
+                      <span className="text-sm font-medium">Culture</span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-1">Cultural Festivals</h3>
+                    <p className="text-sm opacity-90">Experience authentic traditions</p>
+                  </div>
+                </div>
+              </AnimatedSection>
+              
+              <AnimatedSection delay={400} type="fade-up">
+                <div className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                  <img 
+                    src={kathmanduCity} 
+                    alt="Kathmandu City" 
+                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500" 
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <div className="flex items-center mb-2">
+                      <Calendar className="w-5 h-5 mr-2 text-nepal-red" />
+                      <span className="text-sm font-medium">Events</span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-1">City Events</h3>
+                    <p className="text-sm opacity-90">Modern celebrations in historic cities</p>
+                  </div>
+                </div>
+              </AnimatedSection>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20 relative overflow-hidden bg-gradient-to-br from-nepal-red via-red-600 to-orange-600">
           <div className="absolute inset-0 bg-black/20"></div>
           <div className="absolute inset-0 opacity-30" style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='7' cy='7' r='3'/%3E%3Ccircle cx='53' cy='7' r='3'/%3E%3Ccircle cx='7' cy='53' r='3'/%3E%3Ccircle cx='53' cy='53' r='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
@@ -96,12 +174,6 @@ const Index = () => {
                 >
                   Browse All Events
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-                </a>
-                <a 
-                  href="/featured" 
-                  className="inline-flex items-center px-8 py-4 rounded-full border-2 border-white text-white font-semibold hover:bg-white hover:text-nepal-red transition-all duration-300 transform hover:translate-y-[-2px]"
-                >
-                  Featured Events
                 </a>
               </div>
             </AnimatedSection>

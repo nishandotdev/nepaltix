@@ -2,12 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { debounce } from '@/lib/performance';
+import nepalMountains from '@/assets/nepal-mountains.jpg';
+import nepalFestival from '@/assets/nepal-festival.jpg';
+import kathmanduCity from '@/assets/kathmandu-city.jpg';
 
-// Updated Nepali hero images
+// High-quality Nepali hero images
 const heroImages = [
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80", // Mount Everest and Everest Base Camp
-  "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=1200&q=80", // Boudhanath Stupa
-  "https://images.unsplash.com/photo-1495106245174-55f3c4b3c1b3?auto=format&fit=crop&w=1200&q=80", // Traditional prayer flags in the Himalayas
+  nepalMountains, // Himalayan landscape
+  nepalFestival,  // Cultural festival
+  kathmanduCity,  // Kathmandu cityscape
 ];
 
 const Hero = () => {
@@ -54,7 +57,7 @@ const Hero = () => {
         setImagesPreloaded(true);
         setIsImageLoaded(true);
       }
-    }, 1500); // Reduced from 2000 to 1500ms for faster loading
+    }, 800); // Reduced to 800ms for faster loading with local images
     
     preloadImages();
     
