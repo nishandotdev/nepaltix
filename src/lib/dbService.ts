@@ -298,7 +298,7 @@ class DbService {
     }
   }
   
-  async addTicket(ticket: Omit<DigitalTicket, 'id'>): Promise<DigitalTicket | null> {
+  async createTicket(ticket: Omit<DigitalTicket, 'id'>): Promise<DigitalTicket | null> {
     try {
       // Map frontend model to DB fields
       const dbTicket = {
@@ -562,33 +562,6 @@ class DbService {
     }
   }
 
-  async createTicket(ticket: Omit<DigitalTicket, 'id'>): Promise<DigitalTicket | null> {
-    try {
-      const { data: ticketId, error } = await supabase.rpc('create_ticket', {
-        p_event_id: ticket.eventId,
-        p_customer_id: ticket.customerId,
-        p_ticket_type: ticket.ticketType,
-        p_quantity: ticket.quantity,
-        p_qr_code: ticket.qrCode,
-        p_barcode: ticket.barcode,
-        p_access_code: ticket.accessCode,
-        p_used: ticket.used
-      });
-      
-      if (error || !ticketId) {
-        console.error("Error creating ticket:", error);
-        return null;
-      }
-      
-      return {
-        id: ticketId,
-        ...ticket
-      };
-    } catch (error) {
-      console.error("Error in createTicket:", error);
-      return null;
-    }
-  }
 
   // Simple mock payment processing (in a real app, this would be a proper payment processor)
   async processPayment(

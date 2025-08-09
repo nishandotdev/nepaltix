@@ -1,4 +1,12 @@
 import { Event, EventCategory } from '@/types';
+import holiFestival from '@/assets/holi-festival.jpg';
+import everestMarathon from '@/assets/everest-marathon.jpg';
+import jazzFestival from '@/assets/jazz-festival.jpg';
+import foodFestival from '@/assets/food-festival.jpg';
+import yogaRetreat from '@/assets/yoga-retreat.jpg';
+import nepalFestival from '@/assets/nepal-festival.jpg';
+import kathmanduCity from '@/assets/kathmandu-city.jpg';
+import nepalMountains from '@/assets/nepal-mountains.jpg';
 
 export const events: Event[] = [
   {
@@ -10,7 +18,7 @@ export const events: Event[] = [
     time: "11:00 AM - 6:00 PM",
     location: "Durbar Marg, Kathmandu",
     price: 1500,
-    imageUrl: "https://images.unsplash.com/photo-1568393241146-ede6960da3d4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3",
+    imageUrl: holiFestival,
     category: EventCategory.FESTIVAL,
     featured: true,
     totalTickets: 1000,
@@ -26,7 +34,7 @@ export const events: Event[] = [
     time: "6:00 AM - 6:00 PM",
     location: "Everest Base Camp to Namche Bazaar",
     price: 8500,
-    imageUrl: "https://images.unsplash.com/photo-1504233529578-6d46baba6d34?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3",
+    imageUrl: everestMarathon,
     category: EventCategory.ADVENTURE,
     featured: true,
     totalTickets: 150,
@@ -42,7 +50,7 @@ export const events: Event[] = [
     time: "5:00 PM - 11:00 PM",
     location: "Various Venues, Kathmandu",
     price: 2500,
-    imageUrl: "https://images.unsplash.com/photo-1497327025459-8163b972b327?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3",
+    imageUrl: jazzFestival,
     category: EventCategory.MUSIC,
     featured: false,
     totalTickets: 500,
@@ -58,7 +66,7 @@ export const events: Event[] = [
     time: "12:00 PM - 9:00 PM",
     location: "Bhrikutimandap, Kathmandu",
     price: 500,
-    imageUrl: "https://images.unsplash.com/photo-1625398407796-82280d24c774?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    imageUrl: foodFestival,
     category: EventCategory.FOOD,
     featured: false,
     totalTickets: 2000,
@@ -74,7 +82,7 @@ export const events: Event[] = [
     time: "Check-in: 12:00 PM",
     location: "Nagarkot, Nepal",
     price: 15000,
-    imageUrl: "https://images.unsplash.com/photo-1545389336-cf090694435e?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    imageUrl: yogaRetreat,
     category: EventCategory.CULTURE,
     featured: true,
     totalTickets: 30,
@@ -86,11 +94,11 @@ export const events: Event[] = [
     title: "Pokhara Street Festival",
     shortDescription: "Annual celebration of art, music and local culture",
     description: "The Pokhara Street Festival transforms the lakeside district into a vibrant celebration of Nepali culture and arts. For three exciting days, the streets come alive with live music performances, art installations, cultural dances, and local craft displays. Food lovers can explore countless stalls offering regional specialties and international cuisine. The festival showcases Nepal's diverse cultural heritage while supporting local businesses and artists. With the stunning backdrop of Phewa Lake and the Annapurna mountain range, this community event draws thousands of visitors for an unforgettable experience combining tradition and contemporary Nepali culture.",
-    date: "2023-04-02",
+    date: "2025-04-02",
     time: "10:00 AM - 10:00 PM",
     location: "Lakeside, Pokhara",
     price: 200,
-    imageUrl: "https://images.unsplash.com/photo-1583269043489-213aa15265a2?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    imageUrl: nepalFestival,
     category: EventCategory.FESTIVAL,
     featured: false,
     totalTickets: 5000,
@@ -102,11 +110,11 @@ export const events: Event[] = [
     title: "Nepali New Year Celebration",
     shortDescription: "Welcome Bikram Sambat new year with cultural performances",
     description: "Celebrate Nepali New Year, also known as Bikram Sambat, with a day of festivity and cultural immersion. This special event features traditional dance performances, authentic Nepali cuisine, and live music from renowned local artists. Learn about ancient customs and participate in traditional ceremonies marking this important calendar milestone. Activities include a traditional puja ceremony, cultural performances from various ethnic groups, and a market showcasing handcrafted souvenirs and traditional artwork. Join locals in welcoming the new year with hope, happiness, and community spirit.",
-    date: "2023-04-14",
+    date: "2025-04-14",
     time: "9:00 AM - 8:00 PM",
     location: "Basantapur Durbar Square, Kathmandu",
     price: 1000,
-    imageUrl: "https://images.unsplash.com/photo-1514037337613-ee3db0475f7f?q=80&w=1976&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    imageUrl: kathmanduCity,
     category: EventCategory.CULTURE,
     featured: true,
     totalTickets: 1000,

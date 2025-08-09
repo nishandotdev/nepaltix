@@ -54,7 +54,7 @@ export interface Customer {
 export interface DigitalTicket {
   id: string;
   eventId: string;
-  customerId: string;
+  customerId: string | undefined; // Allow undefined for demo users
   ticketType: TicketType;
   quantity: number;
   purchaseDate: string;

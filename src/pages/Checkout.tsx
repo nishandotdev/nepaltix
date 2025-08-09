@@ -166,8 +166,8 @@ const Checkout = () => {
 
       const newTicket: Omit<DigitalTicket, 'id'> = {
         eventId: event.id,
-        // Only use user?.id if it's a valid UUID; otherwise, leave undefined (for local/demo)
-        customerId: isUserUUID ? user?.id : undefined,
+        // Use user ID if available, otherwise use a demo customer ID
+        customerId: isUserUUID ? user?.id : `demo-${Date.now()}`,
         ticketType: TicketType.STANDARD,
         quantity,
         purchaseDate: new Date().toISOString(),
@@ -180,7 +180,15 @@ const Checkout = () => {
       // Save ticket to database only if a valid userId is available (Supabase)
       let savedTicket;
       if (isUserUUID) {
-        savedTicket = await dbService.createTicket(newTicket);
+        try {
+          savedTicket = await dbService.createTicket(newTicket);
+        } catch (error) {
+          console.warn("Database save failed, using local ticket:", error);
+          savedTicket = {
+            ...newTicket,
+            id: ticketId, // Add fake id locally for demo
+          };
+        }
       } else {
         // Fallback to local "success" for demo user
         savedTicket = {
