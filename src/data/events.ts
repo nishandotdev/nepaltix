@@ -3,10 +3,10 @@ import { Event, EventCategory } from '@/types';
 export const events: Event[] = [
   {
     id: "1",
-    title: "Holi Color Festival 2023",
+    title: "Holi Color Festival 2025",
     shortDescription: "Experience the vibrant festival of colors in Kathmandu",
     description: "Join us for the most colorful festival of the year! The Holi Color Festival is Nepal's most joyful celebration, bringing together locals and tourists alike. Enjoy music, dance, and the traditional throwing of colors while experiencing authentic Nepali culture. Our event features live performances from local artists, traditional food stalls, and a special area for photography. Don't miss this once-a-year opportunity to immerse yourself in Nepali traditions!",
-    date: "2023-03-27",
+    date: "2025-03-27",
     time: "11:00 AM - 6:00 PM",
     location: "Durbar Marg, Kathmandu",
     price: 1500,
@@ -19,10 +19,10 @@ export const events: Event[] = [
   },
   {
     id: "2",
-    title: "Everest Trail Marathon",
+    title: "Everest Trail Marathon 2025",
     shortDescription: "Challenge yourself with the world's highest marathon",
     description: "The Everest Trail Marathon is one of the most challenging and rewarding sporting events in the world. Starting from Everest Base Camp at an altitude of 5,364 meters, this downhill marathon takes runners through breathtaking landscapes, Sherpa villages, and Buddhist monasteries. With professional medical support, experienced guides, and well-marked trails, this is the ultimate bucket-list race for adventure runners. Registration includes accommodation in tea houses, all meals during the race, a finisher's medal, and a celebration dinner in Kathmandu.",
-    date: "2023-05-29",
+    date: "2025-05-29",
     time: "6:00 AM - 6:00 PM",
     location: "Everest Base Camp to Namche Bazaar",
     price: 8500,
