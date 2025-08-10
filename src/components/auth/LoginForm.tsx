@@ -9,10 +9,8 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { UserRole } from "@/types";
 import { authService } from "@/lib/authService";
-import { supabase, checkSupabaseConnection } from "@/integrations/supabase/client";
 import LoginFields from "./LoginFields";
 import DemoAccounts from "./DemoAccounts";
-import ConnectionStatus from "./ConnectionStatus";
 
 interface LoginFormProps {
   isLoading: boolean;
@@ -23,42 +21,13 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
   const navigate = useNavigate();
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
-  const [connectionTested, setConnectionTested] = useState(false);
-  const [connectionSuccess, setConnectionSuccess] = useState(false);
+  const [connectionTested] = useState(true);
+  const [connectionSuccess] = useState(false);
 
   useEffect(() => {
-    const testConnection = async () => {
-      setIsLoading(true);
-      const isConnected = await checkSupabaseConnection();
-      setConnectionTested(true);
-      setConnectionSuccess(isConnected);
-      
-      if (!isConnected) {
-        setError("Database connection failed. Please try again later or use demo accounts.");
-        setIsLoading(false);
-        return;
-      }
-      
-      try {
-        const { data } = await supabase.auth.getSession();
-        if (data && data.session) {
-          console.log("User session already exists");
-          // Small delay for better UX
-          setTimeout(() => {
-            navigate("/");
-            setIsLoading(false);
-          }, 300);
-        } else {
-          setIsLoading(false);
-        }
-      } catch (err) {
-        console.error("Error checking session:", err);
-        setIsLoading(false);
-      }
-    };
-    
-    testConnection();
-  }, [navigate, setIsLoading]);
+    // No external auth — ensure UI is ready immediately
+    setIsLoading(false);
+  }, [setIsLoading]);
 
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -165,10 +134,6 @@ const LoginForm = ({ isLoading, setIsLoading }: LoginFormProps) => {
           connectionTested={connectionTested}
         />
         
-        <ConnectionStatus 
-          connectionTested={connectionTested}
-          connectionSuccess={connectionSuccess}
-        />
       </CardContent>
       <CardFooter>
         <Button 
