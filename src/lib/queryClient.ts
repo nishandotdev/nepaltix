@@ -1,16 +1,16 @@
 
 import { QueryClient } from '@tanstack/react-query';
 
-// Create a client with performance optimizations
+// Create a client with performance optimizations for instant loading
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60000, // 1 minute
-      gcTime: 300000, // 5 minutes (formerly cacheTime)
+      staleTime: Infinity, // Cache forever for local data
+      gcTime: Infinity, // Keep in cache forever
       refetchOnWindowFocus: false,
       refetchOnMount: false,
-      refetchOnReconnect: true,
-      retry: 1,
+      refetchOnReconnect: false,
+      retry: 0, // No retries for instant loading
     },
   },
 });

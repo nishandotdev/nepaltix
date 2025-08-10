@@ -1,135 +1,25 @@
-
 import { Event, EventCategory } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { events as localEvents } from '@/data/events';
 import { queryClient } from '@/lib/queryClient';
 
 class EventService {
-  // Get all events - fetches from Supabase, falls back to local data
+  // Get all events - optimized for instant loading
   async getAllEvents(): Promise<Event[]> {
-    try {
-      console.log("Fetching events from Supabase...");
-      const { data, error } = await supabase
-        .from('events')
-        .select('*');
-      
-      if (error) {
-        console.error("Error fetching events from Supabase:", error);
-        console.log("Using local event data as fallback");
-        return localEvents;
-      }
-      
-      if (!data || data.length === 0) {
-        console.log("No events found in Supabase, using local data");
-        // If Supabase has no events, let's seed it with our local data
-        await this.seedEvents();
-        return localEvents;
-      }
-      
-      console.log(`Successfully fetched ${data.length} events from Supabase`);
-      
-      // Map DB fields to our frontend model with proper type conversion
-      return data.map(event => ({
-        id: event.id,
-        title: event.title,
-        description: event.description,
-        shortDescription: event.short_description,
-        date: event.date,
-        time: event.time,
-        location: event.location,
-        price: event.price,
-        category: event.category as EventCategory, // Convert string to enum
-        imageUrl: event.image_url,
-        tags: event.tags || [],
-        featured: !!event.featured,
-        totalTickets: event.total_tickets,
-        availableTickets: event.available_tickets
-      }));
-    } catch (error) {
-      console.error("Error in getAllEvents:", error);
-      return localEvents;
-    }
+    // Return local data immediately for instant loading
+    return localEvents;
   }
   
-  // Get featured events - fetches from Supabase, falls back to local data
+  // Get featured events - optimized for instant loading
   async getFeaturedEvents(): Promise<Event[]> {
-    try {
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .eq('featured', true);
-      
-      if (error) {
-        console.error("Error fetching featured events:", error);
-        return localEvents.filter(event => event.featured);
-      }
-      
-      if (!data || data.length === 0) {
-        return localEvents.filter(event => event.featured);
-      }
-      
-      // Map DB fields to our frontend model with proper type conversion
-      return data.map(event => ({
-        id: event.id,
-        title: event.title,
-        description: event.description,
-        shortDescription: event.short_description,
-        date: event.date,
-        time: event.time,
-        location: event.location,
-        price: event.price,
-        category: event.category as EventCategory,
-        imageUrl: event.image_url,
-        tags: event.tags || [],
-        featured: true,
-        totalTickets: event.total_tickets,
-        availableTickets: event.available_tickets
-      }));
-    } catch (error) {
-      console.error("Error in getFeaturedEvents:", error);
-      return localEvents.filter(event => event.featured);
-    }
+    // Return local featured events immediately
+    return localEvents.filter(event => event.featured);
   }
   
-  // Get event by ID - fetches from Supabase, falls back to local data
+  // Get event by ID - optimized for instant loading
   async getEventById(id: string): Promise<Event | null> {
-    try {
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (error) {
-        console.error("Error fetching event from Supabase:", error);
-        return localEvents.find(event => event.id === id) || null;
-      }
-      
-      if (!data) {
-        return localEvents.find(event => event.id === id) || null;
-      }
-      
-      // Map DB fields to our frontend model with proper type conversion
-      return {
-        id: data.id,
-        title: data.title,
-        description: data.description,
-        shortDescription: data.short_description,
-        date: data.date,
-        time: data.time,
-        location: data.location,
-        price: data.price,
-        category: data.category as EventCategory,
-        imageUrl: data.image_url,
-        tags: data.tags || [],
-        featured: !!data.featured,
-        totalTickets: data.total_tickets,
-        availableTickets: data.available_tickets
-      };
-    } catch (error) {
-      console.error("Error in getEventById:", error);
-      return localEvents.find(event => event.id === id) || null;
-    }
+    // Return local event immediately
+    return localEvents.find(event => event.id === id) || null;
   }
   
   // Create a new event
