@@ -321,98 +321,92 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
     <>
       <Card className="overflow-hidden border-2 border-nepal-red/10 transition-all hover:shadow-xl rounded-lg animate-fade-in bg-white">
         <div ref={ticketRef} className="relative bg-white">
-          <div className={`absolute top-0 right-0 ${getTicketTypeClass()} text-white rounded-bl-xl py-1 px-3 text-sm font-medium z-10`}>
+          <div className={`absolute top-0 right-0 ${getTicketTypeClass()} text-white rounded-bl-xl py-1 px-3 text-xs font-medium z-10`}>
             {ticketType}
           </div>
-          
-          <CardHeader className="bg-gradient-to-r from-nepal-red to-nepal-red/80 text-white p-6 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10 bg-nepal-pattern"></div>
-            <div className="flex justify-between items-start relative z-10">
-              <div>
-                <h3 className="text-2xl font-bold font-serif">{event.title}</h3>
-                <p className="text-white/90 mt-1">{new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} · {event.time}</p>
-              </div>
-              <div className="bg-white text-nepal-red rounded-full p-2 w-12 h-12 flex items-center justify-center font-bold text-lg shadow-md">
-                {ticket.quantity}x
-              </div>
-            </div>
-          </CardHeader>
-          
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center gap-3">
-                  <Calendar size={18} className="text-nepal-red" />
-                  <span>{new Date(event.date).toLocaleDateString('en-US', { dateStyle: 'medium' })}, {event.time}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <MapPin size={18} className="text-nepal-red" />
-                  <span>{event.location}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Users size={18} className="text-nepal-red" />
-                  <span>Quantity: {ticket.quantity}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 size={18} className="text-green-600" />
-                  <span className="text-green-600 font-medium">Verified</span>
+
+          {/* Compact real-ticket layout */}
+          <div className="flex">
+            {/* Main panel */}
+            <div className="flex-1 p-4">
+              {/* Brand / logo */}
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-full bg-nepal-red text-white flex items-center justify-center font-bold">NT</div>
+                <div className="leading-tight">
+                  <p className="text-xs text-gray-500">Digital Ticket</p>
+                  <p className="font-serif font-bold text-lg">NepalTix</p>
                 </div>
               </div>
-              
-              <div className="mt-5 pt-5 border-t border-dashed border-gray-200">
-                <div className="text-center">
-                  <p className="text-sm font-medium text-gray-600 mb-2">Access Code</p>
-                  <div className="font-mono bg-gray-50 p-3 rounded-md border border-gray-100 text-center inline-block min-w-48">
-                    {ticket.accessCode}
-                  </div>
-                  
-                  <div className="my-6 relative">
-                    <div className="absolute -left-2 -top-1/2 transform translate-y-1/2 w-4 h-8 bg-gray-100 rounded-r-full"></div>
-                    <div className="absolute -right-2 -top-1/2 transform translate-y-1/2 w-4 h-8 bg-gray-100 rounded-l-full"></div>
-                    
-                    <p className="text-sm font-medium text-gray-600 mb-2">Scan QR Code</p>
-                    <div className="bg-white p-2 border border-gray-200 rounded-md shadow-sm inline-block">
-                      <img 
-                        src={ticket.qrCode} 
-                        alt="QR Code" 
-                        className="h-32 w-32 object-contain"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4">
-                    <p className="text-sm font-medium text-gray-600 mb-2">Barcode</p>
-                    <div className="bg-white p-3 border border-gray-200 rounded-md inline-block">
-                      <div className="flex items-end justify-center space-x-0.5 h-12 min-w-48">
-                        {ticket.barcode.split('').map((digit, index) => (
-                          <div 
-                            key={index}
-                            className="bg-gray-900"
-                            style={{ 
-                              height: `${Math.max(30, parseInt(digit) * 5 + 30)}%`,
-                              width: parseInt(digit) % 2 === 0 ? '1px' : '2px'
-                            }}
-                          />
-                        ))}
-                      </div>
-                      <p className="mt-2 font-mono text-xs">{ticket.barcode}</p>
-                    </div>
-                  </div>
+
+              {/* Event title */}
+              <h3 className="text-base sm:text-lg font-semibold mb-1">{event.title}</h3>
+              <p className="text-xs text-gray-600 mb-3">
+                {new Date(event.date).toLocaleDateString('en-US', { dateStyle: 'medium' })} · {event.time}
+              </p>
+
+              {/* Info grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <Calendar size={16} className="text-nepal-red" />
+                  <span>{new Date(event.date).toLocaleDateString('en-US', { dateStyle: 'medium' })}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MapPin size={16} className="text-nepal-red" />
+                  <span className="truncate" title={event.location}>{event.location}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users size={16} className="text-nepal-red" />
+                  <span>Qty: {ticket.quantity}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ShieldCheck size={16} className="text-green-600" />
+                  <span className="text-green-600">Verified</span>
+                </div>
+              </div>
+
+              {/* Access code */}
+              <div className="mt-3">
+                <p className="text-xs text-gray-500 mb-1">Access Code</p>
+                <div className="font-mono text-sm bg-gray-50 px-3 py-2 rounded border border-gray-100 inline-block">
+                  {ticket.accessCode}
                 </div>
               </div>
             </div>
-          </CardContent>
-          
-          <CardFooter className="border-t border-gray-100 p-4 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <ShieldCheck size={16} className="text-green-600" />
-              <p className="text-xs text-gray-500">Secured with blockchain</p>
+
+            {/* Stub */}
+            <div className="relative w-40 sm:w-48 bg-gray-50 p-3 border-l border-dashed border-gray-300 flex flex-col items-center">
+              {/* Perforation notches */}
+              <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border border-gray-200"></span>
+
+              {/* Quantity bubble on small screens */}
+              <div className="bg-white text-nepal-red rounded-full px-2 py-1 text-xs font-bold shadow mb-2">{ticket.quantity}x</div>
+
+              {/* QR */}
+              <div className="bg-white p-2 border border-gray-200 rounded-md shadow-sm">
+                <img src={ticket.qrCode} alt="Ticket QR code" className="h-20 w-20 object-contain" />
+              </div>
+
+              {/* Barcode small */}
+              <div className="mt-3 bg-white p-2 border border-gray-200 rounded-md w-full">
+                <div className="flex items-end justify-center gap-px h-10">
+                  {ticket.barcode.split('').map((digit, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-900"
+                      style={{ height: `${Math.max(30, parseInt(digit) * 5 + 30)}%`, width: parseInt(digit) % 2 === 0 ? '1px' : '2px' }}
+                    />
+                  ))}
+                </div>
+                <p className="mt-1 font-mono text-[10px] text-center tracking-wider">{ticket.barcode}</p>
+              </div>
+
+              {/* ID */}
+              <p className="mt-2 text-[10px] text-gray-500">ID: {ticket.id.slice(-8)}</p>
             </div>
-            <p className="text-xs text-gray-500">ID: {ticket.id.slice(-8)}</p>
-          </CardFooter>
+          </div>
         </div>
-        
-        <CardFooter className="bg-gray-50 p-4 gap-2">
+
+        <CardFooter className="bg-gray-50 p-3 gap-2">
           <Button 
             onClick={handleDownload} 
             variant="default"
@@ -431,7 +425,7 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
               </>
             )}
           </Button>
-          
+
           <Button 
             onClick={handlePrint} 
             variant="outline"
@@ -450,7 +444,7 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
               </>
             )}
           </Button>
-          
+
           {!eventHasPassed && ticketType !== TicketType.VIP && (
             <Button
               variant="outline"
