@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 const Terms = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "NepalTix - Terms & Conditions";
+    document.title = "TicketNepal - Terms & Conditions";
   }, []);
 
   return (
@@ -20,7 +20,7 @@ const Terms = () => {
             <p className="text-lg mb-6">Last updated: {new Date().toLocaleDateString()}</p>
             
             <h2 className="text-2xl font-semibold mt-8 mb-4">1. Introduction</h2>
-            <p>Welcome to NepalTix. These Terms of Service govern your use of our website and services offered by NepalTix.</p>
+            <p>Welcome to TicketNepal. These Terms of Service govern your use of our website and services offered by TicketNepal.</p>
 
             <h2 className="text-2xl font-semibold mt-8 mb-4">2. Acceptance of Terms</h2>
             <p>By accessing or using our service, you agree to be bound by these Terms. If you disagree with any part of the terms, you may not access the service.</p>
@@ -32,7 +32,7 @@ const Terms = () => {
             <p>All ticket sales are final. Refunds or exchanges may be permitted in specific circumstances as outlined in our refund policy.</p>
 
             <h2 className="text-2xl font-semibold mt-8 mb-4">5. Organizer Terms</h2>
-            <p>Event organizers must provide accurate information about their events. NepalTix reserves the right to remove events that violate our policies.</p>
+            <p>Event organizers must provide accurate information about their events. TicketNepal reserves the right to remove events that violate our policies.</p>
 
             <h2 className="text-2xl font-semibold mt-8 mb-4">6. Changes to Terms</h2>
             <p>We reserve the right to modify these terms at any time. We will provide notice of significant changes to these terms.</p>

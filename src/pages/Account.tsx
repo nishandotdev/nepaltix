@@ -27,7 +27,7 @@ const Account = () => {
   
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "NepalTix - My Account";
+    document.title = "TicketNepal - My Account";
     
     const fetchUserData = async () => {
       setIsLoading(true);

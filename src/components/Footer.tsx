@@ -13,7 +13,7 @@ const Footer = () => {
             <Link to="/" className="flex items-center space-x-2 text-white">
               <Ticket className="h-5 w-5 sm:h-6 sm:w-6 text-nepal-red" />
               <span className="font-serif text-lg sm:text-xl font-bold tracking-tight">
-                NepalTix
+                TicketNepal
               </span>
             </Link>
             <p className="text-sm text-gray-400 mt-3 sm:mt-4 max-w-xs">
@@ -72,7 +72,7 @@ const Footer = () => {
 
         <div className="mt-10 pt-6 sm:mt-12 sm:pt-8 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center">
           <p className="text-sm text-gray-500">
-            &copy; {currentYear} NepalTix. All rights reserved.
+            &copy; {currentYear} TicketNepal. All rights reserved.
           </p>
           <div className="mt-3 sm:mt-0">
             <img 

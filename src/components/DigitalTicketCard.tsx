@@ -54,7 +54,7 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
         const image = canvas.toDataURL("image/png");
         const link = document.createElement("a");
         link.href = image;
-        link.download = `nepal-tix-${event.title.replace(/\s+/g, '-').toLowerCase()}-ticket.png`;
+        link.download = `ticketnepal-${event.title.replace(/\s+/g, '-').toLowerCase()}-ticket.png`;
         link.click();
         
         toast.success("Ticket downloaded successfully");
@@ -253,7 +253,7 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
                 </div>
               </div>
               <div style="text-align: center; margin-top: 30px; font-size: 14px; color: #6b7280;">
-                This ticket is powered by NepalTix
+                This ticket is powered by TicketNepal
               </div>
               <script>
                 window.onload = function() {
@@ -331,10 +331,10 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
             <div className="flex-1 p-4">
               {/* Brand / logo */}
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-full bg-nepal-red text-white flex items-center justify-center font-bold">NT</div>
+                <div className="w-8 h-8 rounded-full bg-nepal-red text-white flex items-center justify-center font-bold">TN</div>
                 <div className="leading-tight">
                   <p className="text-xs text-gray-500">Digital Ticket</p>
-                  <p className="font-serif font-bold text-lg">NepalTix</p>
+                  <p className="font-serif font-bold text-lg">TicketNepal</p>
                 </div>
               </div>
 

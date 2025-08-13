@@ -136,7 +136,7 @@ const Events = () => {
   
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "NepalTix - Discover Events";
+    document.title = "TicketNepal - Discover Events";
     
     // Delayed page load effect for smoother transitions
     const timer = setTimeout(() => {

@@ -10,7 +10,7 @@ import { User, CalendarDays, Ticket, Shield, MapPin, Clock, CreditCard, Heart } 
 const About = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "NepalTix - About Us";
+    document.title = "TicketNepal - About Us";
   }, []);
 
   return (
@@ -21,7 +21,7 @@ const About = () => {
         <section className="bg-gradient-to-b from-nepal-red/10 to-white py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6">About NepalTix</h1>
+              <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6">About TicketNepal</h1>
               <p className="text-lg md:text-xl text-gray-700 mb-8">
                 Nepal's premier platform for discovering and booking tickets to the most exciting events across the country.
               </p>
@@ -36,7 +36,7 @@ const About = () => {
               <h2 className="text-3xl font-serif font-bold mb-6">Our Story</h2>
               <div className="prose prose-slate max-w-none">
                 <p className="text-lg mb-4">
-                  Founded in 2023, NepalTix was born from a simple idea: to make discovering and attending events in Nepal easier for everyone.
+                  Founded in 2023, TicketNepal was born from a simple idea: to make discovering and attending events in Nepal easier for everyone.
                 </p>
                 <p className="text-lg mb-4">
                   Our founders, avid travelers and culture enthusiasts, noticed a gap in the market for a comprehensive platform that connects event organizers with attendees across Nepal.
@@ -45,7 +45,7 @@ const About = () => {
                   Since our launch, we've helped thousands of people discover cultural festivals, music concerts, adventure competitions, and more throughout this beautiful country.
                 </p>
                 <p className="text-lg">
-                  Today, NepalTix is the leading event ticketing platform in Nepal, partnering with organizers of all sizes to bring unforgettable experiences to our users.
+                  Today, TicketNepal is the leading event ticketing platform in Nepal, partnering with organizers of all sizes to bring unforgettable experiences to our users.
                 </p>
               </div>
             </div>
@@ -86,7 +86,7 @@ const About = () => {
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-serif font-bold mb-6 text-center">Why Choose NepalTix</h2>
+              <h2 className="text-3xl font-serif font-bold mb-6 text-center">Why Choose TicketNepal</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
                 <div className="text-center">

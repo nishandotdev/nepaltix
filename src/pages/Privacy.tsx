@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 const Privacy = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "NepalTix - Privacy Policy";
+    document.title = "TicketNepal - Privacy Policy";
   }, []);
 
   return (

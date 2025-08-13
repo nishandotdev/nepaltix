@@ -13,7 +13,7 @@ import { toast } from "sonner";
 const Contact = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "NepalTix - Contact Us";
+    document.title = "TicketNepal - Contact Us";
   }, []);
 
   const [formData, setFormData] = useState({
@@ -231,7 +231,7 @@ const Contact = () => {
                   style={{ border: 0 }} 
                   allowFullScreen 
                   loading="lazy"
-                  title="NepalTix Office Location"
+                  title="TicketNepal Office Location"
                 ></iframe>
               </div>
             </div>

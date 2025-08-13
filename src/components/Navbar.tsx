@@ -71,7 +71,7 @@ const Navbar = () => {
           >
             <Ticket className="h-5 w-5 sm:h-6 sm:w-6" />
             <span className="font-serif text-lg sm:text-xl font-bold tracking-tight">
-              NepalTix
+              TicketNepal
             </span>
           </Link>
 

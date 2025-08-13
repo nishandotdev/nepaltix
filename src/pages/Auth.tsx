@@ -12,7 +12,7 @@ const Auth = () => {
   
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "NepalTix - Login or Register";
+    document.title = "TicketNepal - Login or Register";
     
     // Redirect if already logged in
     if (authService.isAuthenticated()) {
@@ -31,7 +31,7 @@ const Auth = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Welcome to <span className="text-nepal-red">NepalTix</span>
+            Welcome to <span className="text-nepal-red">TicketNepal</span>
           </motion.h1>
           
           <motion.div 
@@ -98,7 +98,7 @@ const Auth = () => {
               
               <div className="mt-8 p-4 bg-nepal-red/5 rounded-lg border border-nepal-red/10">
                 <p className="text-sm text-gray-700 dark:text-gray-300 italic">
-                  "Join thousands of locals and tourists discovering authentic experiences across Nepal with NepalTix - your gateway to cultural events, adventures, and unforgettable memories."
+                  "Join thousands of locals and tourists discovering authentic experiences across Nepal with TicketNepal - your gateway to cultural events, adventures, and unforgettable memories."
                 </p>
               </div>
             </div>

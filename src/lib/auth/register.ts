@@ -76,8 +76,8 @@ export const register = async (userData: {
     
     // Create welcome notification
     await addNotification(
-      'Welcome to NepalTix',
-      `Thank you for joining NepalTix, ${userData.name}!`,
+      'Welcome to TicketNepal',
+      `Thank you for joining TicketNepal, ${userData.name}!`,
       NotificationType.SUCCESS,
       data.user.id
     );
