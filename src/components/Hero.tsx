@@ -106,6 +106,8 @@ const Hero = () => {
     setIsTransitioning(false);
   }, 100);
 
+  const prevIndex = (currentImageIndex - 1 + heroImages.length) % heroImages.length;
+
   return (
     <div className="relative h-[100svh] w-full overflow-hidden">
       {/* Loading state with improved styling */}
@@ -128,26 +130,27 @@ const Hero = () => {
       <div className="absolute inset-0 bg-gray-800"></div>
       
       {/* Background image */}
-      {heroImages.map((image, index) => (
-        <div
-          key={index}
-          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
-            currentImageIndex === index 
-              ? (isImageLoaded ? 'opacity-100' : 'opacity-0') 
-              : 'opacity-0'
-          } ${isTransitioning ? 'scale-105' : 'scale-100'} transition-transform duration-2000`}
-          style={{ backgroundImage: `url(${image})` }}
-        >
-          <img
-            src={image}
-            alt="Nepal scenic view"
-            className="hidden"
-            onLoad={index === currentImageIndex ? handleImageLoad : undefined}
-            onError={index === currentImageIndex ? handleImageLoad : undefined}
-            loading={index === 0 ? "eager" : "lazy"}
-          />
-        </div>
-      ))}
+      {heroImages.map((image, index) => {
+        const isCurrent = currentImageIndex === index;
+        const isPrev = prevIndex === index;
+        const visible = isCurrent ? isImageLoaded : (!isImageLoaded && isPrev);
+        return (
+          <div
+            key={index}
+            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${visible ? 'opacity-100' : 'opacity-0'} ${isCurrent ? (isTransitioning ? 'scale-105' : 'scale-100') : 'scale-100'} transition-transform duration-2000`}
+            style={{ backgroundImage: `url(${image})` }}
+          >
+            <img
+              src={image}
+              alt="Nepal scenic view"
+              className="hidden"
+              onLoad={isCurrent ? handleImageLoad : undefined}
+              onError={isCurrent ? handleImageLoad : undefined}
+              loading={index === 0 ? "eager" : "lazy"}
+            />
+          </div>
+        );
+      })}
       
       {/* Content */}
       <div className="relative z-20 h-full flex flex-col justify-center items-center text-center px-3 sm:px-6 lg:px-8">
@@ -156,7 +159,7 @@ const Hero = () => {
             Experience Nepal's Best Events
           </span>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-4 sm:mb-6 tracking-tight">
-            <span className="text-nepal-red">Ticket Nepal</span> - Your Gateway to <span className="text-nepal-red">Amazing Events</span>
+            <span className="text-nepal-red">TicketNepal</span> - Your Gateway to <span className="text-nepal-red">Amazing Events</span>
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto px-2">
             From cultural festivals to adventure expeditions, discover and book authentic Nepali experiences with ease.
