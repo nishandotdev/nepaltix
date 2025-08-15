@@ -2,15 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Play, Calendar, MapPin, Star } from 'lucide-react';
 import { debounce } from '@/lib/performance';
-import nepalMountains from '@/assets/nepal-mountains.jpg';
-import nepalFestival from '@/assets/nepal-festival.jpg';
-import kathmanduCity from '@/assets/kathmandu-city.jpg';
+import heroEntertainment from '@/assets/hero-entertainment.jpg';
+import heroFestival from '@/assets/hero-festival.jpg';
+import heroCinema from '@/assets/hero-cinema.jpg';
 
-// High-quality Nepali hero images
+// High-quality hero images for booking platform
 const heroImages = [
-  nepalMountains, // Himalayan landscape
-  nepalFestival,  // Cultural festival
-  kathmanduCity,  // Kathmandu cityscape
+  heroEntertainment, // Modern city with entertainment venues
+  heroFestival,      // Vibrant music festival
+  heroCinema,        // Luxury cinema interior
 ];
 
 const Hero = () => {
