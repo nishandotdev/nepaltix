@@ -360,5 +360,95 @@ export const events: Event[] = [
     totalTickets: 1500,
     availableTickets: 1200,
     tags: ["Crafts", "Traditional", "Artisan", "Heritage"]
+  },
+  
+  // Movies
+  {
+    id: 'movie-001',
+    title: 'The Summit: Everest Cinema Experience',
+    shortDescription: 'IMAX documentary about Everest expeditions',
+    description: 'Experience the thrill of Mount Everest expeditions in stunning IMAX quality. This breathtaking documentary follows climbers as they attempt to reach the summit of the world\'s highest peak.',
+    date: '2024-12-15',
+    time: '19:00',
+    location: 'QFX Cinemas, Civil Mall, Kathmandu',
+    price: 450,
+    imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80',
+    category: EventCategory.MOVIES,
+    featured: false,
+    totalTickets: 200,
+    availableTickets: 180,
+    tags: ['imax', 'documentary', 'everest', 'adventure']
+  },
+  
+  // Flights
+  {
+    id: 'flight-001',
+    title: 'Kathmandu to Lukla - Mountain Flight',
+    shortDescription: 'Scenic flight to Everest Base Camp region',
+    description: 'Experience the most thrilling flight in the world! Fly from Kathmandu to Lukla airport, known as one of the most dangerous airports globally, with stunning views of the Himalayas.',
+    date: '2024-12-20',
+    time: '06:30',
+    location: 'Tribhuvan International Airport, Kathmandu',
+    price: 15000,
+    imageUrl: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?auto=format&fit=crop&w=800&q=80',
+    category: EventCategory.FLIGHTS,
+    featured: true,
+    totalTickets: 20,
+    availableTickets: 15,
+    tags: ['flight', 'lukla', 'everest', 'mountain', 'scenic']
+  },
+  
+  // Transportation
+  {
+    id: 'transport-001',
+    title: 'Kathmandu to Pokhara - Luxury Bus Service',
+    shortDescription: 'Premium tourist bus with AC and WiFi',
+    description: 'Travel in comfort from Kathmandu to the beautiful lake city of Pokhara in our luxury tourist bus. Enjoy air conditioning, WiFi, refreshments, and scenic mountain views along the way.',
+    date: '2024-12-18',
+    time: '07:00',
+    location: 'Tourist Bus Park, Gongabu, Kathmandu',
+    price: 1200,
+    imageUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+    category: EventCategory.TRANSPORTATION,
+    featured: false,
+    totalTickets: 45,
+    availableTickets: 30,
+    tags: ['bus', 'pokhara', 'luxury', 'tourism', 'comfort']
+  },
+  
+  // Hotels
+  {
+    id: 'hotel-001',
+    title: 'Dwarika\'s Heritage Resort - Christmas Package',
+    shortDescription: '3-day luxury heritage experience',
+    description: 'Immerse yourself in Nepal\'s rich cultural heritage at Dwarika\'s Resort. This exclusive 3-day Christmas package includes traditional Newari cuisine, cultural performances, and spa treatments.',
+    date: '2024-12-24',
+    time: '15:00',
+    location: 'Dwarika\'s Hotel, Battisputali, Kathmandu',
+    price: 25000,
+    imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+    category: EventCategory.ACCOMMODATION,
+    featured: true,
+    totalTickets: 50,
+    availableTickets: 25,
+    tags: ['heritage', 'luxury', 'christmas', 'spa', 'cultural']
+  },
+  
+  // Entertainment
+  {
+    id: 'entertainment-001',
+    title: 'Casino Royale New Year Gala',
+    shortDescription: 'Elegant New Year celebration with gaming',
+    description: 'Ring in the New Year at Casino Royale with an elegant gala featuring live music, gourmet dining, gaming tables, and spectacular fireworks at midnight.',
+    date: '2024-12-31',
+    time: '20:00',
+    location: 'Casino Royale, Hotel Yak & Yeti, Kathmandu',
+    price: 8500,
+    imageUrl: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=800&q=80',
+    category: EventCategory.ENTERTAINMENT,
+    featured: false,
+    totalTickets: 300,
+    availableTickets: 200,
+    tags: ['casino', 'new year', 'gala', 'gaming', 'luxury']
   }
 ];
