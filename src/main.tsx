@@ -11,45 +11,40 @@ import { queryClient, prefetchCommonData } from './lib/queryClient';
 import { dbService } from './lib/dbService';
 import { authService } from './lib/authService';
 import { eventService } from './lib/eventService'; // Ensure eventService is imported
-import { supabase, checkSupabaseConnection } from './integrations/supabase/client';
+import { supabase } from './integrations/supabase/client';
 
 console.log('Initializing services...');
 
 // Verify eventService is available
 console.log('Event service initialized:', eventService !== undefined);
 
-// Check Supabase connection on startup
-checkSupabaseConnection().then(isConnected => {
-  console.log('Supabase connection status:', isConnected ? 'Connected' : 'Not connected');
+console.log('Database service initialized:', dbService !== undefined);
+console.log('Auth service initialized:', authService !== undefined);
+
+// Prefetch event data to ensure it's available
+console.log('Prefetching events data...');
+queryClient.prefetchQuery({
+  queryKey: ['featuredEvents'],
+  queryFn: () => eventService.getFeaturedEvents()
+}).catch(error => {
+  console.warn('Failed to prefetch events data:', error);
+  // Continue app initialization even if prefetch fails
+});
+
+// Prefetch common data for performance
+prefetchCommonData().catch(error => {
+  console.warn('Failed to prefetch common data:', error);
+  // Continue app initialization even if prefetch fails
+});
+
+// Listen for auth state changes
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log('Auth state changed:', event);
   
-  console.log('Database service initialized:', dbService !== undefined);
-  console.log('Auth service initialized:', authService !== undefined);
-  
-  // Prefetch event data to ensure it's available
-  console.log('Prefetching events data...');
-  queryClient.prefetchQuery({
-    queryKey: ['featuredEvents'],
-    queryFn: () => eventService.getFeaturedEvents()
-  }).catch(error => {
-    console.warn('Failed to prefetch events data:', error);
-    // Continue app initialization even if prefetch fails
-  });
-  
-  // Prefetch common data for performance
-  prefetchCommonData().catch(error => {
-    console.warn('Failed to prefetch common data:', error);
-    // Continue app initialization even if prefetch fails
-  });
-  
-  // Listen for auth state changes
-  supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Auth state changed:', event);
-    
-    // Only update the local state after we receive auth events
-    if (event === 'SIGNED_OUT') {
-      sessionStorage.removeItem('nepal_ticketing_auth');
-    }
-  });
+  // Only update the local state after we receive auth events
+  if (event === 'SIGNED_OUT') {
+    sessionStorage.removeItem('nepal_ticketing_auth');
+  }
 });
 
 // Create a function to initialize the app
