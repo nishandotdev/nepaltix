@@ -57,10 +57,10 @@ const Navbar = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-md ${
         isScrolled 
-          ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md py-2 sm:py-3 shadow-soft' 
-          : 'bg-transparent py-3 sm:py-5'
+          ? 'py-2 sm:py-3' 
+          : 'py-3 sm:py-5'
       }`}
     >
       <div className="container mx-auto px-3 sm:px-6 lg:px-8">
@@ -87,11 +87,7 @@ const Navbar = () => {
               <>
                 <Link
                   to="/checkout"
-                  className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                    isScrolled
-                      ? 'bg-nepal-red text-white hover:bg-opacity-90'
-                      : 'bg-white/20 backdrop-blur-md border border-white/30 text-gray-900 hover:bg-white/30'
-                  }`}
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm font-medium transition-all duration-300 bg-nepal-red text-white hover:bg-opacity-90"
                 >
                   Book Tickets
                 </Link>
@@ -132,21 +128,13 @@ const Navbar = () => {
               <>
                 <Link
                   to="/checkout"
-                  className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                    isScrolled
-                      ? 'bg-nepal-red text-white hover:bg-opacity-90'
-                      : 'bg-white/20 backdrop-blur-md border border-white/30 text-gray-900 hover:bg-white/30'
-                  }`}
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm font-medium transition-all duration-300 bg-nepal-red text-white hover:bg-opacity-90"
                 >
                   Book Tickets
                 </Link>
                 <Link
                   to="/auth"
-                  className={`flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                    isScrolled
-                      ? 'border border-nepal-red text-nepal-red hover:bg-nepal-red/10'
-                      : 'bg-white/10 backdrop-blur-md border border-white/20 text-gray-900 hover:bg-white/20'
-                  }`}
+                  className="flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm font-medium transition-all duration-300 border border-nepal-red text-nepal-red hover:bg-nepal-red/10"
                 >
                   <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   Login
