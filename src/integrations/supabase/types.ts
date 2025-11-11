@@ -14,16 +14,229 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      events: {
+        Row: {
+          available_tickets: number
+          category: string
+          created_at: string
+          date: string
+          description: string
+          featured: boolean | null
+          id: string
+          image_url: string
+          location: string
+          price: number
+          short_description: string
+          tags: string[] | null
+          time: string
+          title: string
+          total_tickets: number
+          updated_at: string
+        }
+        Insert: {
+          available_tickets: number
+          category: string
+          created_at?: string
+          date: string
+          description: string
+          featured?: boolean | null
+          id?: string
+          image_url: string
+          location: string
+          price: number
+          short_description: string
+          tags?: string[] | null
+          time: string
+          title: string
+          total_tickets: number
+          updated_at?: string
+        }
+        Update: {
+          available_tickets?: number
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string
+          featured?: boolean | null
+          id?: string
+          image_url?: string
+          location?: string
+          price?: number
+          short_description?: string
+          tags?: string[] | null
+          time?: string
+          title?: string
+          total_tickets?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean | null
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean | null
+          title: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean | null
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tickets: {
+        Row: {
+          access_code: string
+          barcode: string
+          created_at: string
+          customer_id: string | null
+          event_id: string
+          id: string
+          purchase_date: string
+          qr_code: string
+          quantity: number
+          ticket_type: string
+          used: boolean | null
+        }
+        Insert: {
+          access_code: string
+          barcode: string
+          created_at?: string
+          customer_id?: string | null
+          event_id: string
+          id?: string
+          purchase_date?: string
+          qr_code: string
+          quantity: number
+          ticket_type: string
+          used?: boolean | null
+        }
+        Update: {
+          access_code?: string
+          barcode?: string
+          created_at?: string
+          customer_id?: string | null
+          event_id?: string
+          id?: string
+          purchase_date?: string
+          qr_code?: string
+          quantity?: number
+          ticket_type?: string
+          used?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_public_notifications: {
+        Args: never
+        Returns: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }[]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      insert_notification: {
+        Args: {
+          p_message: string
+          p_read: boolean
+          p_title: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: boolean
+      }
+      mark_notification_read: {
+        Args: { p_notification_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "user" | "organizer" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +363,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["user", "organizer", "admin"],
+    },
   },
 } as const
