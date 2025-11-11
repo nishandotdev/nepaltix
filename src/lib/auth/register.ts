@@ -58,20 +58,20 @@ export const register = async (userData: {
       return { success: false, message: "Registration failed" };
     }
     
-    // Insert user profile data into profiles table
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({
-        id: data.user.id,
-        name: userData.name,
-        email: userData.email,
-        role: userData.role,
-        created_at: new Date().toISOString()
-      });
-      
-    if (profileError) {
-      console.error("Profile creation error:", profileError);
-      // Continue anyway since auth was created successfully
+    // Note: Profile and default role are auto-created by the handle_new_user trigger
+    // We just need to add additional roles if needed (admin or organizer)
+    if (userData.role !== UserRole.USER) {
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert([{
+          user_id: data.user.id,
+          role: userData.role.toLowerCase() as 'admin' | 'organizer' | 'user'
+        }]);
+        
+      if (roleError) {
+        console.error("Additional role creation error:", roleError);
+        // Continue anyway
+      }
     }
     
     // Create welcome notification

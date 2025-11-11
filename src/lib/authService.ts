@@ -60,11 +60,26 @@ class AuthService {
           .single();
             
         if (profileData && !error) {
+          // Fetch user roles
+          const { data: rolesData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', session.user.id);
+          
+          // Determine the highest role
+          const roles = rolesData?.map(r => r.role) || ['user'];
+          let userRole = UserRole.USER;
+          if (roles.includes('admin')) {
+            userRole = UserRole.ADMIN;
+          } else if (roles.includes('organizer')) {
+            userRole = UserRole.ORGANIZER;
+          }
+          
           saveToSession({
             id: session.user.id,
             name: profileData.name,
             email: profileData.email,
-            role: profileData.role as UserRole,
+            role: userRole,
             createdAt: profileData.created_at
           });
         }

@@ -415,7 +415,11 @@ class DbService {
   // Notifications
   async getNotificationsByUserId(userId: string): Promise<Notification[]> {
     try {
-      const { data, error } = await supabase.rpc('get_user_notifications', { p_user_id: userId });
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
       
       if (error) {
         console.error("Error fetching notifications for user:", error);
@@ -440,23 +444,26 @@ class DbService {
   
   async getNotificationById(id: string): Promise<Notification | null> {
     try {
-      const { data, error } = await supabase.rpc('get_notification_by_id', { p_notification_id: id });
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('id', id)
+        .single();
       
-      if (error || !data || data.length === 0) {
+      if (error || !data) {
         console.error("Error fetching notification by ID:", error);
         return null;
       }
       
-      const notification = data[0];
       // Map the raw data to our frontend model
       return {
-        id: notification.id,
-        userId: notification.user_id,
-        title: notification.title,
-        message: notification.message,
-        type: notification.type as NotificationType,
-        read: !!notification.read,
-        createdAt: notification.created_at
+        id: data.id,
+        userId: data.user_id,
+        title: data.title,
+        message: data.message,
+        type: data.type as NotificationType,
+        read: !!data.read,
+        createdAt: data.created_at
       };
     } catch (error) {
       console.error("Error in getNotificationById:", error);
@@ -499,10 +506,10 @@ class DbService {
       if (updates.type !== undefined) updateData.type = updates.type;
       if (updates.read !== undefined) updateData.read = updates.read;
       
-      const { data, error } = await supabase.rpc('update_notification', {
-        p_notification_id: id,
-        p_updates: updateData
-      });
+      const { error } = await supabase
+        .from('notifications')
+        .update(updateData)
+        .eq('id', id);
       
       if (error) {
         console.error("Error updating notification:", error);
@@ -518,9 +525,10 @@ class DbService {
   
   async deleteNotification(id: string): Promise<boolean> {
     try {
-      const { error } = await supabase.rpc('delete_notification', {
-        p_notification_id: id
-      });
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', id);
       
       if (error) {
         console.error("Error deleting notification:", error);
@@ -537,7 +545,10 @@ class DbService {
   // Add missing methods for tickets
   async getAllTickets(): Promise<DigitalTicket[]> {
     try {
-      const { data, error } = await supabase.rpc('get_all_tickets');
+      const { data, error } = await supabase
+        .from('tickets')
+        .select('*')
+        .order('created_at', { ascending: false });
       
       if (error) {
         console.error("Error fetching all tickets:", error);

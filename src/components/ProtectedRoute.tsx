@@ -34,13 +34,28 @@ const ProtectedRoute = ({ children, requiredRoles }: ProtectedRouteProps) => {
             .single();
             
           if (profileData) {
+            // Fetch user roles
+            const { data: rolesData } = await supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', session.user.id);
+            
+            // Determine the highest role
+            const roles = rolesData?.map(r => r.role) || ['user'];
+            let userRole = 'USER';
+            if (roles.includes('admin')) {
+              userRole = 'ADMIN';
+            } else if (roles.includes('organizer')) {
+              userRole = 'ORGANIZER';
+            }
+            
             // Update local storage with new session
             localStorage.setItem('nepal_ticketing_auth', JSON.stringify({
               user: {
                 id: session.user.id,
                 name: profileData.name,
                 email: profileData.email,
-                role: profileData.role,
+                role: userRole,
                 createdAt: profileData.created_at
               },
               isAuthenticated: true
