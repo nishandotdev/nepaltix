@@ -83,113 +83,242 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
             <head>
               <title>Print Ticket - ${event.title}</title>
               <style>
+                * { box-sizing: border-box; }
                 body {
-                  font-family: Arial, sans-serif;
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
                   margin: 0;
                   padding: 20px;
-                  color: #000;
+                  background: #f3f4f6;
                 }
                 .ticket-container {
-                  border: 2px solid #d1d5db;
-                  border-radius: 8px;
-                  overflow: hidden;
                   max-width: 600px;
                   margin: 0 auto;
-                  page-break-inside: avoid;
+                  border-radius: 16px;
+                  overflow: hidden;
+                  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+                  background: white;
                 }
                 .ticket-header {
-                  background: linear-gradient(to right, #e11d48, #f43f5e);
+                  background: linear-gradient(135deg, #e11d48 0%, #dc2626 50%, #f43f5e 100%);
                   color: white;
-                  padding: 16px;
+                  padding: 32px 24px;
                   position: relative;
                 }
-                .ticket-content {
-                  padding: 20px;
-                  background: #fff;
-                }
-                .ticket-footer {
-                  display: flex;
-                  justify-content: space-between;
-                  padding: 10px 16px;
-                  border-top: 1px solid #e5e7eb;
-                  background: #f9fafb;
-                  font-size: 12px;
-                  color: #6b7280;
-                }
-                .ticket-badge {
-                  background: #e11d48;
-                  color: white;
-                  padding: 4px 12px;
+                .ticket-header::before,
+                .ticket-header::after {
+                  content: '';
                   position: absolute;
-                  top: 0;
-                  right: 0;
+                  background: rgba(255,255,255,0.1);
+                  border-radius: 50%;
+                }
+                .ticket-header::before {
+                  width: 250px;
+                  height: 250px;
+                  top: -125px;
+                  right: -125px;
+                }
+                .ticket-header::after {
+                  width: 180px;
+                  height: 180px;
+                  bottom: -90px;
+                  left: -90px;
+                }
+                .badge {
+                  display: inline-block;
+                  background: rgba(255,255,255,0.2);
+                  backdrop-filter: blur(10px);
+                  padding: 6px 16px;
+                  border-radius: 999px;
+                  font-size: 11px;
+                  font-weight: 700;
+                  text-transform: uppercase;
+                  letter-spacing: 1px;
+                  border: 1px solid rgba(255,255,255,0.3);
+                  position: absolute;
+                  top: 16px;
+                  right: 16px;
+                }
+                .brand {
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  margin-bottom: 24px;
+                  position: relative;
+                  z-index: 1;
+                }
+                .logo {
+                  width: 48px;
+                  height: 48px;
+                  background: white;
+                  color: #e11d48;
+                  border-radius: 12px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-weight: 900;
+                  font-size: 20px;
+                  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                }
+                .brand-text {
+                  position: relative;
+                  z-index: 1;
+                }
+                .brand-label {
+                  font-size: 10px;
+                  opacity: 0.9;
                   font-weight: 500;
-                  font-size: 14px;
-                  border-bottom-left-radius: 8px;
+                  letter-spacing: 1px;
+                }
+                .brand-name {
+                  font-size: 20px;
+                  font-weight: 700;
+                  font-family: Georgia, serif;
+                }
+                .event-info {
+                  position: relative;
+                  z-index: 1;
+                }
+                .event-title {
+                  font-size: 28px;
+                  font-weight: 700;
+                  margin: 0 0 16px 0;
+                  line-height: 1.2;
+                }
+                .event-detail {
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  background: rgba(255,255,255,0.1);
+                  backdrop-filter: blur(8px);
+                  padding: 10px 12px;
+                  border-radius: 8px;
+                  font-size: 13px;
+                  margin-bottom: 8px;
+                  border: 1px solid rgba(255,255,255,0.2);
+                }
+                .tear-line {
+                  display: flex;
+                  justify-content: center;
+                  gap: 8px;
+                  margin: -12px 0 24px 0;
+                }
+                .tear-dot {
+                  width: 12px;
+                  height: 12px;
+                  background: #f3f4f6;
+                  border: 2px solid #e5e7eb;
+                  border-radius: 50%;
+                }
+                .ticket-body {
+                  padding: 24px;
                 }
                 .info-grid {
                   display: grid;
                   grid-template-columns: 1fr 1fr;
-                  gap: 10px;
-                  margin-bottom: 20px;
+                  gap: 16px;
+                  margin-bottom: 24px;
                 }
-                .divider {
-                  border-top: 1px dashed #d1d5db;
-                  margin: 20px 0;
-                  position: relative;
-                }
-                .divider:before,
-                .divider:after {
-                  content: '';
-                  height: 20px;
-                  width: 20px;
-                  background: #f9fafb;
-                  border: 1px solid #d1d5db;
-                  border-radius: 50%;
-                  position: absolute;
-                  top: -10px;
-                }
-                .divider:before {
-                  left: -10px;
-                }
-                .divider:after {
-                  right: -10px;
-                }
-                .qr-container {
-                  text-align: center;
-                  margin: 20px 0;
-                }
-                .barcode-container {
-                  text-align: center;
-                  margin-top: 20px;
-                }
-                .access-code {
-                  font-family: monospace;
-                  font-size: 18px;
-                  background: #f3f4f6;
-                  padding: 8px;
-                  text-align: center;
-                  border-radius: 4px;
-                  letter-spacing: 2px;
-                  border: 1px solid #d1d5db;
-                }
-                .info-item {
-                  margin: 8px 0;
+                .info-card {
+                  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+                  padding: 16px;
+                  border-radius: 12px;
+                  border: 1px solid #e5e7eb;
                 }
                 .info-label {
-                  font-weight: bold;
-                  font-size: 12px;
+                  font-size: 10px;
                   color: #6b7280;
-                  margin-bottom: 2px;
+                  font-weight: 600;
+                  letter-spacing: 1px;
+                  text-transform: uppercase;
+                  margin-bottom: 6px;
+                }
+                .info-value {
+                  font-size: 24px;
+                  font-weight: 700;
+                  color: #e11d48;
+                }
+                .access-section {
+                  background: linear-gradient(135deg, rgba(225,29,72,0.05) 0%, rgba(244,63,94,0.05) 100%);
+                  padding: 20px;
+                  border-radius: 12px;
+                  border: 1px solid rgba(225,29,72,0.2);
+                  margin-bottom: 24px;
+                  text-align: center;
+                }
+                .access-label {
+                  font-size: 11px;
+                  color: #6b7280;
+                  font-weight: 600;
+                  letter-spacing: 1px;
+                  text-transform: uppercase;
+                  margin-bottom: 8px;
+                }
+                .access-code {
+                  font-family: 'Courier New', monospace;
+                  font-size: 32px;
+                  font-weight: 700;
+                  color: #e11d48;
+                  letter-spacing: 4px;
+                }
+                .scan-grid {
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 16px;
+                }
+                .scan-card {
+                  background: white;
+                  border: 2px solid #e5e7eb;
+                  border-radius: 12px;
+                  padding: 16px;
+                  text-align: center;
+                }
+                .scan-label {
+                  font-size: 10px;
+                  color: #6b7280;
+                  font-weight: 600;
+                  letter-spacing: 1px;
+                  text-transform: uppercase;
+                  margin-bottom: 12px;
+                }
+                .qr-code {
+                  width: 110px;
+                  height: 110px;
+                  margin: 0 auto;
+                }
+                .barcode-visual {
+                  display: flex;
+                  align-items: flex-end;
+                  justify-content: center;
+                  gap: 1px;
+                  height: 64px;
+                  margin-bottom: 8px;
+                }
+                .bar {
+                  background: #111827;
+                  border-radius: 2px 2px 0 0;
+                }
+                .barcode-text {
+                  font-family: 'Courier New', monospace;
+                  font-size: 10px;
+                  letter-spacing: 2px;
+                  color: #6b7280;
+                }
+                .footer {
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  padding: 16px 24px;
+                  border-top: 1px solid #e5e7eb;
+                  background: #f9fafb;
+                  font-size: 11px;
+                  color: #6b7280;
                 }
                 @media print {
-                  .ticket-container {
-                    border-color: #000;
-                  }
+                  body { background: white; padding: 0; }
+                  .ticket-container { box-shadow: none; }
                   .ticket-header {
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
-                    background-color: #e11d48 !important;
                   }
                 }
               </style>
@@ -197,68 +326,72 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
             <body>
               <div class="ticket-container">
                 <div class="ticket-header">
-                  <div class="ticket-badge">${ticketType}</div>
-                  <h1 style="margin-top: 0; margin-bottom: 4px;">${event.title}</h1>
-                  <p style="margin-top: 4px;">${new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} · ${event.time}</p>
+                  <div class="badge">${ticketType}</div>
+                  <div class="brand">
+                    <div class="logo">TN</div>
+                    <div class="brand-text">
+                      <div class="brand-label">DIGITAL TICKET</div>
+                      <div class="brand-name">TicketNepal</div>
+                    </div>
+                  </div>
+                  <div class="event-info">
+                    <h1 class="event-title">${event.title}</h1>
+                    <div class="event-detail">
+                      📅 ${new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                    </div>
+                    <div class="event-detail">
+                      📍 ${event.location}
+                    </div>
+                  </div>
                 </div>
-                <div class="ticket-content">
+                
+                <div class="tear-line">
+                  ${[...Array(12)].map(() => '<div class="tear-dot"></div>').join('')}
+                </div>
+                
+                <div class="ticket-body">
                   <div class="info-grid">
-                    <div class="info-item">
-                      <div class="info-label">Date & Time</div>
-                      <div>${new Date(event.date).toLocaleDateString('en-US', { dateStyle: 'medium' })}, ${event.time}</div>
+                    <div class="info-card">
+                      <div class="info-label">👥 Quantity</div>
+                      <div class="info-value">${ticket.quantity}</div>
                     </div>
-                    <div class="info-item">
-                      <div class="info-label">Location</div>
-                      <div>${event.location}</div>
-                    </div>
-                    <div class="info-item">
-                      <div class="info-label">Quantity</div>
-                      <div>${ticket.quantity}</div>
-                    </div>
-                    <div class="info-item">
-                      <div class="info-label">Ticket Type</div>
-                      <div>${ticketType}</div>
+                    <div class="info-card">
+                      <div class="info-label">✓ Status</div>
+                      <div class="info-value" style="color: #10b981; font-size: 14px;">Verified</div>
                     </div>
                   </div>
                   
-                  <div class="divider"></div>
-                  
-                  <div style="text-align: center;">
-                    <div class="info-label">Access Code</div>
+                  <div class="access-section">
+                    <div class="access-label">Access Code</div>
                     <div class="access-code">${ticket.accessCode}</div>
                   </div>
                   
-                  <div class="qr-container">
-                    <div class="info-label">Scan QR Code</div>
-                    <img src="${ticket.qrCode}" alt="QR Code" style="height: 150px; width: 150px; object-fit: contain;">
-                  </div>
-                  
-                  <div class="barcode-container">
-                    <div class="info-label">Barcode</div>
-                    <div style="margin-top: 10px;">
-                      <div style="display: flex; justify-content: center; gap: 1px; height: 50px;">
+                  <div class="scan-grid">
+                    <div class="scan-card">
+                      <div class="scan-label">QR Code</div>
+                      <img src="${ticket.qrCode}" alt="QR" class="qr-code">
+                    </div>
+                    <div class="scan-card">
+                      <div class="scan-label">Barcode</div>
+                      <div class="barcode-visual">
                         ${ticket.barcode.split('').map(digit => `
-                          <div 
-                            style="background: #000; height: ${Math.max(30, parseInt(digit) * 5 + 30)}%; width: ${parseInt(digit) % 2 === 0 ? '1px' : '2px'};"
-                          ></div>
+                          <div class="bar" style="height: ${Math.max(40, parseInt(digit) * 6 + 40)}%; width: ${parseInt(digit) % 2 === 0 ? '2px' : '3px'};"></div>
                         `).join('')}
                       </div>
-                      <div style="font-family: monospace; font-size: 12px; margin-top: 5px;">${ticket.barcode}</div>
+                      <div class="barcode-text">${ticket.barcode}</div>
                     </div>
                   </div>
                 </div>
-                <div class="ticket-footer">
-                  <div>Secured with blockchain</div>
-                  <div>ID: ${ticket.id.slice(-8)}</div>
+                
+                <div class="footer">
+                  <div>🔒 Blockchain Secured</div>
+                  <div>ID: ${ticket.id.slice(-8).toUpperCase()}</div>
                 </div>
-              </div>
-              <div style="text-align: center; margin-top: 30px; font-size: 14px; color: #6b7280;">
-                This ticket is powered by TicketNepal
               </div>
               <script>
                 window.onload = function() {
-                  window.print();
-                  setTimeout(function() { window.close(); }, 500);
+                  setTimeout(function() { window.print(); }, 500);
+                  setTimeout(function() { window.close(); }, 1000);
                 };
               </script>
             </body>
@@ -319,89 +452,110 @@ const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({ ticket }) => {
 
   return (
     <>
-      <Card className="overflow-hidden border-2 border-nepal-red/10 transition-all hover:shadow-xl rounded-lg animate-fade-in bg-white">
-        <div ref={ticketRef} className="relative bg-white">
-          <div className={`absolute top-0 right-0 ${getTicketTypeClass()} text-white rounded-bl-xl py-1 px-3 text-xs font-medium z-10`}>
-            {ticketType}
+      <Card className="overflow-hidden border-2 border-gray-200 transition-all hover:shadow-2xl rounded-2xl animate-fade-in bg-gradient-to-br from-white to-gray-50">
+        <div ref={ticketRef} className="relative bg-gradient-to-br from-nepal-red via-red-600 to-rose-700">
+          {/* Modern gradient header with geometric pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -mr-32 -mt-32" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full -ml-24 -mb-24" />
           </div>
-
-          {/* Compact real-ticket layout */}
-          <div className="flex">
-            {/* Main panel */}
-            <div className="flex-1 p-4">
-              {/* Brand / logo */}
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-full bg-nepal-red text-white flex items-center justify-center font-bold">TN</div>
-                <div className="leading-tight">
-                  <p className="text-xs text-gray-500">Digital Ticket</p>
-                  <p className="font-serif font-bold text-lg">TicketNepal</p>
-                </div>
+          
+          <div className="relative p-6 text-white">
+            {/* Premium badge */}
+            <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider border border-white/30">
+              {ticketType}
+            </div>
+            
+            {/* Logo & Brand */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-2xl bg-white text-nepal-red flex items-center justify-center font-black text-xl shadow-lg">
+                TN
               </div>
-
-              {/* Event title */}
-              <h3 className="text-base sm:text-lg font-semibold mb-1">{event.title}</h3>
-              <p className="text-xs text-gray-600 mb-3">
-                {new Date(event.date).toLocaleDateString('en-US', { dateStyle: 'medium' })} · {event.time}
-              </p>
-
-              {/* Info grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <Calendar size={16} className="text-nepal-red" />
-                  <span>{new Date(event.date).toLocaleDateString('en-US', { dateStyle: 'medium' })}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin size={16} className="text-nepal-red" />
-                  <span className="truncate" title={event.location}>{event.location}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users size={16} className="text-nepal-red" />
-                  <span>Qty: {ticket.quantity}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={16} className="text-green-600" />
-                  <span className="text-green-600">Verified</span>
-                </div>
-              </div>
-
-              {/* Access code */}
-              <div className="mt-3">
-                <p className="text-xs text-gray-500 mb-1">Access Code</p>
-                <div className="font-mono text-sm bg-gray-50 px-3 py-2 rounded border border-gray-100 inline-block">
-                  {ticket.accessCode}
-                </div>
+              <div>
+                <p className="text-xs font-medium opacity-90">DIGITAL TICKET</p>
+                <p className="font-serif font-bold text-xl">TicketNepal</p>
               </div>
             </div>
-
-            {/* Stub */}
-            <div className="relative w-40 sm:w-48 bg-gray-50 p-3 border-l border-dashed border-gray-300 flex flex-col items-center">
-              {/* Perforation notches */}
-              <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border border-gray-200"></span>
-
-              {/* Quantity bubble on small screens */}
-              <div className="bg-white text-nepal-red rounded-full px-2 py-1 text-xs font-bold shadow mb-2">{ticket.quantity}x</div>
-
-              {/* QR */}
-              <div className="bg-white p-2 border border-gray-200 rounded-md shadow-sm">
-                <img src={ticket.qrCode} alt="Ticket QR code" className="h-20 w-20 object-contain" />
+            
+            {/* Event Info */}
+            <div className="space-y-3">
+              <h2 className="text-2xl font-bold leading-tight">{event.title}</h2>
+              <div className="flex items-center gap-2 text-sm bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
+                <Calendar size={16} />
+                <span>{new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
               </div>
-
-              {/* Barcode small */}
-              <div className="mt-3 bg-white p-2 border border-gray-200 rounded-md w-full">
-                <div className="flex items-end justify-center gap-px h-10">
+              <div className="flex items-center gap-2 text-sm bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
+                <MapPin size={16} />
+                <span>{event.location}</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Ticket details section with modern card design */}
+          <div className="bg-white p-6 relative">
+            {/* Decorative tear line */}
+            <div className="absolute -top-3 left-0 right-0 flex justify-center">
+              <div className="flex gap-2">
+                {[...Array(12)].map((_, i) => (
+                  <div key={i} className="w-3 h-3 bg-gray-100 rounded-full border-2 border-gray-200" />
+                ))}
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 mb-6 mt-2">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-xl border border-gray-200">
+                <p className="text-xs text-gray-500 mb-1 flex items-center gap-1">
+                  <Users size={14} />
+                  QUANTITY
+                </p>
+                <p className="text-2xl font-bold text-nepal-red">{ticket.quantity}</p>
+              </div>
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-xl border border-gray-200">
+                <p className="text-xs text-gray-500 mb-1 flex items-center gap-1">
+                  <ShieldCheck size={14} />
+                  STATUS
+                </p>
+                <p className="text-sm font-bold text-green-600 flex items-center gap-1">
+                  <CheckCircle2 size={16} />
+                  Verified
+                </p>
+              </div>
+            </div>
+            
+            {/* Access code in modern style */}
+            <div className="bg-gradient-to-r from-nepal-red/5 to-rose-100/30 p-4 rounded-xl border border-nepal-red/20 mb-6">
+              <p className="text-xs text-gray-600 font-medium mb-2 uppercase tracking-wide">Access Code</p>
+              <p className="font-mono text-2xl font-bold text-nepal-red tracking-wider">{ticket.accessCode}</p>
+            </div>
+            
+            {/* QR and Barcode section */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white border-2 border-gray-200 rounded-xl p-4 flex flex-col items-center">
+                <p className="text-xs text-gray-500 mb-2 font-medium">QR CODE</p>
+                <img src={ticket.qrCode} alt="QR" className="w-28 h-28 object-contain" />
+              </div>
+              <div className="bg-white border-2 border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center">
+                <p className="text-xs text-gray-500 mb-3 font-medium">BARCODE</p>
+                <div className="flex items-end justify-center gap-px h-16 w-full">
                   {ticket.barcode.split('').map((digit, index) => (
                     <div
                       key={index}
-                      className="bg-gray-900"
-                      style={{ height: `${Math.max(30, parseInt(digit) * 5 + 30)}%`, width: parseInt(digit) % 2 === 0 ? '1px' : '2px' }}
+                      className="bg-gray-900 rounded-t"
+                      style={{ height: `${Math.max(40, parseInt(digit) * 6 + 40)}%`, width: parseInt(digit) % 2 === 0 ? '2px' : '3px' }}
                     />
                   ))}
                 </div>
-                <p className="mt-1 font-mono text-[10px] text-center tracking-wider">{ticket.barcode}</p>
+                <p className="mt-2 font-mono text-[10px] tracking-widest text-gray-600">{ticket.barcode}</p>
               </div>
-
-              {/* ID */}
-              <p className="mt-2 text-[10px] text-gray-500">ID: {ticket.id.slice(-8)}</p>
+            </div>
+            
+            {/* Footer info */}
+            <div className="mt-6 pt-4 border-t border-gray-200 flex justify-between items-center text-xs text-gray-500">
+              <span className="flex items-center gap-1">
+                <ShieldCheck size={12} />
+                Blockchain Secured
+              </span>
+              <span>ID: {ticket.id.slice(-8).toUpperCase()}</span>
             </div>
           </div>
         </div>

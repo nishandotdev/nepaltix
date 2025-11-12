@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { EventCategory, Event } from '@/types';
 import { eventService } from '@/lib/eventService';
+import { dbService } from '@/lib/dbService';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const OrganizerDashboard = () => {
@@ -48,6 +49,13 @@ const OrganizerDashboard = () => {
   const { data: eventsList = [] } = useQuery({
     queryKey: ['events'],
     queryFn: () => eventService.getAllEvents(),
+    initialData: []
+  });
+  
+  // Fetch all tickets from database
+  const { data: allTickets = [] } = useQuery({
+    queryKey: ['allTickets'],
+    queryFn: () => dbService.getAllTickets(),
     initialData: []
   });
   
@@ -566,61 +574,67 @@ const OrganizerDashboard = () => {
             </TabsContent>
             
             <TabsContent value="tickets" className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <div className="text-center max-w-md mx-auto py-6">
-                <QrCode className="h-16 w-16 mx-auto text-nepal-red mb-4" />
-                <h2 className="text-2xl font-semibold mb-2">Ticket Scanner</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  Scan attendee tickets to validate entry
-                </p>
-                
-                <Button 
-                  className="w-full bg-nepal-red hover:bg-nepal-red/90 mb-4"
-                  onClick={handleScanTicket}
-                >
-                  <TicketCheck className="mr-2 h-5 w-5" />
-                  Scan Ticket
-                </Button>
-                
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  In a real app, this would open your camera to scan a QR code
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-2">All Tickets</h2>
+                <p className="text-gray-600 dark:text-gray-300">
+                  View and manage all tickets purchased for your events
                 </p>
               </div>
               
-              <Separator className="my-6" />
-              
-              <h3 className="font-semibold text-lg mb-4">Recently Scanned Tickets</h3>
-              
-              {scannedTickets.length > 0 ? (
-                <div className="space-y-3">
-                  {scannedTickets.map((ticket, index) => {
-                    const event = eventsList.find(e => e.id === ticket.eventId);
-                    return (
-                      <div 
-                        key={index} 
-                        className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 p-3 rounded-lg"
-                      >
-                        <div>
-                          <p className="font-medium">{ticket.id}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            Event: {event?.title || 'Unknown event'}
-                          </p>
+              {allTickets.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {allTickets.map((ticket) => {
+                      const event = eventsList.find(e => e.id === ticket.eventId);
+                      return (
+                        <div 
+                          key={ticket.id} 
+                          className="bg-gradient-to-br from-nepal-red/5 to-transparent border border-nepal-red/20 p-4 rounded-lg hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <Badge className="bg-nepal-red text-white mb-2">
+                                {ticket.ticketType}
+                              </Badge>
+                              <h3 className="font-semibold text-sm">{event?.title || 'Unknown Event'}</h3>
+                            </div>
+                            <Badge variant={ticket.used ? "secondary" : "default"} className={ticket.used ? "bg-gray-400" : "bg-green-500"}>
+                              {ticket.used ? 'Used' : 'Active'}
+                            </Badge>
+                          </div>
+                          
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Quantity:</span>
+                              <span className="font-medium">{ticket.quantity}x</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Access Code:</span>
+                              <span className="font-mono text-xs">{ticket.accessCode}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Purchase Date:</span>
+                              <span>{new Date(ticket.purchaseDate).toLocaleDateString()}</span>
+                            </div>
+                          </div>
                         </div>
-                        
-                        <div className="text-right">
-                          <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
-                            Valid
-                          </Badge>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            {ticket.timestamp.toLocaleTimeString()}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               ) : (
-                <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                  No tickets have been scanned yet
+                <div className="text-center py-16">
+                  <TicketCheck className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No Tickets Yet</h3>
+                  <p className="text-gray-500 dark:text-gray-400 mb-6">
+                    Tickets purchased for your events will appear here
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate('/events')}
+                  >
+                    View Events
+                  </Button>
                 </div>
               )}
             </TabsContent>
