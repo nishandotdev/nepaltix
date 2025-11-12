@@ -4,22 +4,114 @@ import { events as localEvents } from '@/data/events';
 import { queryClient } from '@/lib/queryClient';
 
 class EventService {
-  // Get all events - optimized for instant loading
+  // Get all events from database
   async getAllEvents(): Promise<Event[]> {
-    // Return local data immediately for instant loading
-    return localEvents;
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .order('date', { ascending: true });
+      
+      if (error) {
+        console.error("Error fetching events:", error);
+        return localEvents; // Fallback to local data
+      }
+      
+      // Map DB response to frontend model
+      return data.map(event => ({
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        shortDescription: event.short_description,
+        date: event.date,
+        time: event.time,
+        location: event.location,
+        price: event.price,
+        category: event.category as EventCategory,
+        imageUrl: event.image_url,
+        tags: event.tags || [],
+        featured: !!event.featured,
+        totalTickets: event.total_tickets,
+        availableTickets: event.available_tickets
+      }));
+    } catch (error) {
+      console.error("Error in getAllEvents:", error);
+      return localEvents; // Fallback to local data
+    }
   }
   
-  // Get featured events - optimized for instant loading
+  // Get featured events from database
   async getFeaturedEvents(): Promise<Event[]> {
-    // Return local featured events immediately
-    return localEvents.filter(event => event.featured);
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('featured', true)
+        .order('date', { ascending: true });
+      
+      if (error) {
+        console.error("Error fetching featured events:", error);
+        return localEvents.filter(event => event.featured); // Fallback
+      }
+      
+      // Map DB response to frontend model
+      return data.map(event => ({
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        shortDescription: event.short_description,
+        date: event.date,
+        time: event.time,
+        location: event.location,
+        price: event.price,
+        category: event.category as EventCategory,
+        imageUrl: event.image_url,
+        tags: event.tags || [],
+        featured: !!event.featured,
+        totalTickets: event.total_tickets,
+        availableTickets: event.available_tickets
+      }));
+    } catch (error) {
+      console.error("Error in getFeaturedEvents:", error);
+      return localEvents.filter(event => event.featured); // Fallback
+    }
   }
   
-  // Get event by ID - optimized for instant loading
+  // Get event by ID from database
   async getEventById(id: string): Promise<Event | null> {
-    // Return local event immediately
-    return localEvents.find(event => event.id === id) || null;
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) {
+        console.error("Error fetching event:", error);
+        return localEvents.find(event => event.id === id) || null; // Fallback
+      }
+      
+      // Map DB response to frontend model
+      return {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        shortDescription: data.short_description,
+        date: data.date,
+        time: data.time,
+        location: data.location,
+        price: data.price,
+        category: data.category as EventCategory,
+        imageUrl: data.image_url,
+        tags: data.tags || [],
+        featured: !!data.featured,
+        totalTickets: data.total_tickets,
+        availableTickets: data.available_tickets
+      };
+    } catch (error) {
+      console.error("Error in getEventById:", error);
+      return localEvents.find(event => event.id === id) || null; // Fallback
+    }
   }
   
   // Create a new event
