@@ -120,18 +120,17 @@ const OrganizerDashboard = () => {
   const handleCreateEvent = () => {
     if (!validateForm()) return;
     
-    const newEvent: Event = {
-      ...formData as Event,
-      id: Math.random().toString(36).substring(2, 9),
+    const newEvent = {
+      ...formData,
       availableTickets: formData.totalTickets || 0
-    };
+    } as Omit<Event, 'id'>;
     
-    // Instead of updating local state, create event in database via service
+    // Create event in database via service (ID will be auto-generated)
     eventService.createEvent(newEvent)
       .then(() => {
         toast({
           title: "Event Created",
-          description: `${newEvent.title} has been created successfully.`
+          description: `${formData.title} has been created successfully.`
         });
         
         // Invalidate queries to refresh data
