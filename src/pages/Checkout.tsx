@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { eventService } from '@/lib/eventService';
 import { dbService } from '@/lib/dbService';
 import { authService } from '@/lib/authService';
 import { paymentService } from '@/lib/paymentService';
@@ -29,6 +30,7 @@ const Checkout = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const quantity = parseInt(searchParams.get('quantity') || '1');
+  const ticketType = searchParams.get('type') || TicketType.STANDARD;
   const navigate = useNavigate();
   
   const { user } = authService.getCurrentUser();
@@ -66,7 +68,7 @@ const Checkout = () => {
         return;
       }
       
-      const eventData = await dbService.getEventById(id);
+      const eventData = await eventService.getEventById(id);
       setEvent(eventData);
       setTimeout(() => setLoading(false), 300);
     };
@@ -94,6 +96,26 @@ const Checkout = () => {
       currency: 'NPR',
       minimumFractionDigits: 0
     }).format(price);
+  };
+
+  const getTicketPrice = () => {
+    let basePrice = event.price;
+    switch (ticketType) {
+      case TicketType.VIP:
+        return basePrice * 2.5;
+      case TicketType.FAN_ZONE:
+        return basePrice * 1.5;
+      case TicketType.EARLY_BIRD:
+        return basePrice * 0.8;
+      default:
+        return basePrice;
+    }
+  };
+
+  const calculateTotal = () => {
+    const subtotal = getTicketPrice() * quantity;
+    const serviceFee = subtotal * 0.05;
+    return subtotal + serviceFee;
   };
 
   const validateForm = () => {
@@ -130,7 +152,7 @@ const Checkout = () => {
     try {
       // Process payment using the payment service
       await paymentService.processPayment(
-        event.price * quantity, 
+        calculateTotal(), 
         paymentInfo, 
         () => {
           // On payment success
@@ -168,7 +190,7 @@ const Checkout = () => {
         eventId: event.id,
         // Use user ID if available, otherwise use a demo customer ID
         customerId: isUserUUID ? user?.id : `demo-${Date.now()}`,
-        ticketType: TicketType.STANDARD,
+        ticketType: ticketType as TicketType,
         quantity,
         purchaseDate: new Date().toISOString(),
         used: false,
@@ -371,7 +393,7 @@ Customer: ${customer.name}
                           </>
                         ) : (
                           <>
-                            Pay & Book {formatPrice(event.price * quantity)}
+                            Pay & Book {formatPrice(calculateTotal())}
                           </>
                         )}
                       </Button>
@@ -385,7 +407,7 @@ Customer: ${customer.name}
               </div>
               
               <div className="md:col-span-2">
-                <OrderSummary event={event} quantity={quantity} />
+                <OrderSummary event={event} quantity={quantity} ticketType={ticketType} />
               </div>
             </div>
           )}

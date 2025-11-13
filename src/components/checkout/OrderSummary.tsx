@@ -1,13 +1,14 @@
 
 import { Separator } from '@/components/ui/separator';
-import { Event } from '@/types';
+import { Event, TicketType } from '@/types';
 
 interface OrderSummaryProps {
   event: Event;
   quantity: number;
+  ticketType: string;
 }
 
-const OrderSummary = ({ event, quantity }: OrderSummaryProps) => {
+const OrderSummary = ({ event, quantity, ticketType }: OrderSummaryProps) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ne-NP', {
       style: 'currency',
@@ -15,6 +16,25 @@ const OrderSummary = ({ event, quantity }: OrderSummaryProps) => {
       minimumFractionDigits: 0
     }).format(price);
   };
+
+  const getTicketPrice = () => {
+    let basePrice = event.price;
+    switch (ticketType) {
+      case TicketType.VIP:
+        return basePrice * 2.5;
+      case TicketType.FAN_ZONE:
+        return basePrice * 1.5;
+      case TicketType.EARLY_BIRD:
+        return basePrice * 0.8;
+      default:
+        return basePrice;
+    }
+  };
+
+  const ticketPrice = getTicketPrice();
+  const subtotal = ticketPrice * quantity;
+  const serviceFee = subtotal * 0.05;
+  const total = subtotal + serviceFee;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 sticky top-24">
@@ -44,7 +64,7 @@ const OrderSummary = ({ event, quantity }: OrderSummaryProps) => {
       <div className="space-y-2">
         <div className="flex justify-between">
           <span>Price per ticket</span>
-          <span>{formatPrice(event.price)}</span>
+          <span>{formatPrice(ticketPrice)}</span>
         </div>
         
         <div className="flex justify-between">
@@ -54,12 +74,12 @@ const OrderSummary = ({ event, quantity }: OrderSummaryProps) => {
         
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span>{formatPrice(event.price * quantity)}</span>
+          <span>{formatPrice(subtotal)}</span>
         </div>
         
         <div className="flex justify-between">
           <span>Service fee</span>
-          <span>{formatPrice(event.price * quantity * 0.05)}</span>
+          <span>{formatPrice(serviceFee)}</span>
         </div>
       </div>
       
@@ -68,7 +88,7 @@ const OrderSummary = ({ event, quantity }: OrderSummaryProps) => {
       <div className="flex justify-between font-bold text-lg">
         <span>Total</span>
         <span className="text-nepal-red">
-          {formatPrice(event.price * quantity * 1.05)}
+          {formatPrice(total)}
         </span>
       </div>
     </div>
