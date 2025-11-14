@@ -86,7 +86,7 @@ const Navbar = () => {
             {isAuthenticated ? (
               <>
                 <Link
-                  to="/checkout"
+                  to="/events"
                   className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm font-medium transition-all duration-300 bg-nepal-red text-white hover:bg-opacity-90"
                 >
                   Book Tickets
@@ -127,7 +127,7 @@ const Navbar = () => {
             ) : (
               <>
                 <Link
-                  to="/checkout"
+                  to="/events"
                   className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm font-medium transition-all duration-300 bg-nepal-red text-white hover:bg-opacity-90"
                 >
                   Book Tickets
@@ -186,7 +186,7 @@ const Navbar = () => {
             
             {isAuthenticated && (
               <Link
-                to="/checkout"
+                to="/events"
                 className="block w-full text-center px-4 py-2.5 mt-3 rounded-full text-sm font-medium bg-nepal-red text-white hover:bg-opacity-90 transition-all duration-300"
               >
                 Book Tickets
