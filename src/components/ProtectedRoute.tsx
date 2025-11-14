@@ -72,10 +72,11 @@ const ProtectedRoute = ({ children, requiredRoles }: ProtectedRouteProps) => {
   
   useEffect(() => {
     if (!isAuthenticated) {
-      // Save the attempted URL for redirecting after login
-      sessionStorage.setItem("redirectAfterLogin", location.pathname);
+      // Save the full URL including search params for redirecting after login
+      const fullUrl = location.pathname + location.search;
+      sessionStorage.setItem("redirectAfterLogin", fullUrl);
     }
-  }, [isAuthenticated, location.pathname]);
+  }, [isAuthenticated, location.pathname, location.search]);
   
   // Handle demo accounts
   if (user && user.id.startsWith('demo-')) {
